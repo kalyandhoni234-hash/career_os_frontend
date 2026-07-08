@@ -59,6 +59,9 @@ export default function DashboardPage() {
       <header className="flex items-center justify-between border-b bg-white px-4 py-4 sm:px-8">
         <h1 className="text-xl font-semibold sm:text-2xl">Career OS</h1>
         <div className="flex items-center gap-4">
+          <a href="/coach" className="text-sm text-blue-600 hover:underline">
+            Career Coach
+          </a>
           <a href="/resume" className="text-sm text-blue-600 hover:underline">
             Edit Resume
           </a>
