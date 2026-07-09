@@ -160,6 +160,10 @@ function TimelineIcon({ iconName }: { iconName: string }) {
 export default function CommandCenterPage() {
   const router = useRouter();
   const { data, loading, error, refresh } = useBriefing();
+
+  if (error && error.toLowerCase().includes("unauthorized")) {
+    router.push("/login");
+  }
   const [expandedAgent, setExpandedAgent] = useState<string | null>(null);
   const [runLoading, setRunLoading] = useState<string | null>(null);
 

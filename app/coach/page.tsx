@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { apiFetch } from "@/lib/api";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { sendCareerContextMessage, getCareerDashboard } from "@/app/career/api";
+import { getCareerDashboard } from "@/app/career/api";
 import type { CareerDashboardData } from "@/app/career/types";
 import { CareerScoreCard } from "@/app/career/components/CareerScoreCard";
 import { SkillGapAnalysis } from "@/app/career/components/SkillGapAnalysis";
@@ -65,7 +65,7 @@ export default function CoachPage() {
       .catch(() => {});
 
     getSkillGaps()
-      .then((d) => setSkillGapAnalysis(d.analysis))
+      .then((d) => setSkillGapAnalysis(d))
       .catch(() => {});
   }, []);
 
@@ -80,18 +80,13 @@ export default function CoachPage() {
     setLoading(true);
     setError("");
     try {
-      const data = await sendCareerContextMessage(trimmed);
+      const data = await apiFetch("/api/coach/chat", {
+        method: "POST",
+        body: JSON.stringify({ message: trimmed }),
+      });
       setMessages((prev) => [...prev, { role: "assistant", content: data.response }]);
-    } catch {
-      try {
-        const data = await apiFetch("/api/coach/chat", {
-          method: "POST",
-          body: JSON.stringify({ message: trimmed }),
-        });
-        setMessages((prev) => [...prev, { role: "assistant", content: data.response }]);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to get response");
-      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to get response");
     } finally {
       setLoading(false);
       inputRef.current?.focus();

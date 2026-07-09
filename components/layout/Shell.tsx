@@ -7,6 +7,7 @@ import { TopBar } from "./TopBar";
 
 const AUTH_ROUTES = ["/login", "/signup"];
 const LANDING_ROUTE = "/";
+const RECRUITER_PREFIX = "/recruiter";
 
 interface ShellProps {
   children: ReactNode;
@@ -16,7 +17,7 @@ export function Shell({ children }: ShellProps) {
   const pathname = usePathname();
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
-  if (AUTH_ROUTES.includes(pathname) || pathname === LANDING_ROUTE) {
+  if (AUTH_ROUTES.includes(pathname) || pathname === LANDING_ROUTE || pathname.startsWith(RECRUITER_PREFIX)) {
     return <>{children}</>;
   }
 

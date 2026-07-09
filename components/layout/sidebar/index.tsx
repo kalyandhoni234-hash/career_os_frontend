@@ -17,6 +17,7 @@ import {
   Search,
   BookmarkCheck,
   Cpu,
+  Database,
 } from "lucide-react";
 import { apiFetch } from "@/lib/api";
 import { SidebarItem } from "./SidebarItem";
@@ -95,6 +96,7 @@ export function Sidebar({ mobileOpen = false, onMobileClose }: SidebarProps) {
         <SidebarItem href="/dashboard" label="Dashboard" icon={LayoutDashboard} active={isActive("/dashboard")} collapsed={collapsed} onClick={closeNav} />
 
         <SidebarSection title="Build" collapsed={collapsed} icon={<FileStack size={14} strokeWidth={1.5} />}>
+          <SidebarItem href="/import-hub" label="Import Hub" icon={Database} active={isActive("/import-hub")} collapsed={collapsed} onClick={closeNav} />
           <SidebarItem href="/resume" label="Resume Studio" icon={FileText} active={isActive("/resume")} collapsed={collapsed} onClick={closeNav} />
         </SidebarSection>
 

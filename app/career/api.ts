@@ -11,13 +11,30 @@ export async function getCareerDashboard(): Promise<CareerDashboardData> {
   const data = await apiFetch("/api/career/dashboard");
   return {
     career_score: data.score,
-    career_memory: data.career_memory || {},
+    career_memory: {
+      user_profile: {
+        current_role: data.profile?.current_level || "Not set",
+        years_of_experience: data.profile?.total_experience_entries || 0,
+        top_skills: data.profile?.strong_skills || [],
+        target_role: data.profile?.target_role || "Not set",
+      },
+      job_search_stats: {
+        total_applied: data.profile?.applications_total || 0,
+        total_interviews: data.profile?.interview_count || 0,
+        total_offers: data.profile?.offer_count || 0,
+        active_applications: (data.profile?.applications_total || 0) - (data.profile?.interview_count || 0),
+      },
+      learning_stats: {
+        skills_learning: 0,
+        completed_nodes: 0,
+      },
+    },
     recent_roadmaps: data.roadmaps || [],
     action_center: data.action_plan || [],
     skill_graph: data.skill_graph || {},
     recent_timeline: data.recent_timeline_events || [],
     goals: data.goals || [],
-    recommendations: data.recommendations || [],
+    recommendations: [],
   };
 }
 
@@ -50,7 +67,15 @@ export async function getSkillGraph() {
 export async function getSkillGaps(targetRole?: string) {
   const params = targetRole ? `?target_role=${encodeURIComponent(targetRole)}` : "";
   return apiFetch(`/api/career/skill-gaps${params}`) as Promise<{
-    analysis: { target_role: string; coverage: number; matched_skills: string[]; missing_skills: string[]; gaps: { skill: string; priority: number; recommended_project: string | null; estimated_ats_gain: number }[] } | null;
+    target_role: string;
+    coverage: number;
+    current_skills: string[];
+    matched_skills: string[];
+    missing_skills: string[];
+    required_skills: string[];
+    learning_skills: Record<string, number>;
+    graph: Record<string, number>;
+    gaps: { skill: string; priority: number; recommended_project: string; estimated_ats_gain: number }[];
   }>;
 }
 
