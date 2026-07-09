@@ -1,176 +1,260 @@
 ﻿"use client";
 
-import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { apiFetch } from "@/lib/api";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import {
+  Briefcase,
+  TrendingUp,
+  Award,
+  Target,
+  BarChart3,
+  Activity,
+  FileText,
+  MessageCircle,
+  Lightbulb,
+  ListChecks,
+  Goal,
+  BrainCircuit,
+} from "lucide-react";
+import { motion } from "framer-motion";
+import { useDashboard } from "@/hooks/useDashboard";
+import { Widget } from "@/components/dashboard/Widget";
+import { StatCard } from "@/components/dashboard/StatCard";
+import { CareerScore } from "@/components/dashboard/CareerScore";
+import { ApplicationFunnel } from "@/components/dashboard/ApplicationFunnel";
+import { ResumeHealth } from "@/components/dashboard/ResumeHealth";
+import { RecentActivity } from "@/components/dashboard/RecentActivity";
+import { SkillProgress } from "@/components/dashboard/SkillProgress";
+import { UpcomingDeadlines } from "@/components/dashboard/UpcomingDeadlines";
+import { QuickActions } from "@/components/dashboard/QuickActions";
+import { Button } from "@/components/ui/Button";
+import { CardSkeleton } from "@/components/ui/Skeleton";
+import { ActionCenter } from "@/app/career/components/ActionCenter";
+import { GoalTracker } from "@/app/career/components/GoalTracker";
+import { AIInsightCard } from "@/app/career/components/AIInsightCard";
+import { SkillGraph } from "@/app/career/components/SkillGraph";
+import { CareerScoreCard } from "@/app/career/components/CareerScoreCard";
+import {
+  getActionPlan, getGoals, getSkillGraph, getCareerScore, getRecommendations, getCareerDashboard,
+} from "@/app/career/api";
+import type { ActionPlanItem, CareerGoalData, CareerScoreResult, RecommendationData } from "@/app/career/types";
 
-interface Profile {
-  education: string | null;
-  degree: string | null;
-  graduation_year: number | null;
-  skills: string[] | null;
-}
+const fadeUp = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" as const } },
+};
 
-interface Deadline {
-  company: string;
-  role: string;
-  deadline: string;
-}
-
-interface Summary {
-  has_resume: boolean;
-  resume_summary_set: boolean;
-  active_applications: number;
-  offers: number;
-  total_applications: number;
-  upcoming_deadlines: Deadline[];
-  last_coach_message: string | null;
-  last_coach_message_at: string | null;
-}
+const stagger = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.08 } },
+};
 
 export default function DashboardPage() {
-  const [profile, setProfile] = useState<Profile | null>(null);
-  const [summary, setSummary] = useState<Summary | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
   const router = useRouter();
+  const { data, loading, error, careerScore } = useDashboard();
+  const [actionPlan, setActionPlan] = useState<ActionPlanItem[]>([]);
+  const [goals, setGoals] = useState<CareerGoalData[]>([]);
+  const [skillCategories, setSkillCategories] = useState<{ name: string; skills: { name: string; level: number }[] }[]>([]);
+  const [careerScoreData, setCareerScoreData] = useState<CareerScoreResult | null>(null);
+  const [aiInsights, setAiInsights] = useState<RecommendationData[]>([]);
+  const [careerLoading, setCareerLoading] = useState(true);
 
   useEffect(() => {
-    Promise.all([
-      apiFetch("/api/users/profile"),
-      apiFetch("/api/users/dashboard-summary"),
-    ])
-      .then(([profileData, summaryData]) => {
-        setProfile(profileData.profile);
-        setSummary(summaryData);
-      })
-      .catch((err) => {
-        setError(err.message);
-        if (err.message.includes("401") || err.message.toLowerCase().includes("unauthorized")) {
-          router.push("/login");
-        }
-      })
-      .finally(() => setLoading(false));
-  }, [router]);
+    if (!data) return;
+    Promise.allSettled([
+      getActionPlan(),
+      getGoals(),
+      getSkillGraph(),
+      getCareerScore(),
+      getRecommendations(),
+      getCareerDashboard(),
+    ]).then(([ap, g, sg, cs, ri]) => {
+      if (ap.status === "fulfilled") setActionPlan(ap.value.action_plan || []);
+      if (g.status === "fulfilled") setGoals(g.value.goals || []);
+      if (sg.status === "fulfilled") setSkillCategories(sg.value.categories || []);
+      if (cs.status === "fulfilled") setCareerScoreData(cs.value);
+      if (ri.status === "fulfilled") setAiInsights((ri.value.recommendations || []).slice(0, 3));
+    }).finally(() => setCareerLoading(false));
+  }, [data]);
 
-  async function handleLogout() {
-    try {
-      await apiFetch("/api/auth/logout", { method: "POST" });
-      router.push("/login");
-    } catch {
-      router.push("/login");
-    }
+  if (error && error.toLowerCase().includes("unauthorized")) {
+    router.push("/login");
   }
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50">
-        <p className="text-gray-500">Loading dashboard...</p>
+      <div className="mx-auto max-w-6xl space-y-6 p-6">
+        <div className="h-8 w-48 animate-pulse rounded-md bg-bg-hover" />
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, i) => <CardSkeleton key={i} />)}
+        </div>
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+          <div className="lg:col-span-2 space-y-4">
+            {Array.from({ length: 3 }).map((_, i) => <CardSkeleton key={i} />)}
+          </div>
+          <div className="space-y-4">
+            {Array.from({ length: 3 }).map((_, i) => <CardSkeleton key={i} />)}
+          </div>
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50">
-        <p className="text-red-600">Error: {error}</p>
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <div className="text-center">
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl border border-danger/20 bg-danger-subtle">
+            <Award size={20} className="text-danger" />
+          </div>
+          <p className="font-medium text-fg-default">Failed to load dashboard</p>
+          <p className="mt-1 text-sm text-fg-muted">{error}</p>
+          <Button variant="secondary" className="mt-4" onClick={() => window.location.reload()}>
+            Try again
+          </Button>
+        </div>
       </div>
     );
   }
 
+  if (!data) return null;
+
+  const totalInPipeline = (data.jobs_by_status.applied || 0) +
+    (data.jobs_by_status.oa || 0) +
+    (data.jobs_by_status.interview || 0);
+
+  const hasProfileSkills = data.resume_skills && data.resume_skills.length > 0;
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="flex items-center justify-between border-b bg-white px-4 py-4 sm:px-8">
-        <h1 className="text-xl font-semibold sm:text-2xl">Career OS</h1>
-        <div className="flex items-center gap-4">
-          <a href="/jobs" className="text-sm text-blue-600 hover:underline">Job Tracker</a>
-          <a href="/coach" className="text-sm text-blue-600 hover:underline">Career Coach</a>
-          <a href="/resume" className="text-sm text-blue-600 hover:underline">Edit Resume</a>
-          <button
-            onClick={handleLogout}
-            className="rounded border px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 sm:px-4 sm:py-2"
-          >
-            Log out
-          </button>
+    <motion.div
+      initial="hidden"
+      animate="show"
+      variants={stagger}
+      className="mx-auto max-w-6xl space-y-6 p-6"
+    >
+      <motion.div variants={fadeUp}>
+        <CareerScore score={careerScore} name={data.name} />
+      </motion.div>
+
+      <motion.div variants={fadeUp} className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          label="Active applications"
+          value={data.active_applications}
+          icon={<Briefcase size={18} />}
+          sublabel={`${totalInPipeline} in pipeline`}
+        />
+        <StatCard
+          label="Total applied"
+          value={data.total_applications}
+          icon={<TrendingUp size={18} />}
+        />
+        <StatCard
+          label="Interviews"
+          value={data.jobs_by_status.interview || 0}
+          icon={<Target size={18} />}
+        />
+        <StatCard
+          label="Offers"
+          value={data.offers}
+          icon={<Award size={18} />}
+        />
+      </motion.div>
+
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <motion.div variants={fadeUp} className="space-y-4 lg:col-span-2">
+          <Widget title="Application Pipeline" icon={<BarChart3 size={14} />}>
+            <ApplicationFunnel jobsByStatus={data.jobs_by_status} totalJobs={data.total_applications} />
+          </Widget>
+
+          <Widget title="Quick Actions" icon={<Activity size={14} />}>
+            <QuickActions hasResume={data.has_resume} totalApplications={data.total_applications} />
+          </Widget>
+
+          <Widget title="Recent Activity" icon={<Activity size={14} />}>
+            <RecentActivity activities={data.recent_activity} />
+          </Widget>
+        </motion.div>
+
+        <motion.div variants={fadeUp} className="space-y-4">
+          <Widget title="Resume Health" icon={<FileText size={14} />}>
+            <ResumeHealth
+              hasResume={data.has_resume}
+              hasSummary={data.resume_summary_set}
+              hasSkills={hasProfileSkills}
+              hasExperience={data.has_resume}
+            />
+          </Widget>
+
+          <Widget title="Upcoming Deadlines" icon={<Briefcase size={14} />}>
+            <UpcomingDeadlines deadlines={data.upcoming_deadlines} />
+          </Widget>
+
+          <Widget title="Skills" icon={<Award size={14} />}>
+            <SkillProgress skills={data.resume_skills} />
+          </Widget>
+
+          {data.last_coach_message && (
+            <Widget title="Latest Coach Note" icon={<MessageCircle size={14} />} glow="accent">
+              <p className="text-sm leading-relaxed text-fg-default line-clamp-3">
+                {data.last_coach_message}
+              </p>
+              <Link
+                href="/coach"
+                className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-accent hover:underline"
+              >
+                Continue conversation
+              </Link>
+            </Widget>
+          )}
+        </motion.div>
+      </div>
+
+      {/* Career OS Widgets */}
+      <motion.div variants={fadeUp} className="space-y-4 pt-2">
+        <div className="flex items-center gap-2 border-b border-border pb-2">
+          <BrainCircuit size={16} className="text-accent" />
+          <h2 className="font-mono text-xs font-medium uppercase tracking-widest text-fg-muted">Career Intelligence</h2>
         </div>
-      </header>
 
-      <main className="p-4 sm:p-8">
-        <h2 className="mb-6 text-2xl font-semibold sm:text-3xl">Your Career Dashboard</h2>
+        {careerLoading ? (
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-4">
+            {[1, 2, 3, 4].map((i) => <CardSkeleton key={i} />)}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-4">
+            {careerScoreData && (
+              <Widget title="Career Score" icon={<Award size={14} />}>
+                <CareerScoreCard score={careerScoreData} />
+              </Widget>
+            )}
 
-        <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <a href="/jobs" className="rounded-lg border bg-white p-5 shadow-sm transition hover:shadow-md sm:p-6">
-            <h3 className="mb-1 text-sm font-medium text-gray-500">Active Applications</h3>
-            <p className="text-3xl font-semibold">{summary?.active_applications ?? 0}</p>
-            <p className="mt-1 text-xs text-gray-400">{summary?.total_applications ?? 0} total tracked</p>
-          </a>
+            {actionPlan.length > 0 && (
+              <Widget title="Action Center" icon={<ListChecks size={14} />}>
+                <ActionCenter items={actionPlan} loading={false} compact />
+              </Widget>
+            )}
 
-          <a href="/resume" className="rounded-lg border bg-white p-5 shadow-sm transition hover:shadow-md sm:p-6">
-            <h3 className="mb-1 text-sm font-medium text-gray-500">Resume Status</h3>
-            <p className="text-lg font-semibold">
-              {summary?.has_resume ? (summary.resume_summary_set ? "Ready" : "Incomplete") : "Not started"}
-            </p>
-            <p className="mt-1 text-xs text-gray-400">
-              {summary?.has_resume ? "Click to edit or run AI review" : "Build your resume to get started"}
-            </p>
-          </a>
+            {skillCategories.length > 0 && (
+              <Widget title="Skill Graph" icon={<TrendingUp size={14} />}>
+                <SkillGraph categories={skillCategories} loading={false} compact />
+              </Widget>
+            )}
 
-          <a href="/coach" className="rounded-lg border bg-white p-5 shadow-sm transition hover:shadow-md sm:p-6">
-            <h3 className="mb-1 text-sm font-medium text-gray-500">Career Coach</h3>
-            <p className="line-clamp-2 text-sm text-gray-700">
-              {summary?.last_coach_message || "No conversations yet - ask a question to get started"}
-            </p>
-          </a>
-        </div>
-
-        {summary && summary.upcoming_deadlines.length > 0 && (
-          <div className="mb-6 rounded-lg border bg-white p-5 shadow-sm sm:p-6">
-            <h3 className="mb-3 text-sm font-medium text-gray-500">Upcoming Deadlines</h3>
-            <div className="space-y-2">
-              {summary.upcoming_deadlines.map((d, i) => (
-                <div key={i} className="flex items-center justify-between rounded border px-3 py-2 text-sm">
-                  <span>{d.role} at {d.company}</span>
-                  <span className="text-gray-500">{d.deadline}</span>
-                </div>
-              ))}
-            </div>
+            {goals.length > 0 && (
+              <Widget title="Goals" icon={<Goal size={14} />}>
+                <GoalTracker goals={goals} loading={false} compact />
+              </Widget>
+            )}
           </div>
         )}
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <div className="rounded-lg border bg-white p-5 shadow-sm sm:p-6">
-            <h3 className="mb-2 text-sm font-medium text-gray-500">Education</h3>
-            <p className="text-base sm:text-lg">{profile?.education || "Not set yet"}</p>
+        {aiInsights.length > 0 && (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <AIInsightCard insights={aiInsights.map((r) => r.title)} />
           </div>
-
-          <div className="rounded-lg border bg-white p-5 shadow-sm sm:p-6">
-            <h3 className="mb-2 text-sm font-medium text-gray-500">Degree</h3>
-            <p className="text-base sm:text-lg">{profile?.degree || "Not set yet"}</p>
-          </div>
-
-          <div className="rounded-lg border bg-white p-5 shadow-sm sm:p-6">
-            <h3 className="mb-2 text-sm font-medium text-gray-500">Graduation Year</h3>
-            <p className="text-base sm:text-lg">{profile?.graduation_year || "Not set yet"}</p>
-          </div>
-
-          <div className="rounded-lg border bg-white p-5 shadow-sm sm:col-span-2 sm:p-6 lg:col-span-3">
-            <h3 className="mb-2 text-sm font-medium text-gray-500">Skills</h3>
-            {profile?.skills && profile.skills.length > 0 ? (
-              <div className="flex flex-wrap gap-2">
-                {profile.skills.map((skill) => (
-                  <span key={skill} className="rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-700">
-                    {skill}
-                  </span>
-                ))}
-              </div>
-            ) : (
-              <p className="text-base sm:text-lg">No skills added yet</p>
-            )}
-          </div>
-        </div>
-      </main>
-    </div>
+        )}
+      </motion.div>
+    </motion.div>
   );
 }
-
-

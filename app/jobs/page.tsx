@@ -1,203 +1,405 @@
-"use client";
+﻿"use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  DndContext, DragOverlay, closestCorners, KeyboardSensor, PointerSensor, useSensor, useSensors,
+  type DragStartEvent, type DragEndEvent, type DragOverEvent,
+} from "@dnd-kit/core";
+import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
+import { Briefcase, SendHorizontal, X, Loader2, AlertCircle, ExternalLink } from "lucide-react";
 import { apiFetch } from "@/lib/api";
+import { Button } from "@/components/ui/Button";
+import { useToast } from "@/components/ui/Toast";
+import { ApplicationStats } from "./components/ApplicationStats";
+import { KanbanColumn } from "./components/KanbanColumn";
+import { ApplicationCard } from "./components/ApplicationCard";
+import { AISuggestions } from "./components/AISuggestions";
+import { QuickActions } from "./components/QuickActions";
+import { EmptyState } from "./components/EmptyState";
+import type { Job, DashboardSummary, Status } from "./types";
+import { STATUSES, STATUS_LABELS, STATUS_COLORS } from "./types";
 
-interface Job {
-  id: number;
+const fadeUp = {
+  hidden: { opacity: 0, y: 12 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.3, ease: [0.25, 0.1, 0.1, 1] as const } },
+};
+
+const stagger = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.06 } },
+};
+
+interface FormData {
   company: string;
   role: string;
   status: string;
-  salary: string | null;
-  recruiter: string | null;
-  notes: string | null;
-  deadline: string | null;
-  job_link: string | null;
+  salary: string;
+  deadline: string;
+  job_link: string;
+  priority: string;
+  next_action: string;
+  resume_version: string;
+  location: string;
 }
 
-const STATUSES = [
-  { key: "applied", label: "Applied" },
-  { key: "oa", label: "OA" },
-  { key: "interview", label: "Interview" },
-  { key: "offer", label: "Offer" },
-  { key: "rejected", label: "Rejected" },
-];
+const defaultForm: FormData = {
+  company: "", role: "", status: "applied", salary: "", deadline: "",
+  job_link: "", priority: "medium", next_action: "", resume_version: "", location: "",
+};
 
 export default function JobsPage() {
   const [jobs, setJobs] = useState<Job[]>([]);
+  const [summary, setSummary] = useState<DashboardSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [showForm, setShowForm] = useState(false);
-  const [company, setCompany] = useState("");
-  const [role, setRole] = useState("");
-  const [salary, setSalary] = useState("");
-  const [deadline, setDeadline] = useState("");
-  const [jobLink, setJobLink] = useState("");
+  const [formData, setFormData] = useState<FormData>(defaultForm);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [suggestionsKey, setSuggestionsKey] = useState(0);
+  const [activeDragJob, setActiveDragJob] = useState<Job | null>(null);
 
-  function loadJobs() {
-    apiFetch("/api/jobs")
-      .then((data) => setJobs(data.jobs || []))
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false));
-  }
+  const { addToast } = useToast();
 
-  useEffect(() => {
-    loadJobs();
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
+
+  const loadJobs = useCallback(async () => {
+    try {
+      const [jobsData, summaryData] = await Promise.all([
+        apiFetch("/api/jobs"),
+        apiFetch("/api/users/dashboard-summary"),
+      ]);
+      setJobs((jobsData.jobs || []) as Job[]);
+      setSummary(summaryData as DashboardSummary);
+    } catch {
+      setError("Failed to load applications");
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  async function handleCreate(e: React.FormEvent) {
-    e.preventDefault();
-    if (!company.trim() || !role.trim()) return;
+  useEffect(() => { loadJobs(); }, [loadJobs]);
 
+  const grouped = jobs.reduce<Record<string, Job[]>>((acc, job) => {
+    const s = job.status || "applied";
+    if (!acc[s]) acc[s] = [];
+    acc[s].push(job);
+    return acc;
+  }, {});
+
+  STATUSES.forEach((s) => { if (!grouped[s]) grouped[s] = []; });
+
+  const handleSubmit = async () => {
+    if (!formData.company.trim() || !formData.role.trim()) {
+      addToast("error", "Company and role are required");
+      return;
+    }
+    setSubmitting(true);
     try {
-      await apiFetch("/api/jobs", {
-        method: "POST",
-        body: JSON.stringify({
-          company,
-          role,
-          salary: salary || null,
-          deadline: deadline || null,
-          job_link: jobLink || null,
-        }),
-      });
-      setCompany("");
-      setRole("");
-      setSalary("");
-      setDeadline("");
-      setJobLink("");
+      const body: Record<string, unknown> = { ...formData };
+      if (editingId) {
+        const updated = await apiFetch(`/api/jobs/${editingId}`, { method: "PUT", body: JSON.stringify(body) });
+        setJobs((prev) => prev.map((j) => (j.id === editingId ? updated.job as Job : j)));
+        addToast("success", "Application updated");
+      } else {
+        await apiFetch("/api/jobs", { method: "POST", body: JSON.stringify(body) });
+        addToast("success", "Application added");
+        setSuggestionsKey((k) => k + 1);
+      }
       setShowForm(false);
-      loadJobs();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create job");
+      setFormData(defaultForm);
+      setEditingId(null);
+      await loadJobs();
+    } catch {
+      addToast("error", "Failed to save application");
+    } finally {
+      setSubmitting(false);
     }
-  }
+  };
 
-  async function updateStatus(jobId: number, newStatus: string) {
+  const handleEdit = (job: Job) => {
+    setFormData({
+      company: job.company ?? "",
+      role: job.role ?? "",
+      status: job.status ?? "applied",
+      salary: job.salary || "",
+      deadline: job.deadline || "",
+      job_link: job.job_link || "",
+      priority: job.priority || "medium",
+      next_action: job.next_action || "",
+      resume_version: job.resume_version || "",
+      location: job.location || "",
+    });
+    setEditingId(job.id);
+    setShowForm(true);
+  };
+
+  const handleDelete = async (id: number) => {
     try {
-      await apiFetch(`/api/jobs/${jobId}`, {
-        method: "PUT",
-        body: JSON.stringify({ status: newStatus }),
-      });
-      setJobs((prev) => prev.map((j) => (j.id === jobId ? { ...j, status: newStatus } : j)));
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to update status");
+      await apiFetch(`/api/jobs/${id}`, { method: "DELETE" });
+      setJobs((prev) => prev.filter((j) => j.id !== id));
+      addToast("success", "Application deleted");
+      setSuggestionsKey((k) => k + 1);
+    } catch {
+      addToast("error", "Failed to delete application");
     }
-  }
+  };
 
-  async function deleteJob(jobId: number) {
+  const handleStatusChange = async (id: number, status: string) => {
     try {
-      await apiFetch(`/api/jobs/${jobId}`, { method: "DELETE" });
-      setJobs((prev) => prev.filter((j) => j.id !== jobId));
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to delete job");
+      const updated = await apiFetch(`/api/jobs/${id}`, { method: "PUT", body: JSON.stringify({ status }) });
+      setJobs((prev) => prev.map((j) => (j.id === id ? updated.job as Job : j)));
+    } catch {
+      addToast("error", "Failed to update status");
     }
-  }
+  };
 
-  function isOverdue(deadline: string | null) {
-    if (!deadline) return false;
-    return new Date(deadline) < new Date(new Date().toDateString());
-  }
+  const handleDragStart = (event: DragStartEvent) => {
+    const job = jobs.find((j) => j.id.toString() === event.active.id);
+    if (job) setActiveDragJob(job);
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    setActiveDragJob(null);
+    const { active, over } = event;
+    if (!over) return;
+
+    const jobId = active.id.toString();
+    const targetColumnId = over.data?.current?.type === "column" ? over.data.current.status : null;
+    const overJobId = over.data?.current?.type === "job" ? over.data.current.job?.id?.toString() : null;
+
+    let targetStatus: string | null = targetColumnId;
+    if (!targetStatus && overJobId) {
+      const overJob = jobs.find((j) => j.id.toString() === overJobId);
+      if (overJob) targetStatus = overJob.status;
+    }
+
+    if (targetStatus && jobId !== overJobId) {
+      handleStatusChange(parseInt(jobId), targetStatus);
+    }
+  };
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50">
-        <p className="text-gray-500">Loading jobs...</p>
+      <div className="mx-auto max-w-7xl space-y-6 p-6">
+        <div className="h-8 w-48 shimmer rounded-md" />
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-6">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="h-24 rounded-xl border border-border bg-bg-surface p-4">
+              <div className="h-3 w-16 shimmer rounded-md" />
+              <div className="mt-2 h-6 w-10 shimmer rounded-md" />
+            </div>
+          ))}
+        </div>
+        <div className="flex gap-3">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="h-80 w-72 rounded-xl border border-border bg-bg-surface p-3">
+              <div className="h-6 w-24 shimmer rounded-md" />
+              <div className="mt-3 space-y-2">
+                <div className="h-28 shimmer rounded-lg" />
+                <div className="h-28 shimmer rounded-lg" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center py-24">
+        <div className="rounded-xl border border-danger/20 bg-danger-subtle p-8 text-center">
+          <AlertCircle size={32} className="mx-auto text-danger" />
+          <p className="mt-3 text-sm font-medium text-danger">{error}</p>
+          <Button onClick={() => window.location.reload()} size="sm" className="mt-4">
+            Try Again
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  const totalApplications = jobs.length;
+  const jobsByStatus: Record<string, number> = {};
+  STATUSES.forEach((s) => { jobsByStatus[s] = (grouped[s] || []).length; });
+  const offers = jobsByStatus.offer || 0;
+  const activeApplications = (jobsByStatus.applied || 0) + (jobsByStatus.oa || 0) + (jobsByStatus.interview || 0);
+
+  if (totalApplications === 0 && !showForm) {
+    return (
+      <div className="mx-auto max-w-5xl p-6">
+        <EmptyState onAddApplication={() => setShowForm(true)} />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="flex items-center justify-between border-b bg-white px-4 py-4 sm:px-8">
-        <h1 className="text-xl font-semibold sm:text-2xl">Job Tracker</h1>
-        <div className="flex items-center gap-4">
-          <a href="/dashboard" className="text-sm text-blue-600 hover:underline">Dashboard</a>
-          <button
-            onClick={() => setShowForm(!showForm)}
-            className="rounded bg-black px-4 py-2 text-sm text-white"
-          >
-            + Add Application
-          </button>
-        </div>
-      </header>
-
-      {error && (
-        <div className="mx-4 mt-4 rounded border border-red-200 bg-red-50 p-3 text-sm text-red-700 sm:mx-8">
-          {error}
-        </div>
-      )}
-
-      {showForm && (
-        <form onSubmit={handleCreate} className="mx-4 mt-4 space-y-3 rounded-lg border bg-white p-6 shadow-sm sm:mx-8">
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <input className="rounded border px-3 py-2" placeholder="Company *" value={company} onChange={(e) => setCompany(e.target.value)} required />
-            <input className="rounded border px-3 py-2" placeholder="Role *" value={role} onChange={(e) => setRole(e.target.value)} required />
-            <input className="rounded border px-3 py-2" placeholder="Salary (optional)" value={salary} onChange={(e) => setSalary(e.target.value)} />
-            <input className="rounded border px-3 py-2" type="date" placeholder="Deadline" value={deadline} onChange={(e) => setDeadline(e.target.value)} />
-            <input className="rounded border px-3 py-2 sm:col-span-2" placeholder="Job link (optional)" value={jobLink} onChange={(e) => setJobLink(e.target.value)} />
+    <motion.div
+      initial="hidden"
+      animate="show"
+      variants={stagger}
+      className="mx-auto max-w-7xl space-y-6 p-6"
+    >
+      {/* Header */}
+      <motion.div variants={fadeUp} className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <div className="flex items-center gap-3">
+            <Briefcase size={20} className="text-accent" />
+            <h1 className="font-serif text-2xl font-medium tracking-tight text-fg-default">Applications</h1>
           </div>
-          <button type="submit" className="rounded bg-black px-5 py-2 text-sm text-white">
-            Save
-          </button>
-        </form>
-      )}
+          <p className="mt-0.5 font-sans text-sm text-fg-muted">Track your internship and job journey</p>
+        </div>
+        <Button onClick={() => { setFormData(defaultForm); setEditingId(null); setShowForm(!showForm); }} icon={<SendHorizontal size={14} />} size="sm">
+          {showForm ? "Cancel" : "Add Application"}
+        </Button>
+      </motion.div>
 
-      <main className="overflow-x-auto p-4 sm:p-8">
-        <div className="flex gap-4" style={{ minWidth: "1000px" }}>
-          {STATUSES.map((col) => (
-            <div key={col.key} className="flex-1 rounded-lg bg-gray-100 p-3">
-              <h2 className="mb-3 flex items-center justify-between text-sm font-semibold text-gray-600">
-                {col.label}
-                <span className="rounded-full bg-gray-200 px-2 py-0.5 text-xs">
-                  {jobs.filter((j) => j.status === col.key).length}
-                </span>
-              </h2>
+      {/* Stats */}
+      <motion.div variants={fadeUp}>
+        <ApplicationStats
+          totalApplications={totalApplications}
+          jobsByStatus={jobsByStatus}
+          offers={offers}
+          activeApplications={activeApplications}
+        />
+      </motion.div>
 
-              <div className="space-y-3">
-                {jobs
-                  .filter((j) => j.status === col.key)
-                  .map((job) => (
-                    <div key={job.id} className="rounded-lg border bg-white p-3 shadow-sm">
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <p className="font-medium">{job.company}</p>
-                          <p className="text-sm text-gray-500">{job.role}</p>
-                        </div>
-                        <button onClick={() => deleteJob(job.id)} className="text-xs text-gray-400 hover:text-red-600">
-                          ?
-                        </button>
-                      </div>
+      {/* Quick Actions */}
+      <motion.div variants={fadeUp}>
+        <QuickActions onAddApplication={() => { setFormData(defaultForm); setEditingId(null); setShowForm(true); }} />
+      </motion.div>
 
-                      {job.salary && <p className="mt-1 text-xs text-gray-500">{job.salary}</p>}
-
-                      {job.deadline && (
-                        <p className={`mt-1 text-xs ${isOverdue(job.deadline) ? "text-red-600 font-medium" : "text-gray-500"}`}>
-                          Deadline: {job.deadline} {isOverdue(job.deadline) && "(overdue)"}
-                        </p>
-                      )}
-
-                      {job.job_link && (
-                        <a href={job.job_link} target="_blank" className="mt-1 block text-xs text-blue-600 hover:underline">
-                          View posting
-                        </a>
-                      )}
-
-                      <select
-                        value={job.status}
-                        onChange={(e) => updateStatus(job.id, e.target.value)}
-                        className="mt-2 w-full rounded border px-2 py-1 text-xs"
-                      >
-                        {STATUSES.map((s) => (
-                          <option key={s.key} value={s.key}>{s.label}</option>
-                        ))}
-                      </select>
-                    </div>
-                  ))}
+      {/* Add/Edit form */}
+      <AnimatePresence>
+        {showForm && (
+          <motion.div
+            initial={{ opacity: 0, y: -12, height: 0 }}
+            animate={{ opacity: 1, y: 0, height: "auto" }}
+            exit={{ opacity: 0, y: -12, height: 0 }}
+            transition={{ duration: 0.3, ease: [0.25, 0.1, 0.1, 1] }}
+            className="overflow-hidden"
+          >
+            <div className="rounded-xl border border-border bg-bg-surface p-5">
+              <div className="mb-4 flex items-center justify-between">
+                <h2 className="font-mono text-xs font-medium uppercase tracking-widest text-fg-default">
+                  {editingId ? "Edit Application" : "New Application"}
+                </h2>
+                {editingId && (
+                  <button onClick={() => { setShowForm(false); setEditingId(null); setFormData(defaultForm); }} className="text-xs text-fg-muted hover:text-fg-default">Cancel</button>
+                )}
+              </div>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <InputField label="Company" value={formData.company} onChange={(v) => setFormData({ ...formData, company: v })} required placeholder="e.g. Google" />
+                <InputField label="Role" value={formData.role} onChange={(v) => setFormData({ ...formData, role: v })} required placeholder="e.g. SWE Intern" />
+                <InputField label="Location" value={formData.location} onChange={(v) => setFormData({ ...formData, location: v })} placeholder="e.g. Remote" />
+                <InputField label="Salary" value={formData.salary} onChange={(v) => setFormData({ ...formData, salary: v })} placeholder="e.g. ₹12 LPA" />
+                <InputField label="Deadline" value={formData.deadline} onChange={(v) => setFormData({ ...formData, deadline: v })} type="date" />
+                <InputField label="Job Link" value={formData.job_link} onChange={(v) => setFormData({ ...formData, job_link: v })} placeholder="https://..." />
+                <SelectField label="Status" value={formData.status} onChange={(v) => setFormData({ ...formData, status: v })} options={STATUSES.map((s) => ({ value: s, label: STATUS_LABELS[s] }))} />
+                <SelectField label="Priority" value={formData.priority} onChange={(v) => setFormData({ ...formData, priority: v })} options={[{ value: "low", label: "Low" }, { value: "medium", label: "Medium" }, { value: "high", label: "High" }]} />
+                <InputField label="Next Action" value={formData.next_action} onChange={(v) => setFormData({ ...formData, next_action: v })} placeholder="e.g. Online Assessment" />
+                <InputField label="Resume Version" value={formData.resume_version} onChange={(v) => setFormData({ ...formData, resume_version: v })} placeholder="e.g. v3" />
+              </div>
+              <div className="mt-4 flex justify-end gap-3">
+                {editingId && (
+                  <Button variant="ghost" onClick={() => { setShowForm(false); setEditingId(null); setFormData(defaultForm); }}>
+                    Cancel
+                  </Button>
+                )}
+                <Button onClick={handleSubmit} loading={submitting} icon={<SendHorizontal size={14} />}>
+                  {submitting ? "Saving..." : editingId ? "Update" : "Add Application"}
+                </Button>
               </div>
             </div>
-          ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Kanban Board + AI Suggestions */}
+      <motion.div variants={fadeUp} className="flex gap-6">
+        {/* Kanban */}
+        <div className="min-w-0 flex-1 overflow-x-auto">
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCorners}
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
+          >
+            <div className="flex gap-4 pb-4">
+              {STATUSES.map((status) => (
+                <KanbanColumn
+                  key={status}
+                  status={status}
+                  label={STATUS_LABELS[status]}
+                  color={STATUS_COLORS[status].bg}
+                  jobs={grouped[status] || []}
+                  onDelete={handleDelete}
+                  onStatusChange={handleStatusChange}
+                  onEdit={handleEdit}
+                  onAddClick={() => { setFormData({ ...defaultForm, status }); setEditingId(null); setShowForm(true); }}
+                />
+              ))}
+            </div>
+            <DragOverlay dropAnimation={{ duration: 200, easing: "cubic-bezier(0.25, 0.1, 0.1, 1)" }}>
+              {activeDragJob ? (
+                <div className="w-72 rotate-3 opacity-90">
+                  <ApplicationCard job={activeDragJob} onDelete={() => {}} onStatusChange={() => {}} onEdit={() => {}} />
+                </div>
+              ) : null}
+            </DragOverlay>
+          </DndContext>
         </div>
-      </main>
+
+        {/* AI Suggestions sidebar */}
+        <div className="hidden w-72 shrink-0 xl:block">
+          <div className="sticky top-24">
+            <AISuggestions refreshKey={suggestionsKey} />
+          </div>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+function InputField({ label, value, onChange, placeholder, type, required }: {
+  label: string; value: string; onChange: (v: string) => void; placeholder?: string; type?: string; required?: boolean;
+}) {
+  return (
+    <div className="space-y-1">
+      <label className="font-mono text-xs font-medium uppercase tracking-widest text-fg-muted">
+        {label}{required && <span className="text-danger">*</span>}
+      </label>
+      <input
+        type={type || "text"}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className="w-full rounded-lg border border-border bg-bg-surface px-3 py-2 text-sm text-fg-default placeholder:text-fg-subtle transition-all duration-150 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent-ring/50 active:border-accent/70"
+      />
+    </div>
+  );
+}
+
+function SelectField({ label, value, onChange, options }: {
+  label: string; value: string; onChange: (v: string) => void; options: { value: string; label: string }[];
+}) {
+  return (
+    <div className="space-y-1">
+      <label className="font-mono text-xs font-medium uppercase tracking-widest text-fg-muted">{label}</label>
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full rounded-lg border border-border bg-bg-surface px-3 py-2 text-sm text-fg-default transition-all duration-150 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent-ring/50 active:border-accent/70"
+      >
+        {options.map((o) => (
+          <option key={o.value} value={o.value}>{o.label}</option>
+        ))}
+      </select>
     </div>
   );
 }
