@@ -54,9 +54,7 @@ export default function LoginPage() {
         className="relative w-full max-w-sm"
       >
         <motion.div variants={fadeUp} className="mb-8 text-center">
-          <Link href="/" className="inline-flex items-center gap-2">
-            <Logo />
-          </Link>
+          <Logo />
           <h1 className="mt-6 font-serif text-2xl font-medium text-fg-default">Welcome back</h1>
           <p className="mt-2 font-sans text-sm text-fg-muted">
             Log in to continue tracking your career.

@@ -72,9 +72,7 @@ export default function SignupPage() {
         className="relative w-full max-w-sm"
       >
         <motion.div variants={fadeUp} className="mb-8 text-center">
-          <Link href="/" className="inline-flex items-center gap-2">
-            <Logo />
-          </Link>
+          <Logo />
           <h1 className="mt-6 font-serif text-2xl font-medium text-fg-default">Create your account</h1>
           <p className="mt-2 font-sans text-sm text-fg-muted">
             Start tracking applications and building your resume.
@@ -85,7 +83,7 @@ export default function SignupPage() {
           <button
             type="button"
             onClick={() => {
-              window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/api/auth/google/login`;
+              window.location.href = "/api/auth/google/login";
             }}
             className="btn-press flex w-full items-center justify-center gap-2 rounded-lg border border-border px-6 py-2.5 text-sm font-medium text-fg-default transition-all duration-150 hover:border-accent/30 hover:bg-bg-hover hover:shadow-sm"
           >
