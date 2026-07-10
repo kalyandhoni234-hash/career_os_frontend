@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, startTransition } from "react";
-import { Save, User, MapPin, Globe, Camera, Upload, Palette, Monitor, Moon, Sun, Shield, Key, Trash2, Download, GitBranch, Link, CalendarDays, Mail, Hash, Smartphone, ExternalLink, Package, FileText, HelpCircle, Check, RefreshCw, XCircle, type LucideIcon } from "lucide-react";
+import { Save, User, MapPin, Globe, Camera, Upload, Palette, Monitor, Moon, Sun, Shield, Key, Trash2, Download, GitBranch, Link, CalendarDays, Mail, Hash, Smartphone, ExternalLink, Package, FileText, HelpCircle, Check, RefreshCw, XCircle, Users, Star, Code2, Activity, Clock, AlertTriangle, Building2, GraduationCap, Award, Folder, type LucideIcon } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { apiFetch } from "@/lib/api";
 import { Button } from "@/components/ui/Button";
@@ -97,6 +97,14 @@ const INTEGRATION_DESCS: Record<string, string> = {
   slack: "Receive career reminders and AI summaries",
 };
 
+interface TokenHealth {
+  healthy: boolean;
+  reason: string;
+  label: string;
+  warning?: boolean;
+  expires_in_seconds?: number;
+}
+
 interface IntegrationData {
   provider: string;
   name: string;
@@ -110,9 +118,316 @@ interface IntegrationData {
   last_sync_at: string | null;
   provider_data: Record<string, unknown>;
   setup_guide?: string;
+  token_health?: TokenHealth;
+  sync_history_count?: number;
+  last_sync_status?: string | null;
 }
 
 /* ──────────────── INTEGRATIONS TAB ──────────────── */
+
+function timeAgo(iso: string | null): string {
+  if (!iso) return "Never";
+  try {
+    const now = Date.now();
+    const then = new Date(iso).getTime();
+    const seconds = Math.floor((now - then) / 1000);
+    if (seconds < 60) return "Just now";
+    if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+    if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+    if (seconds < 604800) return `${Math.floor(seconds / 86400)}d ago`;
+    return new Date(iso).toLocaleDateString();
+  } catch {
+    return iso;
+  }
+}
+
+function SyncHealth({ int: _int }: { int: IntegrationData }) {
+  const status = _int.last_sync_status;
+  const health = _int.token_health;
+  const lastSync = _int.last_sync_at;
+  const syncError = _int.sync_error;
+
+  const isHealthy = health?.healthy !== false && status !== "failed" && !syncError;
+
+  return (
+    <div className="flex items-center gap-3 text-xs">
+      <div className="flex items-center gap-1.5">
+        <div className={`h-1.5 w-1.5 rounded-full ${isHealthy ? "bg-accent" : "bg-danger"}`} />
+        <span className="text-fg-muted">Last sync:</span>
+        <span className="text-fg-default font-medium">{timeAgo(lastSync)}</span>
+      </div>
+      {status === "failed" && <Badge tone="warning">Last sync failed</Badge>}
+      {health?.warning && <Badge tone="warning">Token expiring</Badge>}
+    </div>
+  );
+}
+
+function PinnedRepoCard({ repo }: { repo: { name?: string; description?: string; url?: string; language?: string | null; stars?: number } }) {
+  return (
+    <a href={repo.url || "#"} target="_blank" rel="noopener noreferrer" className="block rounded-lg border border-border bg-bg-hover/50 p-2.5 hover:bg-bg-hover transition-colors">
+      <div className="flex items-center justify-between gap-2">
+        <p className="text-xs font-medium text-fg-default truncate">{repo.name || "Untitled"}</p>
+        <div className="flex items-center gap-1 shrink-0">
+          <Star size={10} className="text-fg-muted" />
+          <span className="text-[10px] text-fg-muted">{repo.stars || 0}</span>
+        </div>
+      </div>
+      {repo.description && <p className="text-[10px] text-fg-muted mt-1 line-clamp-2">{repo.description}</p>}
+      {repo.language && <span className="inline-block mt-1.5 rounded-full bg-accent/10 px-2 py-0.5 text-[10px] text-accent font-medium">{repo.language}</span>}
+    </a>
+  );
+}
+
+function GitHubExpandedContent({ int, onSync, onDisconnect, syncing }: { int: IntegrationData; onSync: (p: string) => void; onDisconnect: (p: string) => void; syncing: boolean }) {
+  console.log("[GitHubExpandedContent] RENDERING — provider:", int.provider, "username:", int.provider_username, "provider_data keys:", Object.keys(int.provider_data || {}), "connected:", int.connected);
+  const pd = int.provider_data || {};
+  const pinnedRepos = (pd.pinned_repos as Array<{ name?: string; description?: string; url?: string; language?: string | null; stars?: number }>) || [];
+  const topLanguages = pd.top_languages as Record<string, number> || {};
+  const avatarUrl = pd.avatar_url as string | undefined;
+  const bio = pd.bio as string | undefined;
+  const company = pd.company as string | undefined;
+  const location = pd.location as string | undefined;
+  const blog = pd.blog as string | undefined;
+  const publicRepos = pd.public_repos as number | undefined;
+  const followers = pd.followers as number | undefined;
+  const following = pd.following as number | undefined;
+  const contributions = pd.contributions as number | undefined;
+  const twitter = pd.twitter_username as string | undefined;
+  const username = int.provider_username;
+
+  return (
+    <div className="border-t border-border pt-4 mt-4 space-y-4">
+      {/* Profile header */}
+      <div className="flex items-start gap-4">
+        {avatarUrl ? (
+          <img src={avatarUrl} alt={username || ""} className="h-14 w-14 rounded-full border border-border object-cover shrink-0" />
+        ) : (
+          <div className="h-14 w-14 rounded-full bg-bg-hover flex items-center justify-center shrink-0">
+            <User size={18} className="text-fg-muted" />
+          </div>
+        )}
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2 mb-0.5">
+            <p className="text-sm font-semibold text-fg-default">{username || "GitHub User"}</p>
+            {username && (
+              <a href={`https://github.com/${username}`} target="_blank" rel="noopener noreferrer" className="text-fg-muted hover:text-accent transition-colors">
+                <ExternalLink size={12} />
+              </a>
+            )}
+          </div>
+          {bio && <p className="text-xs text-fg-muted line-clamp-2">{bio}</p>}
+          <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-1">
+            {company && <span className="flex items-center gap-1 text-[10px] text-fg-muted"><Building2 size={10} />{company}</span>}
+            {location && <span className="flex items-center gap-1 text-[10px] text-fg-muted"><MapPin size={10} />{location}</span>}
+            {blog && <a href={blog.startsWith("http") ? blog : `https://${blog}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-[10px] text-accent hover:underline"><Globe size={10} />{blog.replace(/^https?:\/\//, "")}</a>}
+            {twitter && <span className="flex items-center gap-1 text-[10px] text-fg-muted">@{twitter}</span>}
+          </div>
+        </div>
+      </div>
+
+      {/* Stats grid */}
+      <div className="grid grid-cols-3 gap-2">
+        {[
+          { icon: Folder, label: "Repos", value: publicRepos ?? "-" },
+          { icon: Users, label: "Followers", value: followers ?? "-" },
+          { icon: Users, label: "Following", value: following ?? "-" },
+          { icon: Activity, label: "Contributions", value: contributions ?? "-" },
+          { icon: Code2, label: "Languages", value: Object.keys(topLanguages).length || "-" },
+          { icon: Star, label: "Pinned", value: pinnedRepos.length || "-" },
+        ].map((stat) => (
+          <div key={stat.label} className="rounded-lg border border-border bg-bg-hover/50 p-2.5 text-center">
+            <stat.icon size={13} className="mx-auto text-fg-muted mb-1" />
+            <p className="text-xs font-semibold text-fg-default">{stat.value}</p>
+            <p className="text-[10px] text-fg-muted mt-0.5">{stat.label}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Top languages */}
+      {Object.keys(topLanguages).length > 0 && (
+        <div>
+          <p className="text-[10px] font-mono uppercase tracking-wider text-fg-muted mb-2">Top Languages</p>
+          <div className="flex flex-wrap gap-1.5">
+            {Object.entries(topLanguages).map(([lang, count]) => (
+              <span key={lang} className="inline-flex items-center gap-1 rounded-full border border-border px-2.5 py-1 text-[10px] text-fg-default font-medium">
+                <Code2 size={10} className="text-fg-muted" />
+                {lang}
+                <span className="text-fg-muted">×{count as number}</span>
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Pinned repos */}
+      {pinnedRepos.length > 0 && (
+        <div>
+          <p className="text-[10px] font-mono uppercase tracking-wider text-fg-muted mb-2">Pinned Repositories</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {pinnedRepos.map((repo, i) => (
+              <PinnedRepoCard key={repo.name || i} repo={repo} />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Sync health */}
+      <div className="flex items-center justify-between pt-1">
+        <SyncHealth int={int} />
+        <div className="flex items-center gap-2">
+          <Button variant="secondary" size="sm" onClick={() => onSync(int.provider)} disabled={syncing}>
+            <RefreshCw size={12} className={`mr-1 ${syncing ? "animate-spin" : ""}`} />
+            {syncing ? "Syncing..." : "Sync"}
+          </Button>
+          <Button variant="ghost" size="sm" className="text-danger hover:text-danger hover:bg-danger/10" onClick={() => onDisconnect(int.provider)}>
+            <XCircle size={12} className="mr-1" />
+            Disconnect
+          </Button>
+        </div>
+      </div>
+
+      {/* Error */}
+      {int.sync_error && (
+        <div className="rounded-lg bg-danger/10 p-2.5 flex items-start gap-2">
+          <AlertTriangle size={13} className="text-danger shrink-0 mt-0.5" />
+          <p className="text-xs text-danger">{int.sync_error}</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function LinkedInExpandedContent({ int, onSync, onDisconnect, syncing }: { int: IntegrationData; onSync: (p: string) => void; onDisconnect: (p: string) => void; syncing: boolean }) {
+  const pd = int.provider_data || {};
+  const name = pd.name as string | undefined;
+  const headline = pd.headline as string | undefined;
+  const picture = pd.picture as string | undefined;
+  const vanityName = pd.vanity_name as string | undefined;
+  const experience = pd.experience as Array<{ title?: string; companyName?: string; start?: Record<string, unknown>; end?: Record<string, unknown> }> | undefined;
+  const education = pd.education as Array<{ institution?: string; degree?: string; fieldOfStudy?: string }> | undefined;
+  const skills = pd.skills as string[] | undefined;
+  const importedVia = pd.imported_via as string | undefined;
+
+  return (
+    <div className="border-t border-border pt-4 mt-4 space-y-4">
+      {/* Profile header */}
+      <div className="flex items-start gap-4">
+        {picture ? (
+          <img src={picture} alt={name || ""} className="h-14 w-14 rounded-full border border-border object-cover shrink-0" />
+        ) : (
+          <div className="h-14 w-14 rounded-full bg-bg-hover flex items-center justify-center shrink-0">
+            <User size={18} className="text-fg-muted" />
+          </div>
+        )}
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-semibold text-fg-default">{name || int.provider_username || "LinkedIn User"}</p>
+          {headline && <p className="text-xs text-fg-muted mt-0.5">{headline}</p>}
+          {vanityName && (
+            <a href={`https://linkedin.com/in/${vanityName}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[10px] text-accent hover:underline mt-0.5">
+              <ExternalLink size={10} /> linkedin.com/in/{vanityName}
+            </a>
+          )}
+          {importedVia && <Badge tone="neutral" className="mt-1">Imported via URL</Badge>}
+        </div>
+      </div>
+
+      {/* Experience */}
+      {experience && experience.length > 0 && (
+        <div>
+          <p className="text-[10px] font-mono uppercase tracking-wider text-fg-muted mb-2 flex items-center gap-1.5">
+            <Building2 size={11} /> Experience
+          </p>
+          <div className="space-y-2">
+            {experience.map((exp, i) => (
+              <div key={i} className="flex items-start gap-3 rounded-lg border border-border bg-bg-hover/50 p-2.5">
+                <div className="h-8 w-8 rounded-md bg-accent/10 flex items-center justify-center shrink-0">
+                  <Building2 size={14} className="text-accent" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs font-medium text-fg-default">{exp.title || "Position"}</p>
+                  {exp.companyName && <p className="text-[10px] text-fg-muted">{exp.companyName}</p>}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Education */}
+      {education && education.length > 0 && (
+        <div>
+          <p className="text-[10px] font-mono uppercase tracking-wider text-fg-muted mb-2 flex items-center gap-1.5">
+            <GraduationCap size={11} /> Education
+          </p>
+          <div className="space-y-2">
+            {education.map((edu, i) => (
+              <div key={i} className="flex items-start gap-3 rounded-lg border border-border bg-bg-hover/50 p-2.5">
+                <div className="h-8 w-8 rounded-md bg-accent/10 flex items-center justify-center shrink-0">
+                  <GraduationCap size={14} className="text-accent" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs font-medium text-fg-default">{edu.institution || "Institution"}</p>
+                  {edu.degree && <p className="text-[10px] text-fg-muted">{edu.degree}{edu.fieldOfStudy ? `, ${edu.fieldOfStudy}` : ""}</p>}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Skills */}
+      {skills && skills.length > 0 && (
+        <div>
+          <p className="text-[10px] font-mono uppercase tracking-wider text-fg-muted mb-2 flex items-center gap-1.5">
+            <Award size={11} /> Skills
+          </p>
+          <div className="flex flex-wrap gap-1.5">
+            {skills.map((skill, i) => (
+              <span key={i} className="inline-flex items-center gap-1 rounded-full border border-border px-2.5 py-1 text-[10px] text-fg-default font-medium">
+                <Award size={9} className="text-fg-muted" />
+                {skill}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* No rich data fallback */}
+      {!experience?.length && !education?.length && !skills?.length && (
+        <div className="rounded-lg bg-bg-hover/50 p-3 text-center">
+          <p className="text-xs text-fg-muted">
+            {importedVia
+              ? "Limited profile data available from URL import. Connect via OAuth for richer details."
+              : "No detailed profile data yet. Try syncing again or connect with expanded permissions."}
+          </p>
+        </div>
+      )}
+
+      {/* Sync health */}
+      <div className="flex items-center justify-between pt-1">
+        <SyncHealth int={int} />
+        <div className="flex items-center gap-2">
+          <Button variant="secondary" size="sm" onClick={() => onSync(int.provider)} disabled={syncing}>
+            <RefreshCw size={12} className={`mr-1 ${syncing ? "animate-spin" : ""}`} />
+            {syncing ? "Syncing..." : "Sync"}
+          </Button>
+          <Button variant="ghost" size="sm" className="text-danger hover:text-danger hover:bg-danger/10" onClick={() => onDisconnect(int.provider)}>
+            <XCircle size={12} className="mr-1" />
+            Disconnect
+          </Button>
+        </div>
+      </div>
+
+      {/* Error */}
+      {int.sync_error && (
+        <div className="rounded-lg bg-danger/10 p-2.5 flex items-start gap-2">
+          <AlertTriangle size={13} className="text-danger shrink-0 mt-0.5" />
+          <p className="text-xs text-danger">{int.sync_error}</p>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export function IntegrationsTab() {
   const router = useRouter();
@@ -123,14 +438,25 @@ export function IntegrationsTab() {
   const [syncing, setSyncing] = useState<Set<string>>(new Set());
   const [expanded, setExpanded] = useState<string | null>(null);
   const [linkedinUrl, setLinkedinUrl] = useState("");
+  const [expandedLoading, setExpandedLoading] = useState<Set<string>>(new Set());
 
   const fetchIntegrations = async () => {
     setLoading(true);
     try {
       const data = await apiFetch("/api/integrations");
+      console.log("[IntegrationsTab] API response:", JSON.stringify(data, null, 2));
+      const github = data.integrations?.github;
+      if (github) {
+        console.log("[IntegrationsTab] GitHub provider_data keys:", Object.keys(github.provider_data || {}));
+        console.log("[IntegrationsTab] GitHub connected:", github.connected);
+        console.log("[IntegrationsTab] GitHub sync_status:", github.sync_status);
+        console.log("[IntegrationsTab] GitHub token_health:", github.token_health);
+        console.log("[IntegrationsTab] GitHub sync_history_count:", github.sync_history_count);
+        console.log("[IntegrationsTab] GitHub last_sync_status:", github.last_sync_status);
+      }
       setIntegrations(data.integrations || {});
-    } catch {
-      /* silent */
+    } catch (e) {
+      console.log("[IntegrationsTab] fetch failed:", e);
     } finally {
       setLoading(false);
     }
@@ -169,7 +495,7 @@ export function IntegrationsTab() {
       addToast("success", `${INTEGRATION_NAMES[provider] || capitalize(provider)} disconnected`);
       fetchIntegrations();
     } catch {
-      addToast("error", `Failed to disconnect`);
+      addToast("error", "Failed to disconnect");
     }
   };
 
@@ -207,6 +533,32 @@ export function IntegrationsTab() {
     }
   };
 
+  console.log("[IntegrationsTab] render — expanded:", expanded, "expandedLoading:", [...expandedLoading]);
+
+  const handleToggleExpanded = (provider: string) => {
+    console.log("[IntegrationsTab] handleToggleExpanded called with:", provider, "| current expanded:", expanded);
+    if (expanded === provider) {
+      console.log("[IntegrationsTab] collapsing:", provider);
+      setExpanded(null);
+    } else {
+      console.log("[IntegrationsTab] expanding:", provider);
+      setExpanded(provider);
+      setExpandedLoading((prev) => {
+        console.log("[IntegrationsTab] adding to expandedLoading:", provider);
+        return new Set(prev).add(provider);
+      });
+      setTimeout(() => {
+        console.log("[IntegrationsTab] timeout — removing from expandedLoading:", provider);
+        setExpandedLoading((prev) => {
+          const next = new Set(prev);
+          next.delete(provider);
+          console.log("[IntegrationsTab] expandedLoading after removal:", [...next]);
+          return next;
+        });
+      }, 400);
+    }
+  };
+
   const formatDate = (iso: string | null) => {
     if (!iso) return "Never";
     try {
@@ -217,23 +569,6 @@ export function IntegrationsTab() {
   };
 
   /* ── Render helpers ── */
-
-  const renderSyncButton = (int: IntegrationData) => {
-    if (syncing.has(int.provider)) {
-      return (
-        <Button variant="secondary" size="sm" disabled>
-          <RefreshCw size={13} className="mr-1 animate-spin" />
-          Syncing...
-        </Button>
-      );
-    }
-    return (
-      <Button variant="secondary" size="sm" onClick={() => handleSync(int.provider)}>
-        <RefreshCw size={13} className="mr-1" />
-        Sync Now
-      </Button>
-    );
-  };
 
   const renderStatusBadge = (int: IntegrationData) => {
     switch (int.sync_status) {
@@ -248,51 +583,6 @@ export function IntegrationsTab() {
       default:
         return null;
     }
-  };
-
-  const renderExpanded = (int: IntegrationData) => {
-    if (int.provider !== expanded) return null;
-
-    return (
-      <div className="border-t border-border pt-4 mt-4 space-y-3">
-        <div className="grid grid-cols-2 gap-3 text-xs">
-          {int.provider_username && (
-            <div>
-              <span className="text-fg-muted">Connected as:</span>
-              <p className="text-fg-default font-medium">{int.provider_username}</p>
-            </div>
-          )}
-          <div>
-            <span className="text-fg-muted">Last Sync:</span>
-            <p className="text-fg-default font-medium">{formatDate(int.last_sync_at)}</p>
-          </div>
-          {int.provider === "github" && (
-            <>
-              <div>
-                <span className="text-fg-muted">Repositories</span>
-                <p className="text-fg-default font-medium">{(int.provider_data?.repositories as number) || "-"}</p>
-              </div>
-              <div>
-                <span className="text-fg-muted">Contributions</span>
-                <p className="text-fg-default font-medium">{(int.provider_data?.contributions as number) || "-"}</p>
-              </div>
-            </>
-          )}
-          {int.sync_error && (
-            <div className="col-span-2 rounded-lg bg-danger/10 p-2.5">
-              <p className="text-xs text-danger font-medium">Error: {int.sync_error}</p>
-            </div>
-          )}
-        </div>
-        <div className="flex flex-wrap gap-2 pt-1">
-          {renderSyncButton(int)}
-          <Button variant="ghost" size="sm" className="text-danger hover:text-danger hover:bg-danger/10" onClick={() => handleDisconnect(int.provider)}>
-            <XCircle size={13} className="mr-1" />
-            Disconnect
-          </Button>
-        </div>
-      </div>
-    );
   };
 
   const renderProviderIntro = (int: IntegrationData) => {
@@ -323,7 +613,7 @@ export function IntegrationsTab() {
 
     if (int.connected) {
       return (
-        <Button variant="secondary" size="sm" onClick={() => setExpanded(expanded === int.provider ? null : int.provider)}>
+        <Button variant="secondary" size="sm" onClick={() => handleToggleExpanded(int.provider)}>
           {expanded === int.provider ? "Hide" : "Manage"}
         </Button>
       );
@@ -339,6 +629,36 @@ export function IntegrationsTab() {
       </Button>
     );
   };
+
+  /* ── Expanded content skeleton ── */
+
+  const renderExpandedSkeleton = () => (
+    <div className="border-t border-border pt-4 mt-4 space-y-4 animate-pulse">
+      <div className="flex items-start gap-4">
+        <div className="h-14 w-14 rounded-full bg-bg-hover" />
+        <div className="flex-1 space-y-2">
+          <div className="h-4 w-32 bg-bg-hover rounded" />
+          <div className="h-3 w-56 bg-bg-hover rounded" />
+          <div className="h-3 w-40 bg-bg-hover rounded" />
+        </div>
+      </div>
+      <div className="grid grid-cols-3 gap-2">
+        {[1, 2, 3, 4, 5, 6].map((i) => (
+          <div key={i} className="rounded-lg border border-border bg-bg-hover/50 p-3 space-y-1.5">
+            <div className="h-4 w-6 bg-bg-hover rounded mx-auto" />
+            <div className="h-3 w-8 bg-bg-hover rounded mx-auto" />
+          </div>
+        ))}
+      </div>
+      <div className="flex justify-between items-center">
+        <div className="h-3 w-28 bg-bg-hover rounded" />
+        <div className="flex gap-2">
+          <div className="h-7 w-16 bg-bg-hover rounded-lg" />
+          <div className="h-7 w-20 bg-bg-hover rounded-lg" />
+        </div>
+      </div>
+    </div>
+  );
 
   /* ── Main render ── */
 
@@ -413,7 +733,54 @@ export function IntegrationsTab() {
                 </p>
               </div>
             )}
-            {renderExpanded(int)}
+            {int.provider === expanded && int.connected && expandedLoading.has(int.provider) && renderExpandedSkeleton()}
+            {int.provider === expanded && int.connected && !expandedLoading.has(int.provider) && (
+              int.provider === "github" ? (
+                <GitHubExpandedContent
+                  int={int}
+                  onSync={handleSync}
+                  onDisconnect={handleDisconnect}
+                  syncing={syncing.has(int.provider)}
+                />
+              ) : int.provider === "linkedin" ? (
+                <LinkedInExpandedContent
+                  int={int}
+                  onSync={handleSync}
+                  onDisconnect={handleDisconnect}
+                  syncing={syncing.has(int.provider)}
+                />
+              ) : (
+                <div className="border-t border-border pt-4 mt-4 space-y-3">
+                  <div className="grid grid-cols-2 gap-3 text-xs">
+                    {int.provider_username && (
+                      <div>
+                        <span className="text-fg-muted">Connected as:</span>
+                        <p className="text-fg-default font-medium">{int.provider_username}</p>
+                      </div>
+                    )}
+                    <div>
+                      <span className="text-fg-muted">Last Sync:</span>
+                      <p className="text-fg-default font-medium">{formatDate(int.last_sync_at)}</p>
+                    </div>
+                    {int.sync_error && (
+                      <div className="col-span-2 rounded-lg bg-danger/10 p-2.5">
+                        <p className="text-xs text-danger font-medium">Error: {int.sync_error}</p>
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex flex-wrap gap-2 pt-1">
+                    <Button variant="secondary" size="sm" onClick={() => handleSync(int.provider)} disabled={syncing.has(int.provider)}>
+                      <RefreshCw size={12} className={`mr-1 ${syncing.has(int.provider) ? "animate-spin" : ""}`} />
+                      {syncing.has(int.provider) ? "Syncing..." : "Sync Now"}
+                    </Button>
+                    <Button variant="ghost" size="sm" className="text-danger hover:text-danger hover:bg-danger/10" onClick={() => handleDisconnect(int.provider)}>
+                      <XCircle size={12} className="mr-1" />
+                      Disconnect
+                    </Button>
+                  </div>
+                </div>
+              )
+            )}
           </Card>
         ))}
       </div>

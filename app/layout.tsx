@@ -25,6 +25,13 @@ const plexMono = IBM_Plex_Mono({
 export const metadata: Metadata = {
   title: "Career OS",
   description: "Your career, tracked and built with intent.",
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/favicon.svg", type: "image/svg+xml" },
+    ],
+    apple: [{ url: "/apple-touch-icon.png" }],
+  },
 };
 
 export default function RootLayout({

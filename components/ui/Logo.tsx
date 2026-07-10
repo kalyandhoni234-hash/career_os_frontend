@@ -10,19 +10,25 @@ interface LogoProps {
   className?: string;
 }
 
-export function Logo({ href = "/", size = "md", showText = true, animated = true, className = "" }: LogoProps) {
-  const box = { sm: "h-7 w-7 text-xs", md: "h-8 w-8 text-sm", lg: "h-10 w-10 text-base" };
-  const txt = { sm: "text-base", md: "text-lg", lg: "text-xl" };
+const LOGO_BODY = "M19,67 A23,23 0 1 1 61,40 Q70,32 80,21";
+const LOGO_ARROW = "M75,26 L86,15 L82,28 Z";
 
+const sizes = { sm: "h-7 w-7", md: "h-8 w-8", lg: "h-10 w-10" };
+const txtSizes = { sm: "text-base", md: "text-lg", lg: "text-xl" };
+
+export function Logo({ href = "/", size = "md", showText = true, animated = true, className = "" }: LogoProps) {
   const content = (
     <>
-      <span
-        className={`flex shrink-0 items-center justify-center rounded-lg bg-accent font-bold text-white transition-all duration-200 ${box[size]} ${animated ? "group-hover:scale-105 group-hover:shadow-lg group-hover:shadow-accent/20" : ""}`}
+      <svg
+        viewBox="0 0 100 100"
+        className={`shrink-0 text-accent ${sizes[size]} ${animated ? "transition-transform duration-200 group-hover:scale-105" : ""}`}
+        aria-hidden="true"
       >
-        C
-      </span>
+        <path d={LOGO_BODY} fill="none" stroke="currentColor" strokeWidth={9.5} strokeLinecap="round" strokeLinejoin="round" />
+        <path d={LOGO_ARROW} fill="currentColor" />
+      </svg>
       {showText && (
-        <span className={`font-serif font-medium tracking-tight text-fg-default transition-colors duration-200 group-hover:text-fg-default/90 ${txt[size]}`}>
+        <span className={`font-serif font-medium tracking-tight text-fg-default transition-colors duration-200 group-hover:text-fg-default/90 ${txtSizes[size]}`}>
           Career OS
         </span>
       )}
