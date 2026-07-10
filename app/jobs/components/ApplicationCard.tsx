@@ -15,9 +15,9 @@ interface ApplicationCardProps {
 }
 
 const PRIORITY_DOT: Record<string, string> = {
-  high: "bg-red-500",
-  medium: "bg-amber-500",
-  low: "bg-slate-400",
+  high: "bg-danger",
+  medium: "bg-warning",
+  low: "bg-fg-subtle",
 };
 
 function getInitials(name: string) {
@@ -99,7 +99,7 @@ export function ApplicationCard({ job, onDelete, onStatusChange, onEdit }: Appli
             </button>
             {menuOpen && (
               <>
-                <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(false)} />
+                <div className="fixed inset-0 z-10 cursor-pointer" onClick={() => setMenuOpen(false)} />
                 <div className="absolute right-0 top-8 z-20 w-44 overflow-hidden rounded-lg border border-border bg-bg-surface shadow-lg">
                   {["applied", "oa", "interview", "offer", "rejected"].map((s) => (
                     <button
@@ -124,7 +124,7 @@ export function ApplicationCard({ job, onDelete, onStatusChange, onEdit }: Appli
                   </button>
                   <button
                     onClick={() => { onDelete(job.id); setMenuOpen(false); }}
-                    className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs text-danger transition-colors duration-100 hover:bg-red-50"
+                    className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs text-danger transition-colors duration-100 hover:bg-danger/10"
                   >
                     <Trash2 size={12} /> Delete
                   </button>
@@ -138,9 +138,9 @@ export function ApplicationCard({ job, onDelete, onStatusChange, onEdit }: Appli
         <div className="mt-2.5 flex flex-wrap gap-1.5">
           {job.ats_score !== null && (
             <span className={`inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 font-mono text-[10px] font-medium ${
-              job.ats_score >= 80 ? "border-emerald-200 bg-emerald-50 text-emerald-700" :
-              job.ats_score >= 50 ? "border-amber-200 bg-amber-50 text-amber-700" :
-              "border-red-200 bg-red-50 text-red-700"
+              job.ats_score >= 80 ? "border-success/20 bg-success/10 text-success" :
+              job.ats_score >= 50 ? "border-warning/20 bg-warning/10 text-warning" :
+              "border-danger/20 bg-danger/10 text-danger"
             }`}>
               {job.ats_score}% ATS
             </span>
@@ -151,8 +151,8 @@ export function ApplicationCard({ job, onDelete, onStatusChange, onEdit }: Appli
             </span>
           )}
           <span className={`inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 font-mono text-[10px] ${
-            job.priority === "high" ? "border-red-200 bg-red-50 text-red-700" :
-            job.priority === "medium" ? "border-amber-200 bg-amber-50 text-amber-700" :
+            job.priority === "high" ? "border-danger/20 bg-danger/10 text-danger" :
+            job.priority === "medium" ? "border-warning/20 bg-warning/10 text-warning" :
             "border-border bg-bg-default text-fg-muted"
           }`}>
             <span className={`h-1.5 w-1.5 rounded-full ${PRIORITY_DOT[job.priority] || PRIORITY_DOT.medium}`} />

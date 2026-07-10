@@ -278,7 +278,7 @@ export default function OpportunitiesPage() {
                 </button>
                 <button
                   onClick={() => router.push("/agents")}
-                  className="text-[11px] px-3 py-1.5 rounded-lg border border-accent/20 bg-accent-subtle text-accent hover:bg-accent hover:text-white transition-colors flex items-center gap-1"
+                  className="text-[11px] px-3 py-1.5 rounded-lg border border-accent/20 bg-accent-subtle text-accent hover:bg-accent hover:text-fg-default transition-colors flex items-center gap-1"
                 >
                   <Cpu size={11} /> Ask Career Agent
                 </button>
@@ -307,7 +307,7 @@ export default function OpportunitiesPage() {
               </div>
               <button
                 onClick={() => load(1)}
-                className="mt-6 text-[11px] px-4 py-1.5 rounded-lg border border-accent/20 bg-accent-subtle text-accent hover:bg-accent hover:text-white transition-colors"
+                className="mt-6 text-[11px] px-4 py-1.5 rounded-lg border border-accent/20 bg-accent-subtle text-accent hover:bg-accent hover:text-fg-default transition-colors"
               >
                 Scan Now
               </button>

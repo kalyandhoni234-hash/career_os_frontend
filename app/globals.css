@@ -93,6 +93,39 @@ body {
   border-radius: 4px;
 }
 
+/* ─────────── Interactive element cursors ─────────── */
+
+button:not(:disabled),
+input[type="button"]:not(:disabled),
+input[type="submit"]:not(:disabled),
+input[type="reset"]:not(:disabled),
+input[type="checkbox"]:not(:disabled),
+input[type="radio"]:not(:disabled),
+select:not(:disabled),
+summary,
+details,
+[role="button"],
+[role="menuitem"],
+[role="tab"],
+[role="switch"],
+[role="option"] {
+  cursor: pointer;
+}
+
+button:disabled,
+input:disabled,
+select:disabled,
+textarea:disabled,
+[aria-disabled="true"] {
+  cursor: not-allowed;
+}
+
+/* Non-interactive elements reset */
+
+.cursor-default {
+  cursor: default;
+}
+
 ::selection {
   background-color: var(--accent);
   color: white;
@@ -309,4 +342,102 @@ html.theme-transition *::after {
   );
   background-size: 200% 100%;
   animation: shimmer 1.5s ease-in-out infinite;
+}
+
+/* ─────────── Mobile Utilities ─────────── */
+
+/* Safe area padding for notches/Dynamic Island */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.pt-safe {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+.pl-safe {
+  padding-left: env(safe-area-inset-left, 0px);
+}
+.pr-safe {
+  padding-right: env(safe-area-inset-right, 0px);
+}
+.mb-safe {
+  margin-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Minimum touch target */
+.touch-target {
+  min-width: 48px;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Active/pressed state for mobile taps */
+.touch-press {
+  transition: transform 0.1s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.touch-press:active {
+  transform: scale(0.96);
+}
+
+/* Prevent text size adjustment on orientation change */
+html {
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* Smooth scrolling but respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Improved tap highlight */
+* {
+  -webkit-tap-highlight-color: color-mix(in srgb, var(--accent) 15%, transparent);
+}
+
+/* Mobile-friendly scrollbar */
+@media (max-width: 768px) {
+  ::-webkit-scrollbar {
+    width: 3px;
+    height: 3px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 99px;
+  }
+}
+
+/* Full-width card reset for mobile */
+@media (max-width: 768px) {
+  .mobile-card {
+    width: 100%;
+    border-radius: 0.75rem;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  :root {
+    --border: #9CA3AF;
+    --fg-muted: #4B5563;
+    --fg-subtle: #6B7280;
+  }
+  .dark {
+    --border: #64748B;
+    --fg-muted: #CBD5E1;
+    --fg-subtle: #94A3B8;
+  }
+}
+
+/* Prevent layout shift from scrollbar */
+html {
+  scrollbar-gutter: stable;
 }

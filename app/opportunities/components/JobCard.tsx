@@ -233,7 +233,7 @@ export function JobCard({ opportunity: o, matchData, isSaved, onSave, onUnsave, 
         <div className="flex-1" />
         <button
           onClick={(e) => { e.stopPropagation(); onSelect?.(o.id); }}
-          className="btn-press flex items-center gap-1 px-3 py-1.5 rounded-lg text-[10px] font-medium border border-accent/20 bg-accent-subtle text-accent hover:bg-accent hover:text-white transition-all"
+          className="btn-press flex items-center gap-1 px-3 py-1.5 rounded-lg text-[10px] font-medium border border-accent/20 bg-accent-subtle text-accent hover:bg-accent hover:text-fg-default transition-all"
         >
           <Sparkles size={10} /> AI Prep
         </button>

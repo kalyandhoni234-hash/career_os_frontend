@@ -1,20 +1,3 @@
-export interface CareerMemory {
-  profile: Record<string, unknown>;
-  career_profile: CareerProfileData;
-  resume: Record<string, unknown>;
-  ats: AtsMemoryData;
-  applications: ApplicationMemoryData;
-  skills: SkillMemoryData;
-  learning: LearningEntry[];
-  goals: GoalMemoryData;
-  roadmaps: RoadmapSummary[];
-  timeline: TimelineEvent[];
-  recent_coach: { content: string; timestamp: string | null }[];
-  score_history: ScoreHistoryEntry[];
-  recommendations: RecommendationData[];
-  built_at: string;
-}
-
 export interface CareerProfileData {
   target_role?: string;
   target_company?: string;
@@ -116,28 +99,6 @@ export interface CareerScoreResult {
   timestamp: string | null;
 }
 
-export interface AiProfile {
-  name: string;
-  current_level: string;
-  target_role: string;
-  target_company: string;
-  career_goal_type: string;
-  ats_score: number;
-  keyword_match: number;
-  strong_skills: string[];
-  weak_skills: string[];
-  resume_summary_present: boolean;
-  total_experience_entries: number;
-  total_projects: number;
-  applications_total: number;
-  interview_count: number;
-  offer_count: number;
-  active_goals: number;
-  roadmap_count: number;
-  top_recommendation: string | null;
-  missing_ats_skills: string[];
-}
-
 export interface ActionPlanItem {
   id: number;
   title: string;
@@ -177,12 +138,7 @@ export interface SkillGap {
   recommended_project: string;
 }
 
-export interface ProjectRecommendation {
-  skill: string;
-  project: string;
-  estimated_ats_gain: number;
-  priority: number;
-}
+
 
 export interface RoadmapData {
   id: number;
@@ -227,20 +183,6 @@ export interface CareerGoalData {
   impact?: string;
 }
 
-export interface WeeklyReportData {
-  id: number;
-  week_start: string | null;
-  week_end: string | null;
-  score_before: number;
-  score_after: number;
-  score_change: number;
-  metrics: Record<string, number>;
-  achievements: string[];
-  recommendations: { title: string; impact: number; category: string }[];
-  summary: string;
-  created_at: string | null;
-}
-
 export interface CareerDashboardData {
   career_score: CareerScoreResult;
   career_memory: {
@@ -269,8 +211,4 @@ export interface CareerDashboardData {
   recommendations: RecommendationData[];
 }
 
-export interface CareerTimelineData {
-  events: TimelineEvent[];
-  total_events: number;
-  years_active: string[];
-}
+

@@ -114,30 +114,32 @@ export default function CoachPage() {
     <div className="flex h-[calc(100vh-3.5rem)]">
       {/* Chat area */}
       <div className="flex min-w-0 flex-1 flex-col">
-        <div className="flex items-center justify-between border-b border-border px-6 py-3">
-          <div className="flex items-center gap-3">
-            <MessageCircle size={18} className="text-accent" />
-            <h1 className="font-serif text-lg font-medium text-fg-default">Career Coach</h1>
+        <div className="flex items-center justify-between border-b border-border px-4 lg:px-6 py-2.5 lg:py-3">
+          <div className="flex items-center gap-2 lg:gap-3">
+            <MessageCircle size={16} className="text-accent shrink-0" />
+            <h1 className="font-serif text-base lg:text-lg font-medium text-fg-default">Career Coach</h1>
             {careerData?.career_score?.overall_score != null && (
-              <span className="rounded bg-accent/10 px-2 py-0.5 text-[11px] font-mono font-medium text-accent">
-                Score: {careerData.career_score.overall_score}
+              <span className="rounded bg-accent/10 px-1.5 lg:px-2 py-0.5 text-[10px] lg:text-[11px] font-mono font-medium text-accent">
+                {careerData.career_score.overall_score}
               </span>
             )}
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 lg:gap-2">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="btn-press flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs text-fg-muted transition-all duration-150 hover:bg-bg-hover hover:text-fg-default"
+              className="btn-press touch-target flex items-center justify-center gap-1.5 rounded-lg px-2 lg:px-2.5 py-1.5 text-xs text-fg-muted transition-all duration-150 hover:bg-bg-hover hover:text-fg-default"
+              aria-label="Toggle context"
             >
-              <BrainCircuit size={13} />
+              <BrainCircuit size={14} />
               <span className="hidden sm:inline font-mono text-[10px] uppercase tracking-wider">Context</span>
             </button>
             {messages.length > 0 && (
               <button
                 onClick={handleClear}
-                className="btn-press flex items-center gap-1.5 text-sm text-fg-muted transition-all duration-150 hover:text-danger"
+                className="btn-press touch-target flex items-center justify-center gap-1.5 text-sm text-fg-muted transition-all duration-150 hover:text-danger"
+                aria-label="Clear conversation"
               >
-                <Trash2 size={13} />
+                <Trash2 size={14} />
                 <span className="hidden sm:inline font-mono text-xs uppercase tracking-wider">Clear</span>
               </button>
             )}
@@ -145,7 +147,7 @@ export default function CoachPage() {
         </div>
 
         <div className="flex-1 overflow-y-auto">
-          <div className="mx-auto max-w-2xl px-6 py-6">
+          <div className="mx-auto max-w-2xl px-4 lg:px-6 py-4 lg:py-6">
             {historyLoading ? (
               <div className="flex items-center justify-center py-20">
                 <ThinkingDots />
@@ -224,7 +226,7 @@ export default function CoachPage() {
           </div>
         </div>
 
-        <div className="border-t border-border bg-bg-surface px-6 py-4">
+        <div className="sticky bottom-0 border-t border-border bg-bg-surface/95 backdrop-blur-lg px-4 lg:px-6 py-3 lg:py-4 pb-safe">
           <div className="mx-auto max-w-2xl">
             {error && (
               <motion.p
@@ -238,7 +240,7 @@ export default function CoachPage() {
             <form onSubmit={handleSend} className="flex gap-2">
               <input
                 ref={inputRef}
-                className="flex-1 rounded-xl border border-border bg-bg-default px-4 py-2.5 text-sm text-fg-default placeholder:text-fg-subtle transition-all duration-150 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent-ring/50 active:border-accent/70 disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex-1 rounded-xl border border-border bg-bg-default px-4 py-3 lg:py-2.5 text-sm text-fg-default placeholder:text-fg-subtle transition-all duration-150 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent-ring/50 active:border-accent/70 disabled:cursor-not-allowed disabled:opacity-50"
                 placeholder="Ask your career coach..."
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
@@ -249,6 +251,7 @@ export default function CoachPage() {
                 disabled={loading || !input.trim()}
                 icon={<Send size={14} />}
                 size="md"
+                className="touch-target"
               >
                 Send
               </Button>

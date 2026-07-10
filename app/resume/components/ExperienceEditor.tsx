@@ -69,7 +69,7 @@ export function ExperienceEditor({ experiences, onChange }: ExperienceEditorProp
           >
             <div className="mb-2 flex items-center justify-between">
               <span className="font-mono text-[10px] font-medium text-fg-subtle">#{i + 1}</span>
-              <button onClick={() => remove(i)} className="rounded-md p-1 text-fg-muted transition-colors duration-150 hover:bg-red-50 hover:text-danger">
+              <button onClick={() => remove(i)} className="rounded-md p-1 text-fg-muted transition-colors duration-150 hover:bg-danger/10 hover:text-danger">
                 <Trash2 size={12} />
               </button>
             </div>

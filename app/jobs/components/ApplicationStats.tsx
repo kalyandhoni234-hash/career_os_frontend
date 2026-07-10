@@ -41,7 +41,7 @@ export function ApplicationStats({ totalApplications, jobsByStatus, offers }: Ap
       <MiniStat label="Rejected" value={rejected} icon={<XCircle size={16} />} />
       {totalApplications > 0 && (
         <>
-          <MiniStat label="Interview Rate" value={`${interviewRate}%`} icon={<TrendingUp size={16} />} accent="text-purple-500" />
+          <MiniStat label="Interview Rate" value={`${interviewRate}%`} icon={<TrendingUp size={16} />} accent="text-accent" />
           <MiniStat label="Success Rate" value={`${successRate}%`} icon={<Award size={16} />} accent="text-success" />
         </>
       )}

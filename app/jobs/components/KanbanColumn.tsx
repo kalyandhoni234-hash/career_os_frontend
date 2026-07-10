@@ -25,18 +25,18 @@ export function KanbanColumn({ status, label, color, jobs, onDelete, onStatusCha
   return (
     <div className="flex w-72 shrink-0 flex-col">
       {/* Header */}
-      <div className={`mb-3 flex items-center justify-between rounded-xl px-3.5 py-2.5 ${color}`}>
+      <div className={`mb-3 flex items-center justify-between rounded-xl border border-border border-l-4 px-3.5 py-2.5 ${color}`}>
         <div className="flex items-center gap-2">
-          <h3 className="font-mono text-xs font-semibold uppercase tracking-widest">{label}</h3>
-          <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-white/30 px-1.5 font-mono text-[11px] font-bold">
+          <h3 className="font-mono text-xs font-semibold uppercase tracking-widest text-fg-default">{label}</h3>
+          <span className="flex h-5 min-w-[20px] items-center justify-center rounded-md bg-bg-hover px-1.5 font-mono text-[11px] font-bold text-fg-muted">
             {jobs.length}
           </span>
         </div>
         <button
           onClick={onAddClick}
-          className="flex h-6 w-6 items-center justify-center rounded-md bg-white/20 transition-all duration-150 hover:bg-white/30 active:scale-90"
+          className="flex h-6 w-6 items-center justify-center rounded-md bg-bg-hover transition-all duration-150 hover:bg-bg-raised active:scale-90"
         >
-          <Plus size={14} />
+          <Plus size={14} className="text-fg-muted" />
         </button>
       </div>
 

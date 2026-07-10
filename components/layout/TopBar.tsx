@@ -16,7 +16,7 @@ export function TopBar({ onMenuToggle }: TopBarProps) {
     <header className="flex h-14 items-center gap-4 border-b border-border bg-bg-surface px-4 lg:px-6">
       <button
         onClick={onMenuToggle}
-        className="btn-press flex items-center justify-center rounded-lg p-1.5 text-fg-muted transition-all duration-150 hover:bg-bg-hover hover:text-fg-default lg:hidden"
+        className="btn-press flex items-center justify-center rounded-lg p-1.5 text-fg-muted transition-all duration-150 hover:bg-bg-hover hover:text-fg-default lg:hidden cursor-pointer"
         aria-label="Toggle navigation menu"
       >
         <Menu size={18} />
@@ -36,7 +36,7 @@ export function TopBar({ onMenuToggle }: TopBarProps) {
       </div>
 
       <button
-        className="btn-press relative flex items-center justify-center rounded-lg p-1.5 text-fg-muted transition-all duration-150 hover:bg-bg-hover hover:text-fg-default"
+        className="btn-press relative flex items-center justify-center rounded-lg p-1.5 text-fg-muted transition-all duration-150 hover:bg-bg-hover hover:text-fg-default cursor-pointer"
         aria-label="Notifications"
       >
         <Bell size={18} />

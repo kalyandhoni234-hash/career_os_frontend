@@ -54,10 +54,10 @@ const MILESTONE_ICONS: Record<string, typeof Briefcase> = {
 
 const MILESTONE_COLORS: Record<string, string> = {
   experience: "border-l-accent bg-accent/5",
-  education: "border-l-emerald-500 bg-emerald-500/5",
-  achievement: "border-l-amber-500 bg-amber-500/5",
-  certificate: "border-l-violet-500 bg-violet-500/5",
-  application: "border-l-rose-500 bg-rose-500/5",
+  education: "border-l-success bg-success/5",
+  achievement: "border-l-warning bg-warning/5",
+  certificate: "border-l-accent bg-accent/5",
+  application: "border-l-danger bg-danger/5",
 };
 
 export default function CareerOverviewPage() {
@@ -119,11 +119,11 @@ export default function CareerOverviewPage() {
 
         {overview?.top_achievement && (
           <motion.div variants={fadeUp}>
-            <Card className="border-l-4 border-l-amber-500 p-4">
+            <Card className="border-l-4 border-l-warning p-4">
               <div className="flex items-start gap-3">
-                <Award size={20} className="mt-0.5 shrink-0 text-amber-500" />
+                <Award size={20} className="mt-0.5 shrink-0 text-warning" />
                 <div>
-                  <p className="text-xs font-medium uppercase tracking-wider text-amber-600">
+                  <p className="text-xs font-medium uppercase tracking-wider text-warning">
                     Top Achievement
                   </p>
                   <p className="mt-0.5 text-sm text-fg-default">{overview.top_achievement}</p>
@@ -160,7 +160,7 @@ export default function CareerOverviewPage() {
               <div className="relative space-y-4">
                 {overview.milestones.map((ms, i) => {
                   const Icon = MILESTONE_ICONS[ms.type] ?? Star;
-                  const color = MILESTONE_COLORS[ms.type] ?? "border-l-gray-400 bg-gray-400/5";
+                  const color = MILESTONE_COLORS[ms.type] ?? "border-l-fg-muted bg-fg-muted/5";
                   return (
                     <motion.div
                       key={i}

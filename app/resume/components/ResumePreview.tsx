@@ -34,14 +34,14 @@ export function ResumePreview({ resume }: ResumePreviewProps) {
       <div className="p-6">
         {/* Header */}
         <div className="border-b border-border pb-4">
-          <h1 className="font-serif text-xl font-semibold tracking-tight text-gray-900">
+          <h1 className="font-serif text-xl font-semibold tracking-tight text-fg-default">
             {resume.full_name || "Your Name"}
           </h1>
           {resume.title && (
-            <p className="mt-0.5 text-sm font-medium text-gray-600">{resume.title}</p>
+            <p className="mt-0.5 text-sm font-medium text-fg-muted">{resume.title}</p>
           )}
           {contact.length > 0 && (
-            <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-gray-500">
+            <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-fg-subtle">
               {contact.map((c, i) => c && <span key={i}>{c}</span>)}
             </div>
           )}
@@ -51,7 +51,7 @@ export function ResumePreview({ resume }: ResumePreviewProps) {
         {resume.summary && (
           <div className="mt-4">
             <SectionTitle>Professional Summary</SectionTitle>
-            <p className="mt-1 text-[11px] leading-relaxed text-gray-700">{resume.summary}</p>
+            <p className="mt-1 text-[11px] leading-relaxed text-fg-muted">{resume.summary}</p>
           </div>
         )}
 
@@ -63,20 +63,20 @@ export function ResumePreview({ resume }: ResumePreviewProps) {
               <div key={i} className="mt-2.5">
                 <div className="flex items-start justify-between">
                   <div>
-                    <p className="text-[12px] font-semibold text-gray-900">{exp.role}</p>
-                    <p className="text-[11px] text-gray-600">{exp.company}</p>
+                    <p className="text-[12px] font-semibold text-fg-default">{exp.role}</p>
+                    <p className="text-[11px] text-fg-muted">{exp.company}</p>
                   </div>
-                  <p className="shrink-0 text-[10px] text-gray-400">{exp.start} - {exp.end}</p>
+                  <p className="shrink-0 text-[10px] text-fg-subtle">{exp.start} - {exp.end}</p>
                 </div>
                 {Array.isArray(exp.bullets) && exp.bullets.length > 0 && (
                   <ul className="mt-1 space-y-0.5 pl-3.5">
                     {exp.bullets.filter(Boolean).map((b, j) => (
-                      <li key={j} className="list-disc text-[11px] leading-relaxed text-gray-700">{b}</li>
+                      <li key={j} className="list-disc text-[11px] leading-relaxed text-fg-muted">{b}</li>
                     ))}
                   </ul>
                 )}
                 {Array.isArray(exp.technologies) && exp.technologies.length > 0 && (
-                  <p className="mt-1 text-[10px] text-gray-400">
+                  <p className="mt-1 text-[10px] text-fg-subtle">
                     <span className="font-medium">Technologies:</span> {exp.technologies.join(", ")}
                   </p>
                 )}
@@ -93,12 +93,12 @@ export function ResumePreview({ resume }: ResumePreviewProps) {
               <div key={i} className="mt-2">
                 <div className="flex items-start justify-between">
                   <div>
-                    <p className="text-[12px] font-semibold text-gray-900">{edu.degree}{edu.field ? ` in ${edu.field}` : ""}</p>
-                    <p className="text-[11px] text-gray-600">{edu.school}</p>
+                    <p className="text-[12px] font-semibold text-fg-default">{edu.degree}{edu.field ? ` in ${edu.field}` : ""}</p>
+                    <p className="text-[11px] text-fg-muted">{edu.school}</p>
                   </div>
                   <div className="shrink-0 text-right">
-                    <p className="text-[10px] text-gray-400">{edu.start} - {edu.end}</p>
-                    {edu.gpa && <p className="text-[10px] text-gray-400">GPA: {edu.gpa}</p>}
+                    <p className="text-[10px] text-fg-subtle">{edu.start} - {edu.end}</p>
+                    {edu.gpa && <p className="text-[10px] text-fg-subtle">GPA: {edu.gpa}</p>}
                   </div>
                 </div>
               </div>
@@ -112,10 +112,10 @@ export function ResumePreview({ resume }: ResumePreviewProps) {
             <SectionTitle>Projects</SectionTitle>
             {resume.projects.map((proj, i) => (
               <div key={i} className="mt-2">
-                <p className="text-[12px] font-semibold text-gray-900">{proj.name}</p>
-                {proj.description && <p className="mt-0.5 text-[11px] text-gray-700">{proj.description}</p>}
+                <p className="text-[12px] font-semibold text-fg-default">{proj.name}</p>
+                {proj.description && <p className="mt-0.5 text-[11px] text-fg-muted">{proj.description}</p>}
                 {Array.isArray(proj.technologies) && proj.technologies.length > 0 && (
-                  <p className="mt-0.5 text-[10px] text-gray-400">
+                  <p className="mt-0.5 text-[10px] text-fg-subtle">
                     <span className="font-medium">Technologies:</span> {proj.technologies.join(", ")}
                   </p>
                 )}

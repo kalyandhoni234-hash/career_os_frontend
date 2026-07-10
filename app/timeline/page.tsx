@@ -391,8 +391,8 @@ export default function TimelinePage() {
 
   const statCards = useMemo(() => [
     { label: "Total Events", value: stats?.total ?? 0, icon: Route, color: "text-accent" },
-    { label: "Pinned", value: stats?.pinned ?? 0, icon: Pin, color: "text-violet-400" },
-    { label: "Favorites", value: stats?.favorites ?? 0, icon: Star, color: "text-amber-400" },
+    { label: "Pinned", value: stats?.pinned ?? 0, icon: Pin, color: "text-accent" },
+    { label: "Favorites", value: stats?.favorites ?? 0, icon: Star, color: "text-warning" },
     { label: "Planned", value: stats?.planned ?? 0, icon: Clock, color: "text-warning" },
     { label: "In Progress", value: stats?.in_progress ?? 0, icon: Loader2, color: "text-accent" },
     { label: "Completed", value: stats?.completed ?? 0, icon: CheckCircle2, color: "text-success" },
@@ -844,10 +844,10 @@ function EventCard({
               </button>
               <button
                 onClick={onToggleFavorite}
-                className="rounded-md p-1.5 text-fg-subtle transition-colors hover:bg-bg-hover hover:text-amber-500"
+                className="rounded-md p-1.5 text-fg-subtle transition-colors hover:bg-bg-hover hover:text-warning"
                 title={event.is_favorite ? "Remove from favorites" : "Add to favorites"}
               >
-                <Star size={13} className={event.is_favorite ? "fill-amber-500 text-amber-500" : ""} />
+                <Star size={13} className={event.is_favorite ? "fill-warning text-warning" : ""} />
               </button>
 
               {/* More menu */}

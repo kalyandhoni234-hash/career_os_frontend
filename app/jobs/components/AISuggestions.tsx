@@ -7,7 +7,7 @@ import { apiFetch } from "@/lib/api";
 import type { Suggestion } from "../types";
 
 const IMPACT_ORDER = { high: 0, medium: 1, low: 2 };
-const IMPACT_COLORS = { high: "bg-accent/10 border-accent/20 text-accent", medium: "bg-amber-50 border-amber-200 text-amber-700", low: "bg-bg-default border-border text-fg-muted" };
+const IMPACT_COLORS = { high: "bg-accent/10 border-accent/20 text-accent", medium: "bg-warning/10 border-warning/20 text-warning", low: "bg-bg-default border-border text-fg-muted" };
 const CATEGORY_LABELS: Record<string, string> = {
   resume: "Resume",
   applications: "Applications",
@@ -65,7 +65,7 @@ export function AISuggestions({ refreshKey }: { refreshKey: number }) {
                     <p className="mt-1 text-sm font-medium text-fg-default">{s.title}</p>
                     <p className="mt-0.5 text-xs text-fg-muted">{s.description}</p>
                     <div className="mt-1.5">
-                      <span className="inline-block rounded bg-black/5 px-1.5 py-0.5 font-mono text-[10px] font-medium text-fg-muted">
+                      <span className="inline-block rounded bg-bg-hover px-1.5 py-0.5 font-mono text-[10px] font-medium text-fg-muted">
                         {s.score_impact}
                       </span>
                     </div>

@@ -180,23 +180,23 @@ export default function JobsPage() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-7xl space-y-6 p-6">
-        <div className="h-8 w-48 shimmer rounded-md" />
+      <div className="mx-auto max-w-7xl space-y-4 lg:space-y-6 p-4 lg:p-6">
+        <div className="h-8 w-40 lg:w-48 shimmer rounded-md" />
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-6">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="h-24 rounded-xl border border-border bg-bg-surface p-4">
-              <div className="h-3 w-16 shimmer rounded-md" />
-              <div className="mt-2 h-6 w-10 shimmer rounded-md" />
+            <div key={i} className="h-20 lg:h-24 rounded-xl border border-border bg-bg-surface p-3 lg:p-4">
+              <div className="h-3 w-12 lg:w-16 shimmer rounded-md" />
+              <div className="mt-2 h-5 lg:h-6 w-8 lg:w-10 shimmer rounded-md" />
             </div>
           ))}
         </div>
-        <div className="flex gap-3">
+        <div className="flex gap-3 overflow-x-auto pb-2">
           {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="h-80 w-72 rounded-xl border border-border bg-bg-surface p-3">
-              <div className="h-6 w-24 shimmer rounded-md" />
+            <div key={i} className="h-72 lg:h-80 w-64 lg:w-72 shrink-0 rounded-xl border border-border bg-bg-surface p-3">
+              <div className="h-6 w-20 lg:w-24 shimmer rounded-md" />
               <div className="mt-3 space-y-2">
-                <div className="h-28 shimmer rounded-lg" />
-                <div className="h-28 shimmer rounded-lg" />
+                <div className="h-24 lg:h-28 shimmer rounded-lg" />
+                <div className="h-24 lg:h-28 shimmer rounded-lg" />
               </div>
             </div>
           ))}
@@ -238,18 +238,18 @@ export default function JobsPage() {
       initial="hidden"
       animate="show"
       variants={stagger}
-      className="mx-auto max-w-7xl space-y-6 p-6"
+      className="mx-auto max-w-7xl space-y-4 lg:space-y-6 p-4 lg:p-6"
     >
       {/* Header */}
-      <motion.div variants={fadeUp} className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <motion.div variants={fadeUp} className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <div className="flex items-center gap-3">
-            <Briefcase size={20} className="text-accent" />
-            <h1 className="font-serif text-2xl font-medium tracking-tight text-fg-default">Applications</h1>
+          <div className="flex items-center gap-2 lg:gap-3">
+            <Briefcase size={18} className="text-accent shrink-0" />
+            <h1 className="font-serif text-xl lg:text-2xl font-medium tracking-tight text-fg-default">Applications</h1>
           </div>
           <p className="mt-0.5 font-sans text-sm text-fg-muted">Track your internship and job journey</p>
         </div>
-        <Button onClick={() => { setFormData(defaultForm); setEditingId(null); setShowForm(!showForm); }} icon={<SendHorizontal size={14} />} size="sm">
+        <Button onClick={() => { setFormData(defaultForm); setEditingId(null); setShowForm(!showForm); }} icon={<SendHorizontal size={14} />} size="sm" className="w-full sm:w-auto touch-target">
           {showForm ? "Cancel" : "Add Application"}
         </Button>
       </motion.div>
@@ -331,7 +331,7 @@ export default function JobsPage() {
                   key={status}
                   status={status}
                   label={STATUS_LABELS[status]}
-                  color={STATUS_COLORS[status].bg}
+                  color={STATUS_COLORS[status].header}
                   jobs={grouped[status] || []}
                   onDelete={handleDelete}
                   onStatusChange={handleStatusChange}

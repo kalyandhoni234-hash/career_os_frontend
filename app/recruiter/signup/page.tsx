@@ -44,7 +44,7 @@ export default function RecruiterSignupPage() {
 
   return (
     <div className="relative flex min-h-screen items-center justify-center bg-bg-default px-6 overflow-hidden">
-      <div className="absolute w-96 h-96 bg-emerald-400/10 rounded-full blur-3xl -top-20 -right-20 animate-blob" />
+      <div className="absolute w-96 h-96 bg-success/10 rounded-full blur-3xl -top-20 -right-20 animate-blob" />
       <div className="absolute w-80 h-80 bg-accent/10 rounded-full blur-3xl -bottom-20 -left-20 animate-blob-slow" />
 
       <motion.div initial="hidden" animate="show" variants={stagger} className="relative w-full max-w-sm">

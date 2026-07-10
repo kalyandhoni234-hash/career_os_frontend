@@ -69,10 +69,18 @@ export const STATUS_LABELS: Record<string, string> = {
   rejected: "Rejected",
 };
 
-export const STATUS_COLORS: Record<string, { bg: string; border: string; text: string; dot: string }> = {
-  applied: { bg: "bg-blue-50", border: "border-blue-200", text: "text-blue-700", dot: "bg-blue-500" },
-  oa: { bg: "bg-amber-50", border: "border-amber-200", text: "text-amber-700", dot: "bg-amber-500" },
-  interview: { bg: "bg-purple-50", border: "border-purple-200", text: "text-purple-700", dot: "bg-purple-500" },
-  offer: { bg: "bg-emerald-50", border: "border-emerald-200", text: "text-emerald-700", dot: "bg-emerald-500" },
-  rejected: { bg: "bg-red-50", border: "border-red-200", text: "text-red-700", dot: "bg-red-500" },
+export const STATUS_COLORS: Record<string, { header: string; dot: string; badge: string }> = {
+  applied: { header: "border-l-accent bg-bg-surface", dot: "bg-accent", badge: "bg-accent/10 text-accent border-accent/20" },
+  oa: { header: "border-l-warning bg-bg-surface", dot: "bg-warning", badge: "bg-warning/10 text-warning border-warning/20" },
+  interview: { header: "border-l-accent bg-bg-surface", dot: "bg-accent ring-1 ring-accent/30", badge: "bg-accent/10 text-accent border-accent/20" },
+  offer: { header: "border-l-success bg-bg-surface", dot: "bg-success", badge: "bg-success/10 text-success border-success/20" },
+  rejected: { header: "border-l-danger bg-bg-surface", dot: "bg-danger", badge: "bg-danger/10 text-danger border-danger/20" },
+};
+
+export const STATUS_CHART_FILL: Record<string, string> = {
+  applied: "var(--accent)",
+  oa: "var(--warning)",
+  interview: "var(--accent)",
+  offer: "var(--success)",
+  rejected: "var(--danger)",
 };

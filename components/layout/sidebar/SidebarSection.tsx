@@ -41,7 +41,7 @@ export function SidebarSection({ title, children, collapsed, defaultOpen = true 
       <button
         onClick={toggle}
         className={`
-          flex w-full items-center gap-2 rounded-lg text-xs font-medium transition-all duration-150
+          flex w-full items-center gap-2 rounded-lg text-xs font-medium transition-all duration-150 cursor-pointer
           ${collapsed ? "justify-center py-1.5" : "px-3 py-1.5"}
           text-fg-subtle hover:text-fg-default hover:bg-bg-hover/50
         `}

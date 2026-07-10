@@ -26,50 +26,50 @@ const features = [
     icon: Search,
     title: "ATS Intelligence",
     desc: "Know your score before you submit. Live ATS analysis.",
-    blobColor: "bg-green-500/10",
-    glowColor: "text-green-500",
+    blobColor: "bg-success/10",
+    glowColor: "text-success",
   },
   {
     icon: BrainCircuit,
     title: "Career Agent",
     desc: "24/7 AI agent that discovers jobs and optimizes your profile",
-    blobColor: "bg-purple-500/10",
-    glowColor: "text-purple-500",
+    blobColor: "bg-accent/10",
+    glowColor: "text-accent",
   },
   {
     icon: MessageSquare,
     title: "Interview Hub",
     desc: "Role-specific questions with AI feedback and STAR framework",
-    blobColor: "bg-yellow-500/10",
-    glowColor: "text-yellow-500",
+    blobColor: "bg-warning/10",
+    glowColor: "text-warning",
   },
   {
     icon: GraduationCap,
     title: "Learning Roadmaps",
     desc: "Personalized skill paths to close gaps and level up",
-    blobColor: "bg-blue-500/10",
-    glowColor: "text-blue-500",
+    blobColor: "bg-success/10",
+    glowColor: "text-success",
   },
   {
     icon: ClipboardList,
     title: "Applications",
     desc: "Kanban board to track every application end-to-end",
-    blobColor: "bg-orange-500/10",
-    glowColor: "text-orange-500",
+    blobColor: "bg-warning/10",
+    glowColor: "text-warning",
   },
   {
     icon: BarChart3,
     title: "Analytics",
     desc: "Understand what's working with pipeline and funnel metrics",
-    blobColor: "bg-cyan-500/10",
-    glowColor: "text-cyan-500",
+    blobColor: "bg-accent/10",
+    glowColor: "text-accent",
   },
   {
     icon: Globe,
     title: "Portfolio Builder",
     desc: "Showcase your projects with auto-generated portfolio",
-    blobColor: "bg-pink-500/10",
-    glowColor: "text-pink-500",
+    blobColor: "bg-danger/10",
+    glowColor: "text-danger",
   },
 ];
 
@@ -89,7 +89,7 @@ export function Features() {
         </span>
         <h2 className="font-serif text-3xl font-medium text-fg-default sm:text-4xl lg:text-5xl">
           Everything you need to{" "}
-          <span className="bg-gradient-to-r from-accent via-purple-400 to-blue-400 bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-accent via-accent to-accent/50 bg-clip-text text-transparent">
             land the role
           </span>
         </h2>

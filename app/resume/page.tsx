@@ -216,9 +216,9 @@ export default function ResumePage() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-7xl p-6">
-        <div className="flex gap-6">
-          <div className="w-52 space-y-2">
+      <div className="mx-auto max-w-7xl p-4 sm:p-6">
+        <div className="flex flex-col lg:flex-row gap-4 lg:gap-6">
+          <div className="w-full lg:w-52 space-y-2">
             {Array.from({ length: 8 }).map((_, i) => <div key={i} className="h-9 shimmer rounded-lg" />)}
           </div>
           <div className="flex-1 space-y-3">

@@ -109,7 +109,7 @@ export default function RecruiterLayout({ children }: { children: React.ReactNod
   return (
     <div className="flex h-screen overflow-hidden bg-bg-default">
       {mobileOpen && (
-        <div className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm lg:hidden" onClick={() => setMobileOpen(false)} />
+        <div className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm lg:hidden cursor-pointer" onClick={() => setMobileOpen(false)} />
       )}
       <aside className={`flex h-screen flex-col border-r border-border bg-bg-surface transition-all duration-200 shrink-0 ${collapsed ? "w-[72px]" : "w-64"} ${mobileOpen ? "fixed left-0 top-0 z-50" : "hidden"} lg:sticky lg:top-0 lg:flex lg:translate-x-0`}>
         {sidebarContent}

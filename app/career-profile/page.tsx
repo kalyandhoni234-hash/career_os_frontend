@@ -492,7 +492,7 @@ export default function CareerProfilePage() {
   }, [addToast]);
   if (loading) {
     return (
-      <div className="mx-auto max-w-7xl p-6">
+      <div className="mx-auto max-w-7xl p-4 lg:p-6">
         <div className="mb-8 space-y-3">
           <Skeleton className="h-8 w-56" />
           <Skeleton className="h-4 w-72" />
@@ -555,7 +555,7 @@ export default function CareerProfilePage() {
   const incompleteRecs = recommendations.filter((r) => r.priority === "high" || r.priority === "medium");
 
   return (
-    <motion.div initial="hidden" animate="show" variants={stagger} className="mx-auto max-w-7xl space-y-8 p-6">
+    <motion.div initial="hidden" animate="show" variants={stagger} className="mx-auto max-w-7xl space-y-6 lg:space-y-8 p-4 lg:p-6">
 
       {/* ── Page Header ──────────────────────────────────── */}
       <motion.div variants={fadeUp} className="flex items-center justify-between">
@@ -1222,7 +1222,7 @@ export default function CareerProfilePage() {
                     pref.on ? "bg-success" : "bg-bg-hover"
                   }`}>
                     <span
-                      className="inline-block h-3.5 w-3.5 rounded-full bg-white shadow-sm transition-transform"
+                      className="inline-block h-3.5 w-3.5 rounded-full bg-bg-surface shadow-sm transition-transform"
                       style={{ transform: `translateX(${pref.on ? "18px" : "2px"})` }}
                     />
                   </span>

@@ -20,30 +20,30 @@ const slides = [
     icon: BrainCircuit,
     title: "Career Agent",
     description: "24/7 AI agent that works in the background discovering opportunities and optimizing your profile.",
-    color: "text-purple-500",
-    bg: "bg-purple-50",
-    gradient: "from-purple-500/10 via-bg-surface to-purple-500/5",
-    border: "border-purple-500/20",
+    color: "text-accent",
+    bg: "bg-accent-subtle",
+    gradient: "from-accent/10 via-bg-surface to-accent/5",
+    border: "border-accent/20",
     features: ["Automated job discovery", "Resume optimization", "Interview preparation", "Weekly briefings"],
   },
   {
     icon: LayoutDashboard,
     title: "Command Center",
     description: "Your career headquarters with agent status, health gauges, AI memory, and opportunity feed.",
-    color: "text-emerald-500",
-    bg: "bg-emerald-50",
-    gradient: "from-emerald-500/10 via-bg-surface to-emerald-500/5",
-    border: "border-emerald-500/20",
+    color: "text-success",
+    bg: "bg-success-subtle",
+    gradient: "from-success/10 via-bg-surface to-success/5",
+    border: "border-success/20",
     features: ["Live agent monitoring", "Career health metrics", "AI memory dashboard", "Opportunity ranking"],
   },
   {
     icon: BarChart3,
     title: "Analytics",
     description: "Understand what's working with pipeline funnels, skill graphs, and career score tracking.",
-    color: "text-amber-500",
-    bg: "bg-amber-50",
-    gradient: "from-amber-500/10 via-bg-surface to-amber-500/5",
-    border: "border-amber-500/20",
+    color: "text-warning",
+    bg: "bg-warning-subtle",
+    gradient: "from-warning/10 via-bg-surface to-warning/5",
+    border: "border-warning/20",
     features: ["Pipeline visualization", "Skill coverage charts", "Score history", "Market trends"],
   },
   {
@@ -60,10 +60,10 @@ const slides = [
     icon: Map,
     title: "Roadmaps",
     description: "Personalized learning roadmaps to close skill gaps and accelerate career growth.",
-    color: "text-rose-500",
-    bg: "bg-rose-50",
-    gradient: "from-rose-500/10 via-bg-surface to-rose-500/5",
-    border: "border-rose-500/20",
+    color: "text-danger",
+    bg: "bg-danger-subtle",
+    gradient: "from-danger/10 via-bg-surface to-danger/5",
+    border: "border-danger/20",
     features: ["Skill gap analysis", "Curated resources", "Progress tracking", "Project suggestions"],
   },
 ];
@@ -104,7 +104,7 @@ export function Showcase() {
                   <ul className="space-y-2">
                     {slide.features.map((f) => (
                       <li key={f} className="flex items-center gap-2 text-sm text-fg-default">
-                        <span className={`h-1.5 w-1.5 rounded-full ${slide.color.replace("text-", "bg-")}`} />
+                        <span className={`h-1.5 w-1.5 rounded-full ${slide.color}`} />
                         {f}
                       </li>
                     ))}

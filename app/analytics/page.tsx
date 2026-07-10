@@ -41,14 +41,14 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 const STATUS_COLORS: Record<string, string> = {
-  applied: "#2563eb",
-  oa: "#d97706",
-  interview: "#8b5cf6",
-  offer: "#16a34a",
-  rejected: "#dc2626",
+  applied: "var(--accent)",
+  oa: "var(--warning)",
+  interview: "var(--accent)",
+  offer: "var(--success)",
+  rejected: "var(--danger)",
 };
 
-const PIE_COLORS = ["#2563eb", "#d97706", "#8b5cf6", "#16a34a", "#dc2626"];
+const PIE_COLORS = ["var(--accent)", "var(--warning)", "var(--accent)", "var(--success)", "var(--danger)"];
 
 const fadeUp = {
   hidden: { opacity: 0, y: 16 },

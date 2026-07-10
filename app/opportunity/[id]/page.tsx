@@ -131,7 +131,7 @@ export default function OpportunityDetailPage() {
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white rounded-xl border border-border p-6"
+        className="bg-bg-surface rounded-xl border border-border p-6"
       >
         <div className="flex items-start gap-5">
           <div className="w-16 h-16 rounded-xl bg-accent-subtle flex items-center justify-center shrink-0 overflow-hidden">
@@ -187,7 +187,7 @@ export default function OpportunityDetailPage() {
             <motion.div
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-white rounded-xl border border-border p-5"
+              className="bg-bg-surface rounded-xl border border-border p-5"
             >
               <h3 className="text-sm font-semibold mb-3">Description</h3>
               <div className="text-xs text-fg-muted leading-relaxed whitespace-pre-line">
@@ -208,7 +208,7 @@ export default function OpportunityDetailPage() {
             <motion.div
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-white rounded-xl border border-border p-5"
+              className="bg-bg-surface rounded-xl border border-border p-5"
             >
               <h3 className="text-sm font-semibold mb-3">Requirements</h3>
               <ul className="space-y-1.5">
@@ -226,7 +226,7 @@ export default function OpportunityDetailPage() {
             <motion.div
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-white rounded-xl border border-border p-5"
+              className="bg-bg-surface rounded-xl border border-border p-5"
             >
               <h3 className="text-sm font-semibold mb-3">Responsibilities</h3>
               <ul className="space-y-1.5">

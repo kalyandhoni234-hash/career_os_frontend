@@ -32,6 +32,8 @@ export interface CareerInfo {
   position: string;
   experience_years: number;
   employment_type: string;
+  career_stage: string;
+  stage_meta: Record<string, unknown>;
 }
 
 export interface DreamCareer {

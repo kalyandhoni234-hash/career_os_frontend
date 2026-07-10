@@ -21,10 +21,10 @@ interface DecorativeCard {
 
 const cards: DecorativeCard[] = [
   { icon: Briefcase, color: "text-accent", borderColor: "border-accent/30", position: "top-[14%] left-[3%] lg:left-[4%]", delay: 0, desktop: true, tablet: true, mobile: false },
-  { icon: FileText, color: "text-green-500", borderColor: "border-green-400/30", position: "top-[4%] left-[30%] lg:left-[32%]", delay: 1.5, desktop: true, tablet: false, mobile: false },
-  { icon: Sparkles, color: "text-yellow-500", borderColor: "border-yellow-400/30", position: "top-[22%] right-[3%] lg:right-[4%]", delay: 3, desktop: true, tablet: true, mobile: true },
-  { icon: Search, color: "text-cyan-500", borderColor: "border-cyan-400/30", position: "top-[48%] right-[1%] lg:right-[2%]", delay: 4.5, desktop: true, tablet: false, mobile: false },
-  { icon: Target, color: "text-purple-500", borderColor: "border-purple-400/30", position: "bottom-[18%] left-[2%] lg:left-[3%]", delay: 2, desktop: true, tablet: true, mobile: true },
+  { icon: FileText, color: "text-success", borderColor: "border-success/30", position: "top-[4%] left-[30%] lg:left-[32%]", delay: 1.5, desktop: true, tablet: false, mobile: false },
+  { icon: Sparkles, color: "text-warning", borderColor: "border-warning/30", position: "top-[22%] right-[3%] lg:right-[4%]", delay: 3, desktop: true, tablet: true, mobile: true },
+  { icon: Search, color: "text-accent", borderColor: "border-accent/30", position: "top-[48%] right-[1%] lg:right-[2%]", delay: 4.5, desktop: true, tablet: false, mobile: false },
+  { icon: Target, color: "text-accent", borderColor: "border-accent/30", position: "bottom-[18%] left-[2%] lg:left-[3%]", delay: 2, desktop: true, tablet: true, mobile: true },
   { icon: BarChart3, color: "text-accent", borderColor: "border-accent/30", position: "bottom-[10%] right-[4%] lg:right-[5%]", delay: 5.5, desktop: true, tablet: true, mobile: false },
 ];
 
@@ -34,8 +34,8 @@ export function Hero() {
       <div className="relative rounded-2xl border border-border bg-gradient-to-br from-bg-surface via-bg-surface to-accent/5">
         <div className="absolute inset-0 overflow-hidden rounded-2xl pointer-events-none">
           <Blob className="bg-accent -left-20 -top-20 h-72 w-72 animate-blob" />
-          <Blob className="-right-20 -bottom-20 h-72 w-72 animate-blob-slow" style={{ backgroundColor: "#7c3aed" }} />
-          <Blob className="-top-10 right-1/3 h-56 w-56 animate-float" style={{ backgroundColor: "#3b82f6", opacity: 0.15 }} />
+          <Blob className="bg-accent -right-20 -bottom-20 h-72 w-72 animate-blob-slow opacity-15" />
+          <Blob className="bg-accent -top-10 right-1/3 h-56 w-56 animate-float opacity-10" />
         </div>
 
         <div className="absolute inset-0 pointer-events-none overflow-visible">
@@ -98,7 +98,7 @@ export function Hero() {
           >
             Your AI Career
             <br />
-            <span className="bg-gradient-to-r from-accent via-purple-400 to-blue-400 bg-clip-text text-transparent">Operating System</span>
+            <span className="bg-gradient-to-r from-accent via-accent to-accent/50 bg-clip-text text-transparent">Operating System</span>
             .
           </motion.h1>
 
@@ -120,7 +120,7 @@ export function Hero() {
           >
             <a
               href="/signup"
-              className="group btn-press inline-flex items-center gap-2 rounded-lg bg-accent px-6 py-3 text-sm font-medium text-white shadow-sm transition-all duration-200 hover:bg-accent/90 hover:shadow-md hover:shadow-accent/20 active:scale-[0.98]"
+              className="group btn-press inline-flex items-center gap-2 rounded-lg bg-accent px-6 py-3 text-sm font-medium text-fg-default shadow-sm transition-all duration-200 hover:bg-accent/90 hover:shadow-md hover:shadow-accent/20 active:scale-[0.98]"
             >
               Start Free
               <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />

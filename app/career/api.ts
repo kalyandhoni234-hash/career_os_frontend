@@ -83,9 +83,4 @@ export async function getRecommendations() {
   return apiFetch("/api/career/recommendations") as Promise<{ recommendations: RecommendationData[] }>;
 }
 
-export async function sendCareerContextMessage(message: string) {
-  return apiFetch("/api/career/copilot/chat", {
-    method: "POST",
-    body: JSON.stringify({ message }),
-  }) as Promise<{ response: string }>;
-}
+

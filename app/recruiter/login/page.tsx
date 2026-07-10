@@ -35,7 +35,7 @@ export default function RecruiterLoginPage() {
   return (
     <div className="relative flex min-h-screen items-center justify-center bg-bg-default px-6 overflow-hidden">
       <div className="absolute w-96 h-96 bg-accent/10 rounded-full blur-3xl -top-20 -left-20 animate-blob" />
-      <div className="absolute w-80 h-80 bg-emerald-400/10 rounded-full blur-3xl -bottom-20 -right-20 animate-blob-slow" />
+      <div className="absolute w-80 h-80 bg-success/10 rounded-full blur-3xl -bottom-20 -right-20 animate-blob-slow" />
 
       <motion.div initial="hidden" animate="show" variants={stagger} className="relative w-full max-w-sm">
         <motion.div variants={fadeUp} className="mb-8 text-center">

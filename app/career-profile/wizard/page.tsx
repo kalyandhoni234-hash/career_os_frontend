@@ -102,6 +102,7 @@ const defaultBasicInfo: BasicInfo = {
 
 const defaultCareerInfo: CareerInfo = {
   current_status: "", company: "", position: "", experience_years: 0, employment_type: "",
+  career_stage: "student", stage_meta: {},
 };
 
 const defaultDreamCareer: DreamCareer = {
@@ -1039,7 +1040,7 @@ export default function CareerProfileWizardPage() {
                       preferences[toggle.key] ? "bg-accent" : "bg-bg-hover"
                     }`}
                   >
-                    <span className={`inline-block h-4 w-4 rounded-full bg-white shadow-sm transition-transform duration-200 ${
+                    <span className={`inline-block h-4 w-4 rounded-full bg-bg-surface shadow-sm transition-transform duration-200 ${
                       preferences[toggle.key] ? "translate-x-6" : "translate-x-1"
                     }`} />
                   </button>

@@ -118,7 +118,7 @@ export function CompactUserCard({ name, collapsed }: CompactUserCardProps) {
       <div className="relative border-t border-border" ref={ref}>
         <button
           onClick={() => setOpen(!open)}
-          className="mx-auto flex h-9 w-9 items-center justify-center rounded-lg text-xs font-semibold text-accent hover:bg-accent/10 active:scale-95 transition-all duration-150 my-2"
+          className="mx-auto flex h-9 w-9 items-center justify-center rounded-lg text-xs font-semibold text-accent hover:bg-accent/10 active:scale-95 transition-all duration-150 my-2 cursor-pointer"
           title={name}
           aria-haspopup="menu"
           aria-expanded={open}
@@ -153,7 +153,7 @@ export function CompactUserCard({ name, collapsed }: CompactUserCardProps) {
     <div className="relative border-t border-border" ref={ref}>
       <button
         onClick={() => setOpen(!open)}
-        className="flex w-full items-center gap-2.5 px-3 py-2.5 transition-all duration-150 hover:bg-bg-hover/50 active:bg-bg-hover/80"
+        className="flex w-full items-center gap-2.5 px-3 py-2.5 transition-all duration-150 hover:bg-bg-hover/50 active:bg-bg-hover/80 cursor-pointer"
         aria-haspopup="menu"
         aria-expanded={open}
       >
@@ -260,7 +260,7 @@ function UserMenuDropdown({
                   }
                 }
               }}
-              className={`flex w-full items-center gap-2.5 px-3 py-1.5 text-sm transition-colors duration-100 ${
+              className={`flex w-full items-center gap-2.5 px-3 py-1.5 text-sm transition-colors duration-100 cursor-pointer ${
                 isFocused
                   ? "bg-bg-hover"
                   : "bg-transparent"

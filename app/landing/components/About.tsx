@@ -5,22 +5,22 @@ import { ArrowRight, FileText, Search, BrainCircuit, GraduationCap, ClipboardLis
 import { fadeUp, stagger } from "./Section";
 
 const modules = [
-  { icon: FileText, label: "Resume Studio", color: "text-accent", bg: "bg-accent/10" },
-  { icon: Search, label: "ATS Intelligence", color: "text-green-400", bg: "bg-green-400/10" },
-  { icon: BrainCircuit, label: "AI Career Coach", color: "text-purple-400", bg: "bg-purple-400/10" },
-  { icon: Globe, label: "Job Discovery", color: "text-cyan-400", bg: "bg-cyan-400/10" },
-  { icon: GraduationCap, label: "Learning", color: "text-blue-400", bg: "bg-blue-400/10" },
-  { icon: ClipboardList, label: "Applications", color: "text-orange-400", bg: "bg-orange-400/10" },
-  { icon: BarChart3, label: "Analytics", color: "text-pink-400", bg: "bg-pink-400/10" },
-  { icon: Sparkles, label: "AI Command Center", color: "text-yellow-400", bg: "bg-yellow-400/10" },
+  { icon: FileText, label: "Resume Studio", color: "text-accent" },
+  { icon: Search, label: "ATS Intelligence", color: "text-success" },
+  { icon: BrainCircuit, label: "AI Career Coach", color: "text-accent" },
+  { icon: Globe, label: "Job Discovery", color: "text-accent" },
+  { icon: GraduationCap, label: "Learning", color: "text-success" },
+  { icon: ClipboardList, label: "Applications", color: "text-warning" },
+  { icon: BarChart3, label: "Analytics", color: "text-accent" },
+  { icon: Sparkles, label: "AI Command Center", color: "text-warning" },
 ];
 
 const floatingCards = [
   { label: "Resume Score", value: "92", trend: "+14", x: "0%", y: "0%", color: "border-accent/30" },
-  { label: "ATS Match", value: "87", trend: "+22", x: "60%", y: "15%", color: "border-green-500/30" },
-  { label: "Job Match", value: "94", trend: "+8", x: "10%", y: "55%", color: "border-purple-500/30" },
-  { label: "Career Growth", value: "76", trend: "+31", x: "55%", y: "60%", color: "border-blue-500/30" },
-  { label: "Learning", value: "68", trend: "+45", x: "30%", y: "75%", color: "border-yellow-500/30" },
+  { label: "ATS Match", value: "87", trend: "+22", x: "60%", y: "15%", color: "border-success/30" },
+  { label: "Job Match", value: "94", trend: "+8", x: "10%", y: "55%", color: "border-accent/30" },
+  { label: "Career Growth", value: "76", trend: "+31", x: "55%", y: "60%", color: "border-accent/30" },
+  { label: "Learning", value: "68", trend: "+45", x: "30%", y: "75%", color: "border-warning/30" },
 ];
 
 export function About() {
@@ -55,7 +55,7 @@ export function About() {
               return (
                 <span
                   key={m.label}
-                  className={`inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1 text-xs font-medium text-fg-muted transition-all duration-200 hover:scale-105 hover:${m.bg} hover:border-${m.color.replace("text-", "")}/30`}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1 text-xs font-medium text-fg-muted transition-all duration-200 hover:scale-105 hover:bg-bg-hover"
                 >
                   <Icon className={`h-3.5 w-3.5 ${m.color}`} />
                   {m.label}
@@ -67,7 +67,7 @@ export function About() {
           <div className="pt-4">
             <a
               href="/signup"
-              className="btn-press inline-flex items-center gap-2 rounded-lg bg-accent px-6 py-3 text-sm font-medium text-white shadow-sm transition-all duration-200 hover:bg-accent/90 hover:shadow-md"
+              className="btn-press inline-flex items-center gap-2 rounded-lg bg-accent px-6 py-3 text-sm font-medium text-fg-default shadow-sm transition-all duration-200 hover:bg-accent/90 hover:shadow-md"
             >
               Explore the Platform
               <ArrowRight className="h-4 w-4" />
@@ -79,11 +79,11 @@ export function About() {
           <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-accent/5 via-bg-surface to-accent/10" />
           <div className="absolute inset-0 rounded-2xl border border-border" />
           <div className="absolute -left-10 -top-10 h-40 w-40 animate-blob rounded-full bg-accent/5 blur-3xl" />
-          <div className="absolute -bottom-10 -right-10 h-40 w-40 animate-float rounded-full bg-purple-500/5 blur-3xl" />
+          <div className="absolute -bottom-10 -right-10 h-40 w-40 animate-float rounded-full bg-accent/5 blur-3xl" />
 
           <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
             <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-accent shadow-lg shadow-accent/20 mx-auto">
-              <Sparkles className="h-7 w-7 text-white" />
+              <Sparkles className="h-7 w-7 text-fg-default" />
             </div>
             <p className="mt-3 font-serif text-lg font-medium text-fg-default">Career OS</p>
             <p className="text-sm text-fg-muted">AI-Powered Career Platform</p>

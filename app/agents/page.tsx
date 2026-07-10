@@ -446,7 +446,7 @@ export default function CommandCenterPage() {
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.03 }}
-              className={`bg-white rounded-xl border p-4 card-hover ${
+              className={`bg-bg-surface rounded-xl border p-4 card-hover ${
                 act.status === "error" ? "border-danger/20" : "border-border"
               }`}
             >

@@ -100,7 +100,7 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
   return (
     <>
       <div
-        className="fixed inset-0 z-50 bg-black/30 backdrop-blur-sm transition-opacity duration-200"
+        className="fixed inset-0 z-50 bg-black/30 backdrop-blur-sm transition-opacity duration-200 cursor-pointer"
         onClick={onClose}
       />
       <div className="fixed left-1/2 top-[15%] z-50 w-full max-w-lg -translate-x-1/2 rounded-xl border border-border bg-bg-surface shadow-2xl transition-all duration-200 animate-scale-in">
@@ -131,7 +131,7 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
                   key={cmd.href}
                   onClick={() => handleSelect(cmd.href)}
                   className={`
-                    flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-150
+                    flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-150 cursor-pointer
                     ${i === selectedIndex ? "bg-accent/10 text-accent" : "text-fg-muted hover:bg-bg-hover hover:text-fg-default"}
                   `}
                 >
