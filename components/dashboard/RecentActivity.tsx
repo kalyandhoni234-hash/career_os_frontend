@@ -38,7 +38,7 @@ const colorMap: Record<string, string> = {
 };
 
 export function RecentActivity({ activities }: RecentActivityProps) {
-  if (activities.length === 0) {
+  if (!activities || activities.length === 0) {
     return (
       <div className="py-6 text-center">
         <Clock size={20} className="mx-auto text-fg-subtle" />

@@ -19,7 +19,7 @@ function getColor(s: number) {
   return "#dc2626";
 }
 
-export function CareerScore({ score, name }: CareerScoreProps) {
+export function CareerScore({ score = 0, name }: CareerScoreProps) {
   const radius = 56;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (score / 100) * circumference;

@@ -15,7 +15,8 @@ const PIPELINE = [
 ];
 
 export function ApplicationFunnel({ jobsByStatus, totalJobs }: ApplicationFunnelProps) {
-  const maxPipeline = Math.max(...PIPELINE.map((p) => jobsByStatus[p.key] || 0), 1);
+  const statuses = jobsByStatus || {};
+  const maxPipeline = Math.max(...PIPELINE.map((p) => statuses[p.key] || 0), 1);
 
   if (totalJobs === 0) {
     return (
@@ -32,7 +33,7 @@ export function ApplicationFunnel({ jobsByStatus, totalJobs }: ApplicationFunnel
   return (
     <div className="space-y-2">
       {PIPELINE.map((p) => {
-        const count = jobsByStatus[p.key] || 0;
+        const count = statuses[p.key] || 0;
         const pct = (count / maxPipeline) * 100;
         return (
           <div key={p.key} className="group flex items-center gap-3 transition-all duration-150">
@@ -50,10 +51,10 @@ export function ApplicationFunnel({ jobsByStatus, totalJobs }: ApplicationFunnel
         );
       })}
 
-      {(jobsByStatus.rejected || 0) > 0 && (
+      {(statuses.rejected || 0) > 0 && (
         <div className="flex items-center gap-3 pt-2 border-t border-border">
           <span className="w-20 truncate font-mono text-xs text-fg-muted">Rejected</span>
-          <span className="font-mono text-xs text-danger">{jobsByStatus.rejected}</span>
+          <span className="font-mono text-xs text-danger">{statuses.rejected}</span>
         </div>
       )}
     </div>
