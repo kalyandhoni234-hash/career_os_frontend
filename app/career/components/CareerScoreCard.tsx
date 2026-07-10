@@ -10,7 +10,6 @@ interface CareerScoreCardProps {
 
 export function CareerScoreCard({ score, compact }: CareerScoreCardProps) {
   if (typeof score.overall_score !== "number" || !score.breakdown) {
-    console.error("[CareerScoreCard] Contract violation: score must contain overall_score (number) and breakdown (object). Received:", score);
     return null;
   }
   const s = score.overall_score;
@@ -21,13 +20,13 @@ export function CareerScoreCard({ score, compact }: CareerScoreCardProps) {
 
   const breakdown = score.breakdown;
   const bars = [
-    { label: "Resume", value: breakdown.resume_score, color: "#2563eb" },
-    { label: "ATS", value: breakdown.ats_score, color: "#7c3aed" },
-    { label: "Projects", value: breakdown.projects_score, color: "#059669" },
-    { label: "Applications", value: breakdown.applications_score, color: "#d97706" },
-    { label: "Learning", value: breakdown.learning_score, color: "#0891b2" },
-    { label: "Interviews", value: breakdown.interview_score, color: "#db2777" },
-    { label: "Skills", value: breakdown.skill_coverage, color: "#6366f1" },
+    { label: "Resume", value: breakdown.resume_score, className: "bg-accent" },
+    { label: "ATS", value: breakdown.ats_score, className: "bg-success" },
+    { label: "Projects", value: breakdown.projects_score, className: "bg-accent" },
+    { label: "Applications", value: breakdown.applications_score, className: "bg-warning" },
+    { label: "Learning", value: breakdown.learning_score, className: "bg-accent" },
+    { label: "Interviews", value: breakdown.interview_score, className: "bg-danger" },
+    { label: "Skills", value: breakdown.skill_coverage, className: "bg-accent" },
   ];
 
   return (
@@ -35,7 +34,7 @@ export function CareerScoreCard({ score, compact }: CareerScoreCardProps) {
       <div className="flex items-center gap-4">
         <div className="relative h-28 w-28 shrink-0">
           <svg className="h-28 w-28 -rotate-90" viewBox="0 0 120 120">
-            <circle cx="60" cy="60" r="54" fill="none" stroke="#e5e7eb" strokeWidth="8" />
+            <circle cx="60" cy="60" r="54" fill="none" stroke="var(--border)" strokeWidth="8" />
             <motion.circle
               cx="60" cy="60" r="54" fill="none" stroke={color} strokeWidth="8" strokeLinecap="round"
               strokeDasharray={circumference}
@@ -66,8 +65,7 @@ export function CareerScoreCard({ score, compact }: CareerScoreCardProps) {
               <span className="w-20 text-[11px] text-fg-muted">{bar.label}</span>
               <div className="flex-1 h-1.5 rounded-full bg-bg-default overflow-hidden">
                 <motion.div
-                  className="h-full rounded-full"
-                  style={{ backgroundColor: bar.color }}
+                  className={`h-full rounded-full ${bar.className}`}
                   initial={{ width: 0 }}
                   animate={{ width: `${bar.value}%` }}
                   transition={{ duration: 1, delay: 0.3, ease: "easeOut" }}

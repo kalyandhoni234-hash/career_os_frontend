@@ -40,7 +40,7 @@ export function ResumeOptimizer({ opportunityId, onOptimize, onCoverLetter }: Re
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white rounded-xl border border-border p-5"
+      className="bg-bg-surface rounded-xl border border-border p-5"
     >
       <h3 className="text-sm font-semibold mb-4">One-Click Optimization</h3>
 

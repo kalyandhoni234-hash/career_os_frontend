@@ -76,7 +76,7 @@ export function JobCard({ opportunity: o, matchData, isSaved, onSave, onUnsave, 
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ y: -2 }}
       transition={{ duration: 0.25, ease: [0.25, 0.1, 0.1, 1] }}
-      className="bg-white rounded-xl border border-border p-5 card-hover cursor-pointer relative group"
+      className="bg-bg-surface rounded-xl border border-border p-5 card-hover cursor-pointer relative group"
       onClick={() => onSelect?.(o.id)}
     >
       {/* AI Match Score Badge - top right */}

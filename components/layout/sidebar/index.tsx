@@ -4,20 +4,20 @@ import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
-  FileText,
-  Briefcase,
+  UserCircle,
+  Clock,
   Bot,
-  BarChart3,
   Route,
-  FileStack,
-  Send,
-  Sparkles,
+  FileText,
+  Search,
+  Briefcase,
+  BookmarkCheck,
+  Database,
+  Cpu,
+  BarChart3,
+  TrendingUp,
   PanelLeftClose,
   PanelLeft,
-  Search,
-  BookmarkCheck,
-  Cpu,
-  Database,
 } from "lucide-react";
 import { apiFetch } from "@/lib/api";
 import { SidebarItem } from "./SidebarItem";
@@ -29,10 +29,7 @@ import { Logo } from "@/components/ui/Logo";
 interface Profile {
   email: string;
   full_name?: string;
-  title?: string;
   education: string | null;
-  degree: string | null;
-  skills: string | null;
 }
 
 const MOBILE_BREAKPOINT = 768;
@@ -44,16 +41,13 @@ interface SidebarProps {
 
 export function Sidebar({ mobileOpen = false, onMobileClose }: SidebarProps) {
   const pathname = usePathname();
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(() => {
+    if (typeof window === "undefined") return false;
+    const stored = localStorage.getItem("sidebar-collapsed");
+    return stored === "true" || window.innerWidth < MOBILE_BREAKPOINT;
+  });
   const [profile, setProfile] = useState<Profile | null>(null);
   const [commandOpen, setCommandOpen] = useState(false);
-
-  useEffect(() => {
-    const stored = localStorage.getItem("sidebar-collapsed");
-    const prefersCollapsed = stored === "true";
-    const isMobile = window.innerWidth < MOBILE_BREAKPOINT;
-    setCollapsed(prefersCollapsed || isMobile);
-  }, []);
 
   useEffect(() => {
     apiFetch("/api/users/profile")
@@ -84,58 +78,7 @@ export function Sidebar({ mobileOpen = false, onMobileClose }: SidebarProps) {
     if (mobileOpen) onMobileClose?.();
   };
 
-  const displayName = profile?.full_name || profile?.education || "User";
-
-  const sidebarContent = (
-    <>
-      <div className={`flex items-center border-b border-border py-3.5 transition-all duration-200 ${collapsed ? "justify-center px-0" : "px-4"}`}>
-        <Logo showText={!collapsed} size="sm" />
-      </div>
-
-      <nav className="flex-1 space-y-1 overflow-y-auto px-2 py-3">
-        <SidebarItem href="/dashboard" label="Dashboard" icon={LayoutDashboard} active={isActive("/dashboard")} collapsed={collapsed} onClick={closeNav} />
-
-        <SidebarSection title="Build" collapsed={collapsed} icon={<FileStack size={14} strokeWidth={1.5} />}>
-          <SidebarItem href="/import-hub" label="Import Hub" icon={Database} active={isActive("/import-hub")} collapsed={collapsed} onClick={closeNav} />
-          <SidebarItem href="/resume" label="Resume Studio" icon={FileText} active={isActive("/resume")} collapsed={collapsed} onClick={closeNav} />
-        </SidebarSection>
-
-        <SidebarSection title="Apply" collapsed={collapsed} icon={<Send size={14} strokeWidth={1.5} />}>
-          <SidebarItem href="/opportunities" label="Opportunities" icon={Search} active={isActive("/opportunities")} collapsed={collapsed} onClick={closeNav} />
-          <SidebarItem href="/saved-jobs" label="Saved Jobs" icon={BookmarkCheck} active={isActive("/saved-jobs")} collapsed={collapsed} onClick={closeNav} />
-          <SidebarItem href="/jobs" label="Applications" icon={Briefcase} active={isActive("/jobs")} collapsed={collapsed} onClick={closeNav} />
-        </SidebarSection>
-
-        <SidebarSection title="AI Copilot" collapsed={collapsed} icon={<Sparkles size={14} strokeWidth={1.5} />}>
-          <SidebarItem href="/coach" label="Career Coach" icon={Bot} active={isActive("/coach")} collapsed={collapsed} onClick={closeNav} />
-          <SidebarItem href="/roadmaps" label="Roadmaps" icon={Route} active={isActive("/roadmaps")} collapsed={collapsed} onClick={closeNav} />
-        </SidebarSection>
-
-        <SidebarSection title="Agents" collapsed={collapsed} icon={<Cpu size={14} strokeWidth={1.5} />}>
-          <SidebarItem href="/agents" label="Command Center" icon={Cpu} active={isActive("/agents")} collapsed={collapsed} onClick={closeNav} />
-        </SidebarSection>
-
-        <SidebarSection title="Insights" collapsed={collapsed} icon={<BarChart3 size={14} strokeWidth={1.5} />}>
-          <SidebarItem href="/analytics" label="Analytics" icon={BarChart3} active={isActive("/analytics")} collapsed={collapsed} onClick={closeNav} />
-          <SidebarItem href="/career-overview" label="Reports" icon={Route} active={isActive("/career-overview")} collapsed={collapsed} onClick={closeNav} />
-        </SidebarSection>
-      </nav>
-
-      <div className={`flex border-t border-border ${collapsed ? "justify-center" : "px-3"} py-2`}>
-        <button
-          onClick={toggle}
-          className="btn-press flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs text-fg-muted transition-all duration-150 hover:bg-bg-hover hover:text-fg-default"
-          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-          title={collapsed ? "Expand" : "Collapse"}
-        >
-          {collapsed ? <PanelLeft size={16} /> : <PanelLeftClose size={16} />}
-          {!collapsed && <span className="font-mono text-[10px] uppercase tracking-wider">Collapse</span>}
-        </button>
-      </div>
-
-      <CompactUserCard name={displayName} collapsed={collapsed} />
-    </>
-  );
+  const displayName = profile?.full_name || "User";
 
   return (
     <>
@@ -157,7 +100,55 @@ export function Sidebar({ mobileOpen = false, onMobileClose }: SidebarProps) {
           lg:sticky lg:top-0 lg:flex lg:translate-x-0
         `}
       >
-        {sidebarContent}
+        {/* ── Header: Logo + Collapse Toggle ── */}
+        <div className={`flex items-center border-b border-border py-3 transition-all duration-200 ${collapsed ? "flex-col gap-2 px-0" : "justify-between px-4"}`}>
+          <Logo showText={!collapsed} size="sm" />
+          <button
+            onClick={toggle}
+            className="btn-press flex items-center justify-center rounded-lg p-1.5 text-fg-muted transition-all duration-150 hover:bg-bg-hover hover:text-fg-default"
+            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            title={collapsed ? "Expand" : "Collapse"}
+          >
+            {collapsed ? <PanelLeft size={16} /> : <PanelLeftClose size={16} />}
+          </button>
+        </div>
+
+        {/* ── Navigation (scrollable) ── */}
+        <nav className="flex-1 overflow-y-auto px-2 py-3 scroll-smooth">
+          <div className="space-y-3">
+            <SidebarItem href="/dashboard" label="Dashboard" icon={LayoutDashboard} active={isActive("/dashboard")} collapsed={collapsed} onClick={closeNav} />
+
+            <SidebarSection title="Profile" collapsed={collapsed}>
+              <SidebarItem href="/career-profile" label="My Profile" icon={UserCircle} active={isActive("/career-profile")} collapsed={collapsed} onClick={closeNav} />
+              <SidebarItem href="/timeline" label="Timeline" icon={Clock} active={isActive("/timeline")} collapsed={collapsed} onClick={closeNav} />
+            </SidebarSection>
+
+            <SidebarSection title="AI" collapsed={collapsed}>
+              <SidebarItem href="/coach" label="Career Coach" icon={Bot} active={isActive("/coach")} collapsed={collapsed} onClick={closeNav} />
+              <SidebarItem href="/roadmaps" label="Roadmaps" icon={Route} active={isActive("/roadmaps")} collapsed={collapsed} onClick={closeNav} />
+            </SidebarSection>
+
+            <SidebarSection title="Career" collapsed={collapsed}>
+              <SidebarItem href="/resume" label="Resume Studio" icon={FileText} active={isActive("/resume")} collapsed={collapsed} onClick={closeNav} />
+              <SidebarItem href="/opportunities" label="Opportunities" icon={Search} active={isActive("/opportunities")} collapsed={collapsed} onClick={closeNav} />
+              <SidebarItem href="/jobs" label="Applications" icon={Briefcase} active={isActive("/jobs")} collapsed={collapsed} onClick={closeNav} />
+              <SidebarItem href="/saved-jobs" label="Saved Jobs" icon={BookmarkCheck} active={isActive("/saved-jobs")} collapsed={collapsed} onClick={closeNav} />
+            </SidebarSection>
+
+            <SidebarSection title="Tools" collapsed={collapsed}>
+              <SidebarItem href="/import-hub" label="Import Hub" icon={Database} active={isActive("/import-hub")} collapsed={collapsed} onClick={closeNav} />
+              <SidebarItem href="/agents" label="Command Center" icon={Cpu} active={isActive("/agents")} collapsed={collapsed} onClick={closeNav} />
+            </SidebarSection>
+
+            <SidebarSection title="Insights" collapsed={collapsed}>
+              <SidebarItem href="/analytics" label="Analytics" icon={BarChart3} active={isActive("/analytics")} collapsed={collapsed} onClick={closeNav} />
+              <SidebarItem href="/career-overview" label="Reports" icon={TrendingUp} active={isActive("/career-overview")} collapsed={collapsed} onClick={closeNav} />
+            </SidebarSection>
+          </div>
+        </nav>
+
+        {/* ── User section (pinned bottom) ── */}
+        <CompactUserCard name={displayName} collapsed={collapsed} />
       </aside>
 
       <CommandPalette open={commandOpen} onClose={() => setCommandOpen(false)} />

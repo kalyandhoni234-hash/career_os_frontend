@@ -28,7 +28,7 @@ const trendLabels: Record<string, string> = {
 export function MarketTrendsView({ trends, loading }: MarketTrendsViewProps) {
   if (loading) {
     return (
-      <div className="bg-white rounded-xl border border-border p-5">
+      <div className="bg-bg-surface rounded-xl border border-border p-5">
         <div className="h-4 w-32 shimmer rounded mb-4" />
         <div className="space-y-3">
           {Array.from({ length: 5 }).map((_, i) => (
@@ -47,7 +47,7 @@ export function MarketTrendsView({ trends, loading }: MarketTrendsViewProps) {
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white rounded-xl border border-border p-5"
+      className="bg-bg-surface rounded-xl border border-border p-5"
     >
       <h3 className="text-sm font-semibold mb-4">Market Intelligence</h3>
 

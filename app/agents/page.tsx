@@ -61,7 +61,7 @@ function StatCard({ icon: Icon, label, value, sub, trend, color }: {
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white rounded-xl border border-border p-4 hover:shadow-md transition-shadow"
+      className="bg-bg-raised rounded-xl border border-border p-4 hover:shadow-md transition-shadow"
     >
       <div className="flex items-start justify-between">
         <div>
@@ -163,6 +163,7 @@ export default function CommandCenterPage() {
 
   if (error && error.toLowerCase().includes("unauthorized")) {
     router.push("/login");
+    return null;
   }
   const [expandedAgent, setExpandedAgent] = useState<string | null>(null);
   const [runLoading, setRunLoading] = useState<string | null>(null);
@@ -253,7 +254,7 @@ export default function CommandCenterPage() {
           </h2>
           <span className="text-[10px] text-fg-muted">{daily_brief.date}</span>
         </div>
-        <div className="bg-gradient-to-br from-white to-accent/[0.02] rounded-xl border border-border p-5">
+        <div className="bg-gradient-to-br from-bg-default to-accent/[0.02] rounded-xl border border-border p-5">
           {daily_brief.highlights.length === 0 ? (
             <p className="text-xs text-fg-muted text-center py-4">No highlights yet today. Run a job discovery scan to get started.</p>
           ) : (
@@ -331,7 +332,7 @@ export default function CommandCenterPage() {
           </h2>
           <div className="space-y-2">
             {recommendations.length === 0 ? (
-              <p className="text-xs text-fg-muted text-center py-8 bg-white rounded-xl border border-border">
+              <p className="text-xs text-fg-muted text-center py-8 bg-bg-raised rounded-xl border border-border">
                 No recommendations yet. Complete your profile and career goals.
               </p>
             ) : (
@@ -341,7 +342,7 @@ export default function CommandCenterPage() {
                   initial={{ opacity: 0, x: -8 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.05 }}
-                  className="bg-white rounded-xl border border-border p-4 card-hover group"
+                  className="bg-bg-raised rounded-xl border border-border p-4 card-hover group"
                 >
                   <div className="flex items-start gap-3">
                     <div className="flex flex-col items-center gap-0.5 mt-0.5">
@@ -395,7 +396,7 @@ export default function CommandCenterPage() {
           <h2 className="text-sm font-semibold mb-3 flex items-center gap-1.5">
             <Award size={14} className="text-accent" /> Career Health
           </h2>
-          <div className="bg-white rounded-xl border border-border p-5">
+          <div className="bg-bg-raised rounded-xl border border-border p-5">
             <div className="grid grid-cols-2 gap-5">
               <Gauge value={career_health.career_score} label="Career Score" />
               <Gauge value={career_health.resume_score} label="Resume Score" />
@@ -533,7 +534,7 @@ export default function CommandCenterPage() {
           <h2 className="text-sm font-semibold mb-3 flex items-center gap-1.5">
             <Clock size={14} className="text-accent" /> Activity Timeline
           </h2>
-          <div className="bg-white rounded-xl border border-border p-4">
+          <div className="bg-bg-raised rounded-xl border border-border p-4">
             {timeline.length === 0 ? (
               <p className="text-xs text-fg-muted text-center py-6">No activity yet today. Agents will log their work here.</p>
             ) : (
@@ -568,7 +569,7 @@ export default function CommandCenterPage() {
           <h2 className="text-sm font-semibold mb-3 flex items-center gap-1.5">
             <BrainCircuit size={14} className="text-accent" /> AI Memory
           </h2>
-          <div className="bg-white rounded-xl border border-border p-5 space-y-4">
+          <div className="bg-bg-raised rounded-xl border border-border p-5 space-y-4">
             <div>
               <p className="text-[9px] text-fg-muted uppercase tracking-wider font-medium">Career Goal</p>
               <p className="text-sm font-semibold mt-0.5">{ai_memory.career_goal}</p>
@@ -623,7 +624,7 @@ export default function CommandCenterPage() {
               View all <ChevronRight size={10} />
             </button>
           </div>
-          <div className="bg-white rounded-xl border border-border p-4">
+          <div className="bg-bg-raised rounded-xl border border-border p-4">
             {opportunity_feed.length === 0 ? (
               <p className="text-xs text-fg-muted text-center py-6">No matched opportunities yet. Save jobs to get match scores.</p>
             ) : (
@@ -674,7 +675,7 @@ export default function CommandCenterPage() {
           <h2 className="text-sm font-semibold mb-3 flex items-center gap-1.5">
             <TrendingUp size={14} className="text-accent" /> Career Forecast
           </h2>
-          <div className="bg-white rounded-xl border border-border p-5 space-y-4">
+          <div className="bg-bg-raised rounded-xl border border-border p-5 space-y-4">
             <div className="flex items-center justify-between">
               <span className="text-xs text-fg-muted">Current Score</span>
               <span className="text-base font-bold font-mono text-accent">{career_forecast.current_score}</span>
@@ -785,7 +786,7 @@ function ForecastRow({ label, current, predicted }: { label: string; current: nu
 function WeekStat({ label, current, last, isScore }: { label: string; current: number; last: number; isScore?: boolean }) {
   const diff = current - last;
   return (
-    <div className="bg-white rounded-xl border border-border p-4">
+    <div className="bg-bg-raised rounded-xl border border-border p-4">
       <p className="text-[10px] text-fg-muted font-medium uppercase tracking-wider">{label}</p>
       <p className="text-xl font-bold font-mono mt-1">{current}{isScore ? "" : ""}</p>
       <div className="flex items-center gap-1 mt-1">

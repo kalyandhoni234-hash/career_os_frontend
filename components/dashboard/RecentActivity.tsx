@@ -33,7 +33,7 @@ const iconMap = {
 
 const colorMap: Record<string, string> = {
   job: "text-accent bg-accent-subtle",
-  coach: "text-purple-600 bg-purple-50",
+  coach: "text-accent bg-accent-subtle",
   resume: "text-success bg-success-subtle",
 };
 
@@ -53,7 +53,7 @@ export function RecentActivity({ activities }: RecentActivityProps) {
       {activities.map((item, i) => {
         const Icon = iconMap[item.type];
         return (
-          <div key={i} className="flex items-start gap-3 py-3 ledger-row transition-all duration-150 hover:pl-1 hover:bg-bg-hover/50 rounded-lg -mx-1 px-1">
+          <div key={`${item.type}-${item.timestamp}-${i}`} className="flex items-start gap-3 py-3 ledger-row transition-all duration-150 hover:pl-1 hover:bg-bg-hover/50 rounded-lg -mx-1 px-1">
             <div className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${colorMap[item.type]}`}>
               <Icon size={13} />
             </div>

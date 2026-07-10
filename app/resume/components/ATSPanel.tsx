@@ -35,8 +35,9 @@ export function ATSPanel({ jobDescription, onJobDescriptionChange, atsResult, lo
       </div>
 
       <div className="mt-3">
-        <label className="font-mono text-[10px] font-medium uppercase tracking-widest text-fg-muted">Target Job Description</label>
+        <label htmlFor="ats-job-description" className="font-mono text-[10px] font-medium uppercase tracking-widest text-fg-muted">Target Job Description</label>
         <textarea
+          id="ats-job-description"
           value={jobDescription}
           onChange={(e) => onJobDescriptionChange(e.target.value)}
           placeholder="Paste a job description to check ATS compatibility..."

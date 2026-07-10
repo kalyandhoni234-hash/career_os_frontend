@@ -47,7 +47,7 @@ export function AIInsightCard({ insights, loading }: AIInsightCardProps) {
       <div className="space-y-2">
         {insights.map((insight, i) => (
           <motion.div
-            key={i}
+            key={`insight-${i}`}
             initial={{ opacity: 0, y: 4 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.05 }}

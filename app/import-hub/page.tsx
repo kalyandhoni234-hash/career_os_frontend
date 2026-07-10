@@ -421,7 +421,7 @@ export default function ImportHubPage() {
                     </div>
                     <Button
                       variant="secondary"
-                      onClick={() => { /* fetch preview placeholder */ }}
+                      onClick={handleImport}
                       disabled={!usernameInput.trim()}
                     >
                       Fetch

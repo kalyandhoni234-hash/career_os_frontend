@@ -56,7 +56,7 @@ export default function OpportunitiesPage() {
       setTotal(result.total);
       setPage(result.page);
       setTotalPages(result.total_pages);
-    } catch { /* ignore */ }
+    } catch { /* search will retry on next load */ }
     setLoading(false);
   }, [filters]);
 
@@ -82,13 +82,21 @@ export default function OpportunitiesPage() {
   }, []);
 
   const handleSave = async (id: number) => {
-    await saveOpportunity(id);
-    setSavedIds((prev) => new Set(prev).add(id));
+    try {
+      await saveOpportunity(id);
+      setSavedIds((prev) => new Set(prev).add(id));
+    } catch {
+      /* silently fail — save UI remains in unsaved state */
+    }
   };
 
   const handleUnsave = async (id: number) => {
-    await unsaveOpportunity(id);
-    setSavedIds((prev) => { const n = new Set(prev); n.delete(id); return n; });
+    try {
+      await unsaveOpportunity(id);
+      setSavedIds((prev) => { const n = new Set(prev); n.delete(id); return n; });
+    } catch {
+      /* silently fail — save UI remains in saved state */
+    }
   };
 
   const isSavedOpportunity = useCallback((id: number) => savedIds.has(id), [savedIds]);
@@ -157,7 +165,7 @@ export default function OpportunitiesPage() {
         <motion.section
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-xl border border-border p-5"
+          className="bg-bg-raised rounded-xl border border-border p-5"
         >
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-sm font-semibold flex items-center gap-1.5">
@@ -359,7 +367,7 @@ export default function OpportunitiesPage() {
             className="fixed bottom-5 right-5 z-40"
           >
             <div
-              className="bg-white rounded-xl border border-border shadow-xl p-3 w-56 cursor-pointer hover:shadow-2xl transition-shadow group"
+              className="bg-bg-raised rounded-xl border border-border shadow-xl p-3 w-56 cursor-pointer hover:shadow-2xl transition-shadow group"
               onClick={() => router.push("/agents")}
             >
               <div className="flex items-center gap-2">

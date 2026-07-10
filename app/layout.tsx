@@ -1,7 +1,6 @@
 ﻿import type { Metadata } from "next";
 import { Fraunces, Manrope, IBM_Plex_Mono } from "next/font/google";
-import { Shell } from "@/components/layout/Shell";
-import { Providers } from "@/components/Providers";
+import { ClientShell } from "@/components/ClientShell";
 
 import "./globals.css";
 
@@ -36,7 +35,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${fraunces.variable} ${manrope.variable} ${plexMono.variable} font-sans antialiased`}>
-        <Shell><Providers>{children}</Providers></Shell>
+        <ClientShell>{children}</ClientShell>
       </body>
     </html>
   );

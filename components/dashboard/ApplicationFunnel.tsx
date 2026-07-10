@@ -10,7 +10,7 @@ interface ApplicationFunnelProps {
 const PIPELINE = [
   { key: "applied", label: "Applied", color: "bg-accent" },
   { key: "oa", label: "OA", color: "bg-warning" },
-  { key: "interview", label: "Interview", color: "bg-purple-500" },
+  { key: "interview", label: "Interview", color: "bg-accent" },
   { key: "offer", label: "Offer", color: "bg-success" },
 ];
 

@@ -1,63 +1,124 @@
 ﻿@import "tailwindcss";
 
-@theme {
-  --color-bg-default: #f5f5f4;
-  --color-bg-surface: #ffffff;
-  --color-bg-raised: #fafafa;
-  --color-bg-hover: #f0f0ef;
-  --color-accent: #2563eb;
-  --color-accent-subtle: #eff6ff;
-  --color-accent-ring: #93c5fd;
-  --color-fg-default: #0c0c0d;
-  --color-fg-muted: #6b7280;
-  --color-fg-subtle: #9ca3af;
-  --color-success: #16a34a;
-  --color-success-subtle: #f0fdf4;
-  --color-warning: #d97706;
-  --color-warning-subtle: #fffbeb;
-  --color-danger: #dc2626;
-  --color-danger-subtle: #fef2f2;
-  --color-border: #e5e7eb;
-  --color-border-subtle: #f0f0f0;
+@custom-variant dark (&:where(.dark, .dark *));
 
-  --color-ink: #f5f5f4;
-  --color-ink-surface: #ffffff;
-  --color-brass: #2563eb;
-  --color-brass-dim: #3b82f6;
-  --color-sage: #16a34a;
-  --color-rust: #dc2626;
-  --color-paper: #0c0c0d;
-  --color-paper-muted: #6b7280;
+@theme {
+  --color-bg-default: var(--bg-default);
+  --color-bg-surface: var(--bg-surface);
+  --color-bg-raised: var(--bg-raised);
+  --color-bg-hover: var(--bg-hover);
+  --color-accent: var(--accent);
+  --color-accent-subtle: var(--accent-subtle);
+  --color-accent-ring: var(--accent-ring);
+  --color-fg-default: var(--fg-default);
+  --color-fg-muted: var(--fg-muted);
+  --color-fg-subtle: var(--fg-subtle);
+  --color-success: var(--success);
+  --color-success-subtle: var(--success-subtle);
+  --color-warning: var(--warning);
+  --color-warning-subtle: var(--warning-subtle);
+  --color-danger: var(--danger);
+  --color-danger-subtle: var(--danger-subtle);
+  --color-border: var(--border);
+  --color-border-subtle: var(--border-subtle);
 
   --font-serif: var(--font-serif-var), serif;
   --font-mono: var(--font-mono-var), monospace;
   --font-sans: var(--font-sans-var), sans-serif;
 }
 
+/* ─────────── LIGHT THEME (default) ─────────── */
+
+:root {
+  --bg-default: #FFFFFF;
+  --bg-surface: #F8FAFC;
+  --bg-raised: #FFFFFF;
+  --bg-hover: #F1F5F9;
+  --accent: #6D5EF8;
+  --accent-subtle: #EEF2FF;
+  --accent-ring: #C7D2FE;
+  --fg-default: #111827;
+  --fg-muted: #6B7280;
+  --fg-subtle: #9CA3AF;
+  --success: #22C55E;
+  --success-subtle: #F0FDF4;
+  --warning: #F59E0B;
+  --warning-subtle: #FFFBEB;
+  --danger: #EF4444;
+  --danger-subtle: #FEF2F2;
+  --border: #E5E7EB;
+  --border-subtle: #F3F4F6;
+}
+
+/* ─────────── DARK THEME ─────────── */
+
+.dark {
+  --bg-default: #0B0F19;
+  --bg-surface: #111827;
+  --bg-raised: #1A2333;
+  --bg-hover: #1E293B;
+  --accent: #7C6CFF;
+  --accent-subtle: rgba(124, 108, 255, 0.15);
+  --accent-ring: rgba(124, 108, 255, 0.35);
+  --fg-default: #F8FAFC;
+  --fg-muted: #94A3B8;
+  --fg-subtle: #64748B;
+  --success: #22C55E;
+  --success-subtle: rgba(34, 197, 94, 0.15);
+  --warning: #F59E0B;
+  --warning-subtle: rgba(245, 158, 11, 0.15);
+  --danger: #EF4444;
+  --danger-subtle: rgba(239, 68, 68, 0.15);
+  --border: #263244;
+  --border-subtle: #1E293B;
+}
+
+/* ─────────── Base Styles ─────────── */
+
 body {
-  background-color: var(--color-bg-default);
-  color: var(--color-fg-default);
+  background-color: var(--bg-default);
+  color: var(--fg-default);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 * {
   scrollbar-width: thin;
-  scrollbar-color: var(--color-border) transparent;
+  scrollbar-color: var(--border) transparent;
 }
 
 *:focus-visible {
-  outline: 2px solid var(--color-accent-ring);
+  outline: 2px solid var(--accent-ring);
   outline-offset: 2px;
   border-radius: 4px;
 }
 
 ::selection {
-  background-color: var(--color-accent);
+  background-color: var(--accent);
   color: white;
 }
 
-/* ============ Animations ============ */
+/* ─────────── Theme Transition ─────────── */
+
+html.theme-transition,
+html.theme-transition *,
+html.theme-transition *::before,
+html.theme-transition *::after {
+  transition: background-color 0.15s ease,
+              border-color 0.15s ease,
+              color 0.15s ease,
+              fill 0.15s ease,
+              stroke 0.15s ease,
+              box-shadow 0.15s ease !important;
+}
+
+/* ─────────── Dark scrollbar ─────────── */
+
+.dark * {
+  scrollbar-color: var(--border) transparent;
+}
+
+/* ─────────── Animations ─────────── */
 
 @keyframes shimmer {
   0% { background-position: -200% 0; }
@@ -109,14 +170,14 @@ body {
 .animate-scale-in { animation: scale-in 0.15s ease-out; }
 .animate-slide-up { animation: slide-up 0.2s ease-out; }
 
-/* ============ Utility Classes ============ */
+/* ─────────── Utility Classes ─────────── */
 
 .glow-accent {
-  box-shadow: 0 0 60px -10px rgba(37, 99, 235, 0.08);
+  box-shadow: 0 0 60px -10px color-mix(in srgb, var(--accent) 10%, transparent);
 }
 
 .glow-success {
-  box-shadow: 0 0 60px -10px rgba(22, 163, 74, 0.08);
+  box-shadow: 0 0 60px -10px color-mix(in srgb, var(--success) 10%, transparent);
 }
 
 .card-hover {
@@ -125,7 +186,7 @@ body {
 
 .card-hover:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 30px -8px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8px 30px -8px color-mix(in srgb, var(--fg-default) 10%, transparent);
 }
 
 .card-hover:active {
@@ -155,7 +216,7 @@ body {
 }
 
 .ledger-row {
-  border-bottom: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--border);
   transition: background-color 0.15s ease;
 }
 
@@ -164,7 +225,7 @@ body {
 }
 
 .ledger-row:hover {
-  background-color: var(--color-bg-hover);
+  background-color: var(--bg-hover);
 }
 
 .nav-link {
@@ -179,7 +240,7 @@ body {
   bottom: 0;
   height: 1.5px;
   width: 0%;
-  background-color: var(--color-accent);
+  background-color: var(--accent);
   transition: width 0.2s ease;
 }
 
@@ -188,54 +249,63 @@ body {
 }
 
 /* Glass morphism utility */
+
 .glass {
-  background: rgba(255, 255, 255, 0.7);
+  background: color-mix(in srgb, var(--bg-surface) 70%, transparent);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid var(--border);
+}
+
+.dark .glass {
+  background: color-mix(in srgb, var(--bg-surface) 80%, transparent);
+  border: 1px solid var(--border);
 }
 
 /* Focus ring for form elements */
+
 .focus-ring {
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .focus-ring:focus {
-  border-color: var(--color-accent);
+  border-color: var(--accent);
   outline: none;
-  box-shadow: 0 0 0 3px var(--color-accent-ring);
+  box-shadow: 0 0 0 3px var(--accent-ring);
 }
 
 /* Form field */
+
 .field {
   width: 100%;
   border-radius: 0.5rem;
-  border: 1px solid var(--color-border);
-  background: var(--color-bg-surface);
+  border: 1px solid var(--border);
+  background: var(--bg-surface);
   padding: 0.375rem 0.75rem;
   font-size: 0.75rem;
-  color: var(--color-fg-default);
+  color: var(--fg-default);
   transition: all 0.15s ease;
 }
 .field::placeholder {
-  color: var(--color-fg-subtle);
+  color: var(--fg-subtle);
 }
 .field:focus {
-  border-color: var(--color-accent);
+  border-color: var(--accent);
   outline: none;
-  box-shadow: 0 0 0 3px var(--color-accent-ring);
+  box-shadow: 0 0 0 3px var(--accent-ring);
 }
 .field:active {
-  border-color: var(--color-accent);
+  border-color: var(--accent);
 }
 
 /* Shimmer skeleton */
+
 .shimmer {
   background: linear-gradient(
     90deg,
-    var(--color-bg-hover) 0%,
-    var(--color-bg-surface) 50%,
-    var(--color-bg-hover) 100%
+    var(--bg-hover) 0%,
+    var(--bg-surface) 50%,
+    var(--bg-hover) 100%
   );
   background-size: 200% 100%;
   animation: shimmer 1.5s ease-in-out infinite;

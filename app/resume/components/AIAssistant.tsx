@@ -101,11 +101,9 @@ export function AIAssistant({ context, tone, skills, onResult }: AIAssistantProp
                 disabled={loading !== null}
                 className="flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-2 text-left text-xs text-fg-muted transition-all duration-150 hover:border-accent/30 hover:text-fg-default active:scale-[0.97] disabled:opacity-50"
               >
-                {loading === tool.id ? (
-                  <Loader2 size={12} className="animate-spin text-accent" />
-                ) : (
-                  <span className="text-[11px]">{tool.icon}</span>
-                )}
+                <span aria-hidden="true" className="text-[11px]">
+                  {loading === tool.id ? <Loader2 size={12} className="animate-spin text-accent" /> : tool.icon}
+                </span>
                 <span className="truncate">{tool.label}</span>
               </button>
             ))}

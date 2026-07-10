@@ -247,7 +247,7 @@ export default function OpportunityDetailPage() {
               <button
                 onClick={handleInterviewPrep}
                 disabled={interviewLoading}
-                className="w-full p-4 rounded-xl border border-border border-dashed bg-white hover:bg-bg-raised transition-colors text-left"
+                className="w-full p-4 rounded-xl border border-border border-dashed bg-bg-raised hover:bg-bg-raised transition-colors text-left"
               >
                 <div className="flex items-center gap-3">
                   {interviewLoading ? (
@@ -285,7 +285,7 @@ export default function OpportunityDetailPage() {
           {!readiness && !readinessLoading && (
             <button
               onClick={handleReadiness}
-              className="w-full p-4 rounded-xl border border-border border-dashed bg-white hover:bg-bg-raised transition-colors text-left"
+              className="w-full p-4 rounded-xl border border-border border-dashed bg-bg-raised hover:bg-bg-raised transition-colors text-left"
             >
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-lg bg-accent-subtle flex items-center justify-center">

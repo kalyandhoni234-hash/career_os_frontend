@@ -60,25 +60,27 @@ export function CoverLetterPanel() {
             exit={{ opacity: 0, height: 0 }}
             className="mt-3 space-y-3 overflow-hidden"
           >
-            <div className="grid grid-cols-2 gap-2">
-              <input value={company} onChange={(e) => setCompany(e.target.value)} placeholder="Company" className="field" />
-              <input value={role} onChange={(e) => setRole(e.target.value)} placeholder="Role" className="field" />
-            </div>
-            <div>
-              <label className="font-mono text-[10px] font-medium uppercase tracking-widest text-fg-muted">Job Description (optional)</label>
-              <textarea value={jobDescription} onChange={(e) => setJobDescription(e.target.value)} rows={3} className="field mt-1 w-full resize-none" placeholder="Paste the job description here..." />
-            </div>
-            <div className="flex items-center gap-2">
-              <label className="font-mono text-[10px] font-medium uppercase tracking-widest text-fg-muted">Tone</label>
-              <select value={tone} onChange={(e) => setTone(e.target.value)} className="field flex-1">
-                <option value="professional">Professional</option>
-                <option value="enthusiastic">Enthusiastic</option>
-                <option value="concise">Concise</option>
-              </select>
-            </div>
-            <Button onClick={generate} loading={loading} size="sm" className="w-full" icon={<FileText size={12} />}>
-              {loading ? "Generating..." : "Generate Cover Letter"}
-            </Button>
+            <form onSubmit={(e) => { e.preventDefault(); generate(); }}>
+              <div className="grid grid-cols-2 gap-2">
+                <input id="cover-letter-company" aria-label="Company" value={company} onChange={(e) => setCompany(e.target.value)} placeholder="Company" className="field" />
+                <input id="cover-letter-role" aria-label="Role" value={role} onChange={(e) => setRole(e.target.value)} placeholder="Role" className="field" />
+              </div>
+              <div className="mt-3">
+                <label htmlFor="cover-letter-jd" className="font-mono text-[10px] font-medium uppercase tracking-widest text-fg-muted">Job Description (optional)</label>
+                <textarea id="cover-letter-jd" value={jobDescription} onChange={(e) => setJobDescription(e.target.value)} rows={3} className="field mt-1 w-full resize-none" placeholder="Paste the job description here..." />
+              </div>
+              <div className="mt-3 flex items-center gap-2">
+                <label htmlFor="cover-letter-tone" className="font-mono text-[10px] font-medium uppercase tracking-widest text-fg-muted">Tone</label>
+                <select id="cover-letter-tone" value={tone} onChange={(e) => setTone(e.target.value)} className="field flex-1">
+                  <option value="professional">Professional</option>
+                  <option value="enthusiastic">Enthusiastic</option>
+                  <option value="concise">Concise</option>
+                </select>
+              </div>
+              <Button type="submit" loading={loading} size="sm" className="mt-3 w-full" icon={<FileText size={12} />}>
+                {loading ? "Generating..." : "Generate Cover Letter"}
+              </Button>
+            </form>
 
             <AnimatePresence>
               {coverLetter && (

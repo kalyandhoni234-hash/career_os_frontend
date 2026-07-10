@@ -82,15 +82,14 @@ export default function AnalyticsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    Promise.all([
+    Promise.allSettled([
       apiFetch("/api/jobs"),
       apiFetch("/api/users/dashboard-summary"),
     ])
-      .then(([jobsData, summaryData]) => {
-        setJobs(jobsData.jobs || []);
-        setSummary(summaryData);
+      .then(([jobsResult, summaryResult]) => {
+        if (jobsResult.status === "fulfilled") setJobs(jobsResult.value.jobs || []);
+        if (summaryResult.status === "fulfilled") setSummary(summaryResult.value);
       })
-      .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
 
@@ -164,11 +163,11 @@ export default function AnalyticsPage() {
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={pipelineData} layout="vertical" margin={{ left: 20, right: 20, top: 10, bottom: 10 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                <XAxis type="number" tick={{ fontSize: 12, fill: "#9ca3af" }} />
-                <YAxis dataKey="name" type="category" tick={{ fontSize: 12, fill: "#6b7280" }} width={80} />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                <XAxis type="number" tick={{ fontSize: 12, fill: "var(--fg-subtle)" }} />
+                <YAxis dataKey="name" type="category" tick={{ fontSize: 12, fill: "var(--fg-muted)" }} width={80} />
                 <Tooltip
-                  contentStyle={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: "8px", fontSize: "13px", boxShadow: "0 4px 12px rgba(0,0,0,0.05)" }}
+                  contentStyle={{ background: "var(--bg-default)", border: "1px solid var(--border)", borderRadius: "8px", fontSize: "13px", boxShadow: "0 4px 12px rgba(0,0,0,0.05)" }}
                   formatter={(value) => [value, "Applications"]}
                 />
                 <Bar dataKey="value" radius={[0, 6, 6, 0]} barSize={28}>
@@ -204,7 +203,7 @@ export default function AnalyticsPage() {
                   ))}
                 </Pie>
                 <Tooltip
-                  contentStyle={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: "8px", fontSize: "13px", boxShadow: "0 4px 12px rgba(0,0,0,0.05)" }}
+                  contentStyle={{ background: "var(--bg-default)", border: "1px solid var(--border)", borderRadius: "8px", fontSize: "13px", boxShadow: "0 4px 12px rgba(0,0,0,0.05)" }}
                 />
               </PieChart>
             </ResponsiveContainer>
@@ -309,7 +308,7 @@ export default function AnalyticsPage() {
                 </div>
               </div>
             )}
-            {totalRejected > totalApplied && totalApplied > 0 && (
+            {totalApplied > 0 && (totalRejected / totalApplied) > 0.5 && (
               <div className="card-hover flex items-start gap-3 rounded-lg border border-danger/20 bg-danger-subtle p-3">
                 <ArrowRight size={16} className="mt-0.5 shrink-0 text-danger" />
                 <div>

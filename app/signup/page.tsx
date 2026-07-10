@@ -7,6 +7,7 @@ import { Mail, Lock, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { apiFetch } from "@/lib/api";
 import { Logo } from "@/components/ui/Logo";
+import { useAuth } from "@/components/AuthProvider";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 16 },
@@ -25,6 +26,7 @@ export default function SignupPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { checkAuth } = useAuth();
 
   async function handleSignup(e: React.FormEvent) {
     e.preventDefault();
@@ -52,6 +54,7 @@ export default function SignupPage() {
         body: JSON.stringify({ email, password }),
       });
 
+      await checkAuth();
       router.push("/dashboard");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Signup failed");
@@ -114,7 +117,6 @@ export default function SignupPage() {
 
           <form onSubmit={handleSignup} className="space-y-4">
             <div className="relative">
-              <Mail size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-subtle transition-colors duration-150 peer-focus:text-accent" />
               <input
                 type="email"
                 placeholder="Email"
@@ -123,9 +125,9 @@ export default function SignupPage() {
                 className="peer w-full rounded-lg border border-border bg-bg-default px-3 py-2.5 pl-9 text-sm text-fg-default placeholder:text-fg-subtle transition-all duration-150 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent-ring/50 active:border-accent/70"
                 required
               />
+              <Mail size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-subtle transition-colors duration-150 peer-focus:text-accent" />
             </div>
             <div className="relative">
-              <Lock size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-subtle transition-colors duration-150 peer-focus:text-accent" />
               <input
                 type="password"
                 placeholder="Password (min 8 characters)"
@@ -134,9 +136,9 @@ export default function SignupPage() {
                 className="peer w-full rounded-lg border border-border bg-bg-default px-3 py-2.5 pl-9 text-sm text-fg-default placeholder:text-fg-subtle transition-all duration-150 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent-ring/50 active:border-accent/70"
                 required
               />
+              <Lock size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-subtle transition-colors duration-150 peer-focus:text-accent" />
             </div>
             <div className="relative">
-              <Lock size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-subtle transition-colors duration-150 peer-focus:text-accent" />
               <input
                 type="password"
                 placeholder="Confirm password"
@@ -145,6 +147,7 @@ export default function SignupPage() {
                 className="peer w-full rounded-lg border border-border bg-bg-default px-3 py-2.5 pl-9 text-sm text-fg-default placeholder:text-fg-subtle transition-all duration-150 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent-ring/50 active:border-accent/70"
                 required
               />
+              <Lock size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-subtle transition-colors duration-150 peer-focus:text-accent" />
             </div>
 
             <button

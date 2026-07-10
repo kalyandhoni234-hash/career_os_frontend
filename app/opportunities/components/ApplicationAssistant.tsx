@@ -19,7 +19,7 @@ const verdictConfig = {
 export function ApplicationAssistant({ readiness, loading }: ApplicationAssistantProps) {
   if (loading) {
     return (
-      <div className="bg-white rounded-xl border border-border p-5">
+      <div className="bg-bg-surface rounded-xl border border-border p-5">
         <div className="flex items-center gap-2 text-sm text-fg-muted">
           <Loader2 size={16} className="animate-spin" />
           Analyzing your profile...
@@ -37,7 +37,7 @@ export function ApplicationAssistant({ readiness, loading }: ApplicationAssistan
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white rounded-xl border border-border p-5"
+      className="bg-bg-surface rounded-xl border border-border p-5"
     >
       <div className="flex items-center gap-3 mb-4">
         <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ backgroundColor: config.bg }}>

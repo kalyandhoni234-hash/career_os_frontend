@@ -17,7 +17,7 @@ export function CompanyInsights({ company: c }: CompanyInsightsProps) {
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white rounded-xl border border-border p-5"
+      className="bg-bg-surface rounded-xl border border-border p-5"
     >
       <div className="flex items-center gap-4 mb-4">
         <div className="w-14 h-14 rounded-xl bg-accent-subtle flex items-center justify-center overflow-hidden">

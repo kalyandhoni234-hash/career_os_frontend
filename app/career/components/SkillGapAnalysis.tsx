@@ -44,7 +44,8 @@ export function SkillGapAnalysis({ analysis, loading }: SkillGapAnalysisProps) {
     );
   }
 
-  const { target_role, coverage, matched_skills, missing_skills, gaps } = analysis;
+  const { target_role, coverage = 0, matched_skills, missing_skills, gaps } = analysis;
+  const totalSkills = (matched_skills?.length || 0) + (missing_skills?.length || 0);
   const coverageColor = coverage >= 80 ? "#16a34a" : coverage >= 50 ? "#2563eb" : coverage >= 25 ? "#d97706" : "#dc2626";
 
   return (
@@ -56,7 +57,7 @@ export function SkillGapAnalysis({ analysis, loading }: SkillGapAnalysisProps) {
       <div className="mt-3 flex items-center gap-3">
         <div className="relative h-14 w-14 shrink-0">
           <svg className="h-14 w-14 -rotate-90" viewBox="0 0 60 60">
-            <circle cx="30" cy="30" r="25" fill="none" stroke="#e5e7eb" strokeWidth="5" />
+            <circle cx="30" cy="30" r="25" fill="none" stroke="var(--border)" strokeWidth="5" />
             <motion.circle
               cx="30" cy="30" r="25" fill="none" stroke={coverageColor} strokeWidth="5" strokeLinecap="round"
               strokeDasharray={2 * Math.PI * 25}
@@ -71,7 +72,7 @@ export function SkillGapAnalysis({ analysis, loading }: SkillGapAnalysisProps) {
         </div>
         <div>
           <p className="text-xs font-medium text-fg-default">
-            {matched_skills.length}/{matched_skills.length + missing_skills.length} skills matched
+            {matched_skills.length}/{totalSkills} skills matched
           </p>
           <p className="text-[10px] text-fg-muted">Required for {target_role}</p>
         </div>

@@ -6,11 +6,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { apiFetch } from "@/lib/api";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { getCareerDashboard } from "@/app/career/api";
+import { getCareerDashboard, getSkillGaps } from "@/app/career/api";
 import type { CareerDashboardData } from "@/app/career/types";
 import { CareerScoreCard } from "@/app/career/components/CareerScoreCard";
 import { SkillGapAnalysis } from "@/app/career/components/SkillGapAnalysis";
-import { getSkillGaps } from "@/app/career/api";
 
 interface Message {
   role: "user" | "assistant";
@@ -50,6 +49,7 @@ export default function CoachPage() {
   const [error, setError] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [careerData, setCareerData] = useState<CareerDashboardData | null>(null);
+  const [careerDataLoading, setCareerDataLoading] = useState(true);
   const [skillGapAnalysis, setSkillGapAnalysis] = useState<{ target_role: string; coverage: number; matched_skills: string[]; missing_skills: string[]; gaps: { skill: string; priority: number; recommended_project: string | null; estimated_ats_gain: number }[] } | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -62,7 +62,8 @@ export default function CoachPage() {
 
     getCareerDashboard()
       .then((d) => setCareerData(d))
-      .catch(() => {});
+      .catch(() => setCareerData(null))
+      .finally(() => setCareerDataLoading(false));
 
     getSkillGaps()
       .then((d) => setSkillGapAnalysis(d))
@@ -342,7 +343,7 @@ export default function CoachPage() {
 
                 <SkillGapAnalysis analysis={skillGapAnalysis} />
 
-                {!careerData && (
+                {!careerData && careerDataLoading && (
                   <div className="flex items-center justify-center py-8">
                     <p className="text-xs text-fg-subtle">Loading career context...</p>
                   </div>

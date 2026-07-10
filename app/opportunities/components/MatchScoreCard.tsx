@@ -37,7 +37,7 @@ export function MatchScoreCard({ score }: MatchScoreCardProps) {
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white rounded-xl border border-border p-5"
+      className="bg-bg-surface rounded-xl border border-border p-5"
     >
       <div className="flex items-center gap-4 mb-5">
         <div

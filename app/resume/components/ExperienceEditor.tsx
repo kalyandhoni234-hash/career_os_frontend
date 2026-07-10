@@ -74,10 +74,10 @@ export function ExperienceEditor({ experiences, onChange }: ExperienceEditorProp
               </button>
             </div>
             <div className="grid grid-cols-2 gap-2">
-              <input value={exp.company ?? ""} onChange={(e) => update(i, "company", e.target.value)} placeholder="Company" className="field" />
-              <input value={exp.role ?? ""} onChange={(e) => update(i, "role", e.target.value)} placeholder="Role" className="field" />
-              <input value={exp.start ?? ""} onChange={(e) => update(i, "start", e.target.value)} placeholder="Start" className="field" />
-              <input value={exp.end ?? ""} onChange={(e) => update(i, "end", e.target.value)} placeholder="End" className="field" />
+              <input id={`exp-${i}-company`} value={exp.company ?? ""} onChange={(e) => update(i, "company", e.target.value)} placeholder="Company" className="field" />
+              <input id={`exp-${i}-role`} value={exp.role ?? ""} onChange={(e) => update(i, "role", e.target.value)} placeholder="Role" className="field" />
+              <input id={`exp-${i}-start`} value={exp.start ?? ""} onChange={(e) => update(i, "start", e.target.value)} placeholder="Start" className="field" />
+              <input id={`exp-${i}-end`} value={exp.end ?? ""} onChange={(e) => update(i, "end", e.target.value)} placeholder="End" className="field" />
             </div>
             <div className="mt-2">
               <label className="font-mono text-[10px] font-medium uppercase tracking-widest text-fg-muted">Bullets</label>

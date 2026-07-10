@@ -32,7 +32,7 @@ export default function CompanyPage() {
     setSaving(false);
   };
 
-  const update = (field: string, value: any) => setCompany((prev) => prev ? { ...prev, [field]: value } : prev);
+  const update = (field: string, value: string | number) => setCompany((prev) => prev ? { ...prev, [field]: value } : prev);
 
   if (loading) {
     return (
@@ -79,7 +79,7 @@ export default function CompanyPage() {
         {fields.map((f) => (
           <div key={f.key}>
             <label className="mb-1 block font-mono text-[10px] font-medium uppercase tracking-wider text-fg-muted">{f.label}</label>
-            <input type={f.type} value={(company as any)[f.key] ?? ""} onChange={(e) => update(f.key, e.target.value)} className="field" />
+            <input type={f.type} value={String(company[f.key as keyof typeof company] ?? "")} onChange={(e) => update(f.key, e.target.value)} className="field" />
           </div>
         ))}
         <div className="sm:col-span-2">

@@ -5,7 +5,6 @@ import { ChevronDown } from "lucide-react";
 
 interface SidebarSectionProps {
   title: string;
-  icon?: ReactNode;
   children: ReactNode;
   collapsed: boolean;
   defaultOpen?: boolean;
@@ -13,7 +12,7 @@ interface SidebarSectionProps {
 
 const STORAGE_PREFIX = "sidebar-section-";
 
-export function SidebarSection({ title, icon, children, collapsed, defaultOpen = true }: SidebarSectionProps) {
+export function SidebarSection({ title, children, collapsed, defaultOpen = true }: SidebarSectionProps) {
   const [open, setOpen] = useState(defaultOpen);
 
   useEffect(() => {
@@ -38,29 +37,37 @@ export function SidebarSection({ title, icon, children, collapsed, defaultOpen =
   }, [collapsed, title]);
 
   return (
-    <div className="space-y-0.5">
+    <div>
       <button
         onClick={toggle}
         className={`
           flex w-full items-center gap-2 rounded-lg text-xs font-medium transition-all duration-150
-          ${collapsed ? "justify-center px-0 py-1.5" : "px-3 py-1.5"}
-          text-fg-subtle hover:text-fg-default hover:bg-bg-hover/50 active:bg-bg-hover/80
+          ${collapsed ? "justify-center py-1.5" : "px-3 py-1.5"}
+          text-fg-subtle hover:text-fg-default hover:bg-bg-hover/50
         `}
       >
-        {icon && <span className="shrink-0">{icon}</span>}
         {!collapsed && (
           <>
-            <span className="flex-1 text-left font-mono text-[10px] font-medium uppercase tracking-[0.15em]">
+            <span className="flex-1 text-left font-mono text-[10px] font-medium uppercase tracking-[0.15em] text-fg-subtle">
               {title}
             </span>
             <ChevronDown
-              size={14}
-              className={`shrink-0 text-fg-subtle transition-transform duration-200 ${open ? "rotate-0" : "-rotate-90"}`}
+              size={13}
+              strokeWidth={1.5}
+              className={`shrink-0 text-fg-subtle transition-transform duration-200 ${open ? "" : "-rotate-90"}`}
             />
           </>
         )}
       </button>
-      {open && <div className="space-y-0.5">{children}</div>}
+      <div
+        className={`overflow-hidden transition-all duration-200 ${
+          open ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+        }`}
+      >
+        <div className="space-y-0.5 pt-0.5">
+          {children}
+        </div>
+      </div>
     </div>
   );
 }

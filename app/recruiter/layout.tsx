@@ -27,7 +27,7 @@ export default function RecruiterLayout({ children }: { children: React.ReactNod
   useEffect(() => {
     if (pathname.startsWith("/recruiter") && !AUTH_RECRUITER.includes(pathname)) {
       apiFetch("/api/recruiters/auth/me")
-        .then((d: any) => setProfile(d))
+        .then((d) => setProfile(d as { full_name?: string; title?: string; company?: { name?: string } }))
         .catch(() => {});
     }
   }, [pathname]);
@@ -131,7 +131,7 @@ export default function RecruiterLayout({ children }: { children: React.ReactNod
 }
 
 function RecruiterNavItem({ href, label, icon: Icon, active, collapsed }: {
-  href: string; label: string; icon: any; active: boolean; collapsed: boolean;
+  href: string; label: string; icon: React.ComponentType<{ size?: number; strokeWidth?: number; className?: string }>; active: boolean; collapsed: boolean;
 }) {
   return (
     <Link href={href} title={collapsed ? label : undefined} className={`group/item relative flex items-center gap-3 rounded-lg text-sm font-medium transition-all duration-150 ${collapsed ? "justify-center px-0 py-2.5 mx-auto w-10" : "px-3 py-2.5"} ${active ? "bg-accent/10 text-accent" : "text-fg-muted hover:bg-bg-hover hover:text-fg-default"}`}>

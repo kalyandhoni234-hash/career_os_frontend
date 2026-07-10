@@ -30,7 +30,7 @@ export function ResumePreview({ resume }: ResumePreviewProps) {
   ].filter(Boolean);
 
   return (
-    <div className="rounded-xl border border-border bg-white shadow-sm">
+    <div className="rounded-xl border border-border bg-bg-raised shadow-sm">
       <div className="p-6">
         {/* Header */}
         <div className="border-b border-border pb-4">
@@ -130,7 +130,7 @@ export function ResumePreview({ resume }: ResumePreviewProps) {
             <SectionTitle>Skills</SectionTitle>
             <div className="mt-1.5 flex flex-wrap gap-1.5">
               {resume.skills.map((skill, i) => (
-                <span key={i} className="rounded-md border border-gray-200 bg-gray-50 px-2 py-0.5 text-[10px] text-gray-700">
+                <span key={i} className="rounded-md border border-border bg-bg-hover px-2 py-0.5 text-[10px] text-fg-default">
                   {skill}
                 </span>
               ))}
@@ -143,7 +143,7 @@ export function ResumePreview({ resume }: ResumePreviewProps) {
           <div className="mt-4">
             <SectionTitle>Certificates</SectionTitle>
             {resume.certificates.map((cert, i) => (
-              <p key={i} className="mt-1 text-[11px] text-gray-700">
+              <p key={i} className="mt-1 text-[11px] text-fg-muted">
                 {cert.name}{cert.issuer ? ` — ${cert.issuer}` : ""}{cert.date ? ` (${cert.date})` : ""}
               </p>
             ))}
@@ -154,7 +154,7 @@ export function ResumePreview({ resume }: ResumePreviewProps) {
         {Array.isArray(resume.languages) && resume.languages.length > 0 && (
           <div className="mt-4">
             <SectionTitle>Languages</SectionTitle>
-            <div className="mt-1 flex flex-wrap gap-x-3 text-[11px] text-gray-700">
+            <div className="mt-1 flex flex-wrap gap-x-3 text-[11px] text-fg-muted">
               {resume.languages.map((lang, i) => (
                 <span key={i}>{lang.name} ({lang.level})</span>
               ))}
@@ -168,7 +168,7 @@ export function ResumePreview({ resume }: ResumePreviewProps) {
 
 function SectionTitle({ children }: { children: string }) {
   return (
-    <h2 className="border-b border-gray-300 pb-0.5 text-[11px] font-semibold uppercase tracking-widest text-gray-500">
+    <h2 className="border-b border-border pb-0.5 text-[11px] font-semibold uppercase tracking-widest text-fg-muted">
       {children}
     </h2>
   );

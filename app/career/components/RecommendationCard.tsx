@@ -44,19 +44,19 @@ export function RecommendationCard({ recommendations, onDismiss, onComplete, loa
       <div className="mt-3 space-y-2">
         {recommendations.map((rec, i) => {
           const typeColors: Record<string, string> = {
-            skill: "bg-blue-50 text-blue-700 border-blue-200",
-            learning: "bg-purple-50 text-purple-700 border-purple-200",
-            resume: "bg-green-50 text-green-700 border-green-200",
-            job: "bg-amber-50 text-amber-700 border-amber-200",
-            interview: "bg-rose-50 text-rose-700 border-rose-200",
-            goal: "bg-indigo-50 text-indigo-700 border-indigo-200",
-            project: "bg-teal-50 text-teal-700 border-teal-200",
+            skill: "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950 dark:text-blue-300 dark:border-blue-800",
+            learning: "bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950 dark:text-purple-300 dark:border-purple-800",
+            resume: "bg-green-50 text-green-700 border-green-200 dark:bg-green-950 dark:text-green-300 dark:border-green-800",
+            job: "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950 dark:text-amber-300 dark:border-amber-800",
+            interview: "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950 dark:text-rose-300 dark:border-rose-800",
+            goal: "bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-950 dark:text-indigo-300 dark:border-indigo-800",
+            project: "bg-teal-50 text-teal-700 border-teal-200 dark:bg-teal-950 dark:text-teal-300 dark:border-teal-800",
           };
-          const typeClass = typeColors[rec.rec_type || rec.type || ""] || "bg-gray-50 text-gray-700 border-gray-200";
+          const typeClass = typeColors[rec.rec_type || rec.type || ""] || "bg-gray-50 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700";
 
           return (
             <motion.div
-              key={i}
+              key={rec.id || `rec-${i}`}
               initial={{ opacity: 0, y: 4 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.05 }}

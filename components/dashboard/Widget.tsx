@@ -13,7 +13,7 @@ interface WidgetProps {
 export function Widget({ title, icon, action, children, className = "", glow }: WidgetProps) {
   return (
     <div
-      className={`rounded-xl border border-border bg-bg-surface p-5 card-hover ${glow ? `glow-${glow}` : ""} ${className}`}
+      className={`group rounded-xl border border-border bg-bg-surface p-5 card-hover ${glow ? `glow-${glow}` : ""} ${className}`}
     >
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">

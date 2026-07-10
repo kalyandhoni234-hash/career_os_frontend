@@ -30,10 +30,6 @@ export function JobFilters({ filters, onChange, onSearch, smartFilters, onSmartF
     onChange({ ...filters, [key]: value });
   }, [filters, onChange]);
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") onSearch();
-  };
-
   const clearFilters = () => {
     onChange({
       q: "", location: "", remote_type: "", employment_type: "",
@@ -49,26 +45,25 @@ export function JobFilters({ filters, onChange, onSearch, smartFilters, onSmartF
   return (
     <div className="space-y-3">
       {/* AI Search Bar */}
-      <div className="flex gap-2">
+      <form onSubmit={(e) => { e.preventDefault(); update("q", localQ); onSearch(); }} className="flex gap-2">
         <div className="relative flex-1 group">
           <Sparkles size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-accent transition-all duration-200 group-focus-within:scale-110" />
           <input
             type="text"
             value={localQ}
             onChange={(e) => setLocalQ(e.target.value)}
-            onKeyDown={handleKeyDown}
             placeholder="Ask your Career Agent — e.g. 'remote React jobs paying over 20L'"
             className="field pl-9 pr-3 h-10 text-sm placeholder:text-fg-subtle/60 focus:placeholder:text-fg-subtle/30 transition-all ring-1 ring-transparent focus:ring-accent/20"
           />
         </div>
-        <Button onClick={() => { update("q", localQ); onSearch(); }}>Search</Button>
-        <button
-          onClick={() => setShowAdvanced(!showAdvanced)}
-          className={`p-2 rounded-lg border border-border hover:bg-bg-hover transition-colors ${showAdvanced ? "bg-accent-subtle border-accent" : ""}`}
-        >
-          <SlidersHorizontal size={18} className={showAdvanced ? "text-accent" : "text-fg-muted"} />
-        </button>
-      </div>
+        <Button type="submit">Search</Button>
+      </form>
+      <button
+        onClick={() => setShowAdvanced(!showAdvanced)}
+        className={`p-2 rounded-lg border border-border hover:bg-bg-hover transition-colors ${showAdvanced ? "bg-accent-subtle border-accent" : ""}`}
+      >
+        <SlidersHorizontal size={18} className={showAdvanced ? "text-accent" : "text-fg-muted"} />
+      </button>
 
       {/* Smart Filters Chip Row */}
       {onSmartFiltersChange && smartFilters && (
@@ -76,7 +71,7 @@ export function JobFilters({ filters, onChange, onSearch, smartFilters, onSmartF
           <span className="text-[10px] text-fg-muted font-medium mr-0.5 flex items-center gap-1">
             <Zap size={10} /> AI Filters
           </span>
-          <div className="flex items-center gap-1.5 bg-white rounded-lg border border-border px-2.5 py-1">
+          <div className="flex items-center gap-1.5 bg-bg-surface rounded-lg border border-border px-2.5 py-1">
             <span className="text-[10px] text-fg-muted whitespace-nowrap">Min Match</span>
             <input
               type="range"
@@ -94,7 +89,7 @@ export function JobFilters({ filters, onChange, onSearch, smartFilters, onSmartF
             className={`flex items-center gap-1 rounded-lg border px-2.5 py-1 text-[10px] font-medium transition-all ${
               smartFilters.atsReady
                 ? "border-success/30 bg-success-subtle text-success"
-                : "border-border bg-white text-fg-muted hover:bg-bg-hover"
+                : "border-border bg-bg-surface text-fg-muted hover:bg-bg-hover"
             }`}
           >
             <Zap size={10} /> ATS Ready
@@ -104,7 +99,7 @@ export function JobFilters({ filters, onChange, onSearch, smartFilters, onSmartF
             className={`flex items-center gap-1 rounded-lg border px-2.5 py-1 text-[10px] font-medium transition-all ${
               smartFilters.interviewReady
                 ? "border-success/30 bg-success-subtle text-success"
-                : "border-border bg-white text-fg-muted hover:bg-bg-hover"
+                : "border-border bg-bg-surface text-fg-muted hover:bg-bg-hover"
             }`}
           >
             <Sparkles size={10} /> Interview Ready
@@ -114,101 +109,99 @@ export function JobFilters({ filters, onChange, onSearch, smartFilters, onSmartF
 
       {/* Advanced Filters */}
       {showAdvanced && (
-        <div className="bg-white rounded-xl border border-border p-4 space-y-3 animate-slide-up">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <div>
-              <label className="text-[11px] font-medium text-fg-muted mb-1 block">Location</label>
-              <Input
-                placeholder="Bangalore, Remote..."
-                value={filters.location}
-                onChange={(e) => update("location", e.target.value)}
-                onKeyDown={handleKeyDown}
-                icon={<MapPin size={14} />}
-              />
+        <div className="bg-bg-surface rounded-xl border border-border p-4 space-y-3 animate-slide-up">
+          <form onSubmit={(e) => { e.preventDefault(); update("q", localQ); onSearch(); }}>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <div>
+                <label className="text-[11px] font-medium text-fg-muted mb-1 block">Location</label>
+                <Input
+                  placeholder="Bangalore, Remote..."
+                  value={filters.location}
+                  onChange={(e) => update("location", e.target.value)}
+                  icon={<MapPin size={14} />}
+                />
+              </div>
+              <div>
+                <label className="text-[11px] font-medium text-fg-muted mb-1 block">Remote Type</label>
+                <select
+                  value={filters.remote_type}
+                  onChange={(e) => update("remote_type", e.target.value)}
+                  className="field h-9 text-xs"
+                >
+                  <option value="">Any</option>
+                  <option value="remote">Remote</option>
+                  <option value="hybrid">Hybrid</option>
+                  <option value="on-site">On-site</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-[11px] font-medium text-fg-muted mb-1 block">Employment Type</label>
+                <select
+                  value={filters.employment_type}
+                  onChange={(e) => update("employment_type", e.target.value)}
+                  className="field h-9 text-xs"
+                >
+                  <option value="">Any</option>
+                  <option value="full-time">Full-time</option>
+                  <option value="part-time">Part-time</option>
+                  <option value="contract">Contract</option>
+                  <option value="internship">Internship</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-[11px] font-medium text-fg-muted mb-1 block">Company</label>
+                <Input
+                  placeholder="Google, Amazon..."
+                  value={filters.company}
+                  onChange={(e) => update("company", e.target.value)}
+                  icon={<Briefcase size={14} />}
+                />
+              </div>
+              <div>
+                <label className="text-[11px] font-medium text-fg-muted mb-1 block">Min Salary (LPA)</label>
+                <Input
+                  placeholder="10"
+                  value={filters.salary_min}
+                  onChange={(e) => update("salary_min", e.target.value)}
+                  type="number"
+                  icon={<IndianRupee size={14} />}
+                />
+              </div>
+              <div>
+                <label className="text-[11px] font-medium text-fg-muted mb-1 block">Max Salary (LPA)</label>
+                <Input
+                  placeholder="50"
+                  value={filters.salary_max}
+                  onChange={(e) => update("salary_max", e.target.value)}
+                  type="number"
+                  icon={<IndianRupee size={14} />}
+                />
+              </div>
+              <div>
+                <label className="text-[11px] font-medium text-fg-muted mb-1 block">Min Experience</label>
+                <select
+                  value={filters.experience_min}
+                  onChange={(e) => update("experience_min", e.target.value)}
+                  className="field h-9 text-xs"
+                >
+                  <option value="">Any</option>
+                  <option value="0">Fresher</option>
+                  <option value="1">1+ year</option>
+                  <option value="2">2+ years</option>
+                  <option value="4">4+ years</option>
+                  <option value="6">6+ years</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-[11px] font-medium text-fg-muted mb-1 block">Tech Stack</label>
+                <Input
+                  placeholder="Python, React..."
+                  value={filters.tech_stack}
+                  onChange={(e) => update("tech_stack", e.target.value)}
+                />
+              </div>
             </div>
-            <div>
-              <label className="text-[11px] font-medium text-fg-muted mb-1 block">Remote Type</label>
-              <select
-                value={filters.remote_type}
-                onChange={(e) => update("remote_type", e.target.value)}
-                className="field h-9 text-xs"
-              >
-                <option value="">Any</option>
-                <option value="remote">Remote</option>
-                <option value="hybrid">Hybrid</option>
-                <option value="on-site">On-site</option>
-              </select>
-            </div>
-            <div>
-              <label className="text-[11px] font-medium text-fg-muted mb-1 block">Employment Type</label>
-              <select
-                value={filters.employment_type}
-                onChange={(e) => update("employment_type", e.target.value)}
-                className="field h-9 text-xs"
-              >
-                <option value="">Any</option>
-                <option value="full-time">Full-time</option>
-                <option value="part-time">Part-time</option>
-                <option value="contract">Contract</option>
-                <option value="internship">Internship</option>
-              </select>
-            </div>
-            <div>
-              <label className="text-[11px] font-medium text-fg-muted mb-1 block">Company</label>
-              <Input
-                placeholder="Google, Amazon..."
-                value={filters.company}
-                onChange={(e) => update("company", e.target.value)}
-                onKeyDown={handleKeyDown}
-                icon={<Briefcase size={14} />}
-              />
-            </div>
-            <div>
-              <label className="text-[11px] font-medium text-fg-muted mb-1 block">Min Salary (LPA)</label>
-              <Input
-                placeholder="10"
-                value={filters.salary_min}
-                onChange={(e) => update("salary_min", e.target.value)}
-                type="number"
-                icon={<IndianRupee size={14} />}
-              />
-            </div>
-            <div>
-              <label className="text-[11px] font-medium text-fg-muted mb-1 block">Max Salary (LPA)</label>
-              <Input
-                placeholder="50"
-                value={filters.salary_max}
-                onChange={(e) => update("salary_max", e.target.value)}
-                type="number"
-                icon={<IndianRupee size={14} />}
-              />
-            </div>
-            <div>
-              <label className="text-[11px] font-medium text-fg-muted mb-1 block">Min Experience</label>
-              <select
-                value={filters.experience_min}
-                onChange={(e) => update("experience_min", e.target.value)}
-                className="field h-9 text-xs"
-              >
-                <option value="">Any</option>
-                <option value="0">Fresher</option>
-                <option value="1">1+ year</option>
-                <option value="2">2+ years</option>
-                <option value="4">4+ years</option>
-                <option value="6">6+ years</option>
-              </select>
-            </div>
-            <div>
-              <label className="text-[11px] font-medium text-fg-muted mb-1 block">Tech Stack</label>
-              <Input
-                placeholder="Python, React..."
-                value={filters.tech_stack}
-                onChange={(e) => update("tech_stack", e.target.value)}
-                onKeyDown={handleKeyDown}
-              />
-            </div>
-          </div>
-
+          </form>
           <div className="flex justify-between items-center pt-2">
             <div className="flex items-center gap-2">
               <label className="text-[11px] text-fg-muted">Sort by:</label>

@@ -53,10 +53,10 @@ export function CompanyDrawer({ companyName, onClose }: CompanyDrawerProps) {
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", damping: 28, stiffness: 300 }}
-            className="fixed top-0 right-0 h-full w-full max-w-[420px] bg-white border-l border-border z-50 overflow-y-auto shadow-2xl"
+            className="fixed top-0 right-0 h-full w-full max-w-[420px] bg-bg-raised border-l border-border z-50 overflow-y-auto shadow-2xl"
           >
             {/* Header */}
-            <div className="sticky top-0 bg-white border-b border-border z-10 px-5 py-3 flex items-center justify-between">
+            <div className="sticky top-0 bg-bg-raised border-b border-border z-10 px-5 py-3 flex items-center justify-between">
               <h2 className="text-sm font-semibold">Company Profile</h2>
               <button
                 onClick={onClose}

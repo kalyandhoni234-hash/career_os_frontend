@@ -10,7 +10,7 @@ interface StatCardProps {
 
 export function StatCard({ label, value, icon, sublabel }: StatCardProps) {
   return (
-    <div className="rounded-xl border border-border bg-bg-surface p-5 card-hover">
+    <div className="group rounded-xl border border-border bg-bg-surface p-5 card-hover">
       <div className="flex items-start justify-between">
         <div className="min-w-0 flex-1">
           <p className="font-mono text-xs font-medium uppercase tracking-widest text-fg-muted">{label}</p>

@@ -1,6 +1,8 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { Plus, FileSpreadsheet, Globe, FileText, GitBranch } from "lucide-react";
+import { useToast } from "@/components/ui/Toast";
 
 interface QuickActionsProps {
   onAddApplication: () => void;
@@ -15,9 +17,26 @@ const actions = [
 ];
 
 export function QuickActions({ onAddApplication }: QuickActionsProps) {
+  const router = useRouter();
+  const { addToast } = useToast();
+
   const handleAction = (action: string) => {
-    if (action === "add") {
-      onAddApplication();
+    switch (action) {
+      case "add":
+        onAddApplication();
+        break;
+      case "csv":
+        addToast("info", "CSV import coming soon");
+        break;
+      case "linkedin":
+        window.open("https://linkedin.com/jobs", "_blank", "noopener");
+        break;
+      case "cover-letter":
+        router.push("/resume?tab=cover-letter");
+        break;
+      case "resume-version":
+        router.push("/resume?tab=versions");
+        break;
     }
   };
 

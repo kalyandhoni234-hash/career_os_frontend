@@ -16,7 +16,7 @@ export function SkillGapCard({ gap }: SkillGapCardProps) {
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white rounded-xl border border-border p-5"
+      className="bg-bg-surface rounded-xl border border-border p-5"
     >
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-sm font-semibold">Skill Gap Analysis</h3>

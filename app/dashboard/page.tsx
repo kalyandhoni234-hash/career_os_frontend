@@ -36,7 +36,7 @@ import { AIInsightCard } from "@/app/career/components/AIInsightCard";
 import { SkillGraph } from "@/app/career/components/SkillGraph";
 import { CareerScoreCard } from "@/app/career/components/CareerScoreCard";
 import {
-  getActionPlan, getGoals, getSkillGraph, getCareerScore, getRecommendations, getCareerDashboard,
+  getActionPlan, getGoals, getSkillGraph, getCareerScore, getRecommendations,
 } from "@/app/career/api";
 import type { ActionPlanItem, CareerGoalData, CareerScoreResult, RecommendationData } from "@/app/career/types";
 
@@ -68,7 +68,6 @@ export default function DashboardPage() {
       getSkillGraph(),
       getCareerScore(),
       getRecommendations(),
-      getCareerDashboard(),
     ]).then(([ap, g, sg, cs, ri]) => {
       if (ap.status === "fulfilled") setActionPlan(ap.value.action_plan || []);
       if (g.status === "fulfilled") setGoals(g.value.goals || []);
@@ -78,9 +77,11 @@ export default function DashboardPage() {
     }).finally(() => setCareerLoading(false));
   }, [data]);
 
-  if (error && error.toLowerCase().includes("unauthorized")) {
-    router.push("/login");
-  }
+  useEffect(() => {
+    if (error && error.toLowerCase().includes("unauthorized")) {
+      router.push("/login");
+    }
+  }, [error, router]);
 
   if (loading) {
     return (

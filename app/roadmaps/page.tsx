@@ -40,19 +40,22 @@ function RoadmapsContent() {
     try {
       const data = await apiFetch("/api/career/roadmaps");
       setRoadmaps(data.roadmaps || []);
-      const roadmapId = searchParams?.get("id");
-      if (roadmapId) {
-        const rd = await apiFetch(`/api/career/roadmaps/${roadmapId}`);
-        if (rd.roadmap) setActiveRoadmap(rd.roadmap);
-      }
     } catch {
       addToast("error", "Failed to load roadmaps");
     } finally {
       setLoading(false);
     }
-  }, [searchParams, addToast]);
+  }, [addToast]);
 
   useEffect(() => { loadRoadmaps(); }, [loadRoadmaps]);
+
+  useEffect(() => {
+    const roadmapId = searchParams?.get("id");
+    if (!roadmapId) return;
+    apiFetch(`/api/career/roadmaps/${roadmapId}`)
+      .then((rd) => { if (rd.roadmap) setActiveRoadmap(rd.roadmap); })
+      .catch(() => addToast("error", "Failed to load roadmap"));
+  }, [searchParams, addToast]);
 
   const generateRoadmap = async (category: string, label: string) => {
     setGenerating(true);

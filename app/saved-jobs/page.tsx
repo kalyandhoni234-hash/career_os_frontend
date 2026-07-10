@@ -204,7 +204,7 @@ export default function SavedJobsPage() {
                         layout
                         initial={{ opacity: 0, x: -8 }}
                         animate={{ opacity: 1, x: 0 }}
-                        className="bg-white rounded-xl border border-border p-4 card-hover cursor-pointer group"
+                        className="bg-bg-raised rounded-xl border border-border p-4 card-hover cursor-pointer group"
                         onClick={() => router.push(`/opportunity/${o.id}`)}
                       >
                         <div className="flex items-start gap-4">
@@ -309,7 +309,7 @@ function QuickActionCard({
     <button
       onClick={onClick}
       disabled={disabled}
-      className="bg-white rounded-xl border border-border p-3 text-left card-hover disabled:opacity-40 disabled:cursor-not-allowed transition-all group"
+      className="bg-bg-raised rounded-xl border border-border p-3 text-left card-hover disabled:opacity-40 disabled:cursor-not-allowed transition-all group"
     >
       <div className="w-7 h-7 rounded-lg bg-accent-subtle flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
         <Icon size={13} className="text-accent" />

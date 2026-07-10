@@ -28,7 +28,7 @@ export function ResumeHealth({ resume }: ResumeHealthProps) {
         <div className="mt-3 flex items-center gap-3">
           <div className="relative h-16 w-16">
             <svg className="h-16 w-16 -rotate-90" viewBox="0 0 64 64">
-              <circle cx="32" cy="32" r="28" fill="none" stroke="#e5e7eb" strokeWidth="6" />
+              <circle cx="32" cy="32" r="28" fill="none" stroke="var(--border)" strokeWidth="6" />
             </svg>
           </div>
           <div>
@@ -67,7 +67,7 @@ export function ResumeHealth({ resume }: ResumeHealthProps) {
       <div className="mt-3 flex items-center gap-3">
         <div className="relative h-16 w-16">
           <svg className="h-16 w-16 -rotate-90" viewBox="0 0 64 64">
-            <circle cx="32" cy="32" r="28" fill="none" stroke="#e5e7eb" strokeWidth="6" />
+            <circle cx="32" cy="32" r="28" fill="none" stroke="var(--border)" strokeWidth="6" />
             <motion.circle
               cx="32" cy="32" r="28" fill="none" stroke={strokeColor} strokeWidth="6" strokeLinecap="round"
               strokeDasharray={circumference}

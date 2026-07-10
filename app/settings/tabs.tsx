@@ -1,0 +1,785 @@
+"use client";
+
+import { useState, useEffect, useRef } from "react";
+import { Save, User, MapPin, Globe, Clock, Camera, Upload, Palette, Monitor, Moon, Sun, Bell, Shield, Key, LogOut, Trash2, Download, Bot, Brain, GraduationCap, GitBranch, Link, CalendarDays, Mail, Hash, Smartphone, Info, ExternalLink, Package, FileText, HelpCircle, Check } from "lucide-react";
+import { apiFetch } from "@/lib/api";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
+import { Card } from "@/components/ui/Card";
+import { Badge } from "@/components/ui/Badge";
+import { useToast } from "@/components/ui/Toast";
+import { useTheme } from "@/components/ThemeProvider";
+
+const labelClass = "font-mono text-xs font-medium uppercase tracking-widest text-fg-muted";
+const selectClass = "w-full rounded-lg border border-border bg-bg-surface px-3 py-2 text-sm text-fg-default transition-all duration-150 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent-ring/50";
+
+function Section({ title, icon: Icon, children }: { title: string; icon?: typeof User; children: React.ReactNode }) {
+  return (
+    <Card className="mb-6">
+      {Icon && (
+        <div className="mb-5 flex items-center gap-2">
+          <Icon size={14} className="text-fg-muted" />
+          <h2 className="font-mono text-xs font-medium uppercase tracking-widest text-fg-muted">{title}</h2>
+        </div>
+      )}
+      {!Icon && (
+        <h2 className="mb-5 font-mono text-xs font-medium uppercase tracking-widest text-fg-muted">{title}</h2>
+      )}
+      {children}
+    </Card>
+  );
+}
+
+function Toggle({ label, description, checked, onChange }: { label: string; description?: string; checked: boolean; onChange: (v: boolean) => void }) {
+  return (
+    <label className="flex items-center justify-between gap-4 py-2">
+      <div className="min-w-0 flex-1">
+        <p className="text-sm font-medium text-fg-default">{label}</p>
+        {description && <p className="text-xs text-fg-muted mt-0.5">{description}</p>}
+      </div>
+      <button
+        type="button"
+        role="switch"
+        aria-checked={checked}
+        onClick={() => onChange(!checked)}
+        className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-accent-ring focus-visible:outline-offset-2 ${checked ? "bg-accent" : "bg-border"}`}
+      >
+        <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform duration-200 ${checked ? "translate-x-4" : "translate-x-0"}`} />
+      </button>
+    </label>
+  );
+}
+
+function Select({ label, options, value, onChange }: { label: string; options: { value: string; label: string }[]; value: string; onChange: (v: string) => void }) {
+  return (
+    <div className="space-y-1.5">
+      <label className={labelClass}>{label}</label>
+      <select value={value} onChange={(e) => onChange(e.target.value)} className={selectClass}>
+        {options.map((o) => (
+          <option key={o.value} value={o.value}>{o.label}</option>
+        ))}
+      </select>
+    </div>
+  );
+}
+
+/* ──────────────── GENERAL ──────────────── */
+
+export function GeneralTab() {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
+  const [country, setCountry] = useState("");
+  const [language, setLanguage] = useState("en");
+  const [timezone, setTimezone] = useState("");
+  const [dateFormat, setDateFormat] = useState("MM/DD/YYYY");
+  const { addToast } = useToast();
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    apiFetch("/api/users/profile").then((d) => {
+      const p = d.profile || {};
+      setName(p.full_name || "");
+      setEmail(p.email || d.email || "");
+      setUsername(p.username || "");
+      setCountry(p.country || "");
+      setLanguage(p.language || "en");
+      setTimezone(p.timezone || "");
+      setDateFormat(p.date_format || "MM/DD/YYYY");
+    }).catch(() => {});
+  }, []);
+
+  const handleSave = async () => {
+    try {
+      await apiFetch("/api/users/profile", {
+        method: "POST",
+        body: JSON.stringify({ full_name: name, username, country, language, timezone, date_format: dateFormat }),
+      });
+      addToast("success", "Settings saved");
+    } catch {
+      addToast("error", "Failed to save settings");
+    }
+  };
+
+  const handleUploadAvatar = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const formData = new FormData();
+    formData.append("avatar", file);
+    try {
+      await fetch("/api/users/profile/avatar", { method: "POST", credentials: "include", body: formData });
+      addToast("success", "Profile picture updated");
+    } catch {
+      addToast("error", "Failed to upload profile picture");
+    }
+  };
+
+  const handleRemoveAvatar = async () => {
+    try {
+      await fetch("/api/users/profile/avatar", { method: "DELETE", credentials: "include" });
+      addToast("success", "Profile picture removed");
+    } catch {
+      addToast("error", "Failed to remove profile picture");
+    }
+  };
+
+  return (
+    <div>
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h2 className="font-serif text-xl font-medium text-fg-default">General</h2>
+          <p className="text-sm text-fg-muted mt-0.5">Manage your basic profile information</p>
+        </div>
+        <Button onClick={handleSave} icon={<Save size={14} />} size="sm">Save</Button>
+      </div>
+
+      <Section title="Profile Picture" icon={Camera}>
+        <div className="flex items-center gap-5">
+          <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-accent/10 text-xl font-semibold text-accent">
+            {name ? name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) : "U"}
+          </div>
+          <div className="flex gap-2">
+            <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleUploadAvatar} />
+            <Button variant="secondary" size="sm" icon={<Upload size={13} />} onClick={() => fileRef.current?.click()}>Upload</Button>
+            <Button variant="ghost" size="sm" onClick={handleRemoveAvatar}>Remove</Button>
+          </div>
+        </div>
+      </Section>
+
+      <Section title="Basic Information">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <Input label="Full Name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" />
+          <Input label="Email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="email@example.com" />
+          <Input label="Username" value={username} onChange={(e) => setUsername(e.target.value)} placeholder="username" />
+          <Input label="Country" value={country} onChange={(e) => setCountry(e.target.value)} placeholder="Your country" icon={<MapPin size={13} />} />
+        </div>
+      </Section>
+
+      <Section title="Preferences">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <Select label="Language" options={[{ value: "en", label: "English" }, { value: "es", label: "Spanish" }]} value={language} onChange={setLanguage} />
+          <Select label="Timezone" options={[{ value: "UTC", label: "UTC" }, { value: "US/Eastern", label: "US/Eastern" }, { value: "US/Pacific", label: "US/Pacific" }, { value: "Asia/Kolkata", label: "Asia/Kolkata" }]} value={timezone} onChange={setTimezone} />
+          <Select label="Date Format" options={[{ value: "MM/DD/YYYY", label: "MM/DD/YYYY" }, { value: "DD/MM/YYYY", label: "DD/MM/YYYY" }, { value: "YYYY-MM-DD", label: "YYYY-MM-DD" }]} value={dateFormat} onChange={setDateFormat} />
+        </div>
+      </Section>
+    </div>
+  );
+}
+
+/* ──────────────── APPEARANCE ──────────────── */
+
+export function AppearanceTab() {
+  const { theme, setTheme, resolvedTheme } = useTheme();
+  const [sidebar, setSidebar] = useState("expanded");
+  const [compact, setCompact] = useState(false);
+  const [fontSize, setFontSize] = useState("medium");
+  const [animations, setAnimations] = useState(true);
+  const [reducedMotion, setReducedMotion] = useState(false);
+
+  useEffect(() => {
+    const side = localStorage.getItem("sidebar-collapsed");
+    setSidebar(side === "true" ? "collapsed" : "expanded");
+    setCompact(localStorage.getItem("app-compact") === "true");
+    setFontSize(localStorage.getItem("app-font-size") || "medium");
+    setAnimations(localStorage.getItem("app-animations") !== "false");
+    setReducedMotion(localStorage.getItem("app-reduced-motion") === "true");
+  }, []);
+
+  useEffect(() => { localStorage.setItem("app-compact", String(compact)); }, [compact]);
+  useEffect(() => { localStorage.setItem("app-font-size", fontSize); }, [fontSize]);
+  useEffect(() => { localStorage.setItem("app-animations", String(animations)); }, [animations]);
+  useEffect(() => { localStorage.setItem("app-reduced-motion", String(reducedMotion)); }, [reducedMotion]);
+
+  return (
+    <div>
+      <div className="mb-6">
+        <h2 className="font-serif text-xl font-medium text-fg-default">Appearance</h2>
+        <p className="text-sm text-fg-muted mt-0.5">Customize how Career OS looks and feels</p>
+      </div>
+
+      <Section title="Theme">
+        <div className="grid grid-cols-3 gap-3">
+          {[
+            { id: "light" as const, label: "Light", icon: Sun },
+            { id: "dark" as const, label: "Dark", icon: Moon },
+            { id: "system" as const, label: "System", icon: Monitor },
+          ].map((t) => (
+            <button
+              key={t.id}
+              onClick={() => setTheme(t.id)}
+              className={`flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-all duration-150 ${
+                theme === t.id
+                  ? "border-accent bg-accent/5"
+                  : "border-border hover:border-accent/30 hover:bg-bg-hover"
+              }`}
+            >
+              <t.icon size={20} className={theme === t.id ? "text-accent" : "text-fg-muted"} />
+              <span className={`text-xs font-medium ${theme === t.id ? "text-accent" : "text-fg-muted"}`}>{t.label}</span>
+              {theme === t.id && <Check size={12} className="text-accent" />}
+            </button>
+          ))}
+        </div>
+        {theme === "system" && (
+          <p className="mt-2 text-xs text-fg-muted">
+            Currently using <span className="font-medium text-fg-default capitalize">{resolvedTheme}</span> mode (follows your system preference)
+          </p>
+        )}
+      </Section>
+
+      <Section title="Accent Color" icon={Palette}>
+        <p className="text-sm text-fg-muted">Coming soon — choose your accent color.</p>
+      </Section>
+
+      <Section title="Sidebar">
+        <Select label="Sidebar Mode" options={[{ value: "expanded", label: "Expanded" }, { value: "collapsed", label: "Collapsed by default" }]} value={sidebar} onChange={(v) => { setSidebar(v); localStorage.setItem("sidebar-collapsed", String(v === "collapsed")); }} />
+      </Section>
+
+      <Section title="Layout">
+        <Toggle label="Compact Mode" description="Reduce spacing and padding" checked={compact} onChange={setCompact} />
+        <Select label="Font Size" options={[{ value: "small", label: "Small" }, { value: "medium", label: "Medium" }, { value: "large", label: "Large" }]} value={fontSize} onChange={setFontSize} />
+      </Section>
+
+      <Section title="Motion">
+        <Toggle label="Animations" description="Enable UI animations and transitions" checked={animations} onChange={setAnimations} />
+        <Toggle label="Reduced Motion" description="Minimize animations for accessibility" checked={reducedMotion} onChange={setReducedMotion} />
+      </Section>
+    </div>
+  );
+}
+
+/* ──────────────── ACCOUNT ──────────────── */
+
+export function AccountTab() {
+  const { addToast } = useToast();
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    apiFetch("/api/users/profile")
+      .then((d) => {
+        const p = d.profile || {};
+        setFullName(p.full_name || "");
+        setEmail(p.email || "");
+        setPhone(p.phone || "");
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  const handleSave = async () => {
+    try {
+      await apiFetch("/api/users/profile", {
+        method: "POST",
+        body: JSON.stringify({ full_name: fullName, email, phone }),
+      });
+      addToast("success", "Account updated");
+    } catch {
+      addToast("error", "Failed to update account");
+    }
+  };
+
+  return (
+    <div>
+      <div className="mb-6">
+        <h2 className="font-serif text-xl font-medium text-fg-default">Account</h2>
+        <p className="text-sm text-fg-muted mt-0.5">Manage your account details</p>
+      </div>
+      <Section title="Profile">
+        {loading ? (
+          <p className="text-sm text-fg-muted">Loading...</p>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <Input label="Full Name" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Your name" />
+              <Input label="Email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="email@example.com" />
+              <Input label="Phone" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+1 234 567 890" />
+            </div>
+            <div className="mt-4">
+              <Button icon={<Save size={14} />} size="sm" onClick={handleSave}>Save</Button>
+            </div>
+          </>
+        )}
+      </Section>
+    </div>
+  );
+}
+
+/* ──────────────── NOTIFICATIONS ──────────────── */
+
+export function NotificationsTab() {
+  const [prefs, setPrefs] = useState({
+    email_notifications: true,
+    push_notifications: true,
+    ai_weekly_review: false,
+    career_reminders: true,
+    interview_reminders: true,
+    goal_reminders: true,
+    marketing_emails: false,
+  });
+  const [loading, setLoading] = useState(true);
+  const { addToast } = useToast();
+
+  useEffect(() => {
+    apiFetch("/api/users/notifications")
+      .then((d) => {
+        if (d.preferences) setPrefs(d.preferences);
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  const handleSave = async () => {
+    try {
+      await apiFetch("/api/users/notifications", {
+        method: "POST",
+        body: JSON.stringify({ preferences: prefs }),
+      });
+      addToast("success", "Notification preferences saved");
+    } catch {
+      addToast("error", "Failed to save notification preferences");
+    }
+  };
+
+  if (loading) return <p className="text-sm text-fg-muted">Loading...</p>;
+
+  return (
+    <div>
+      <div className="mb-6">
+        <h2 className="font-serif text-xl font-medium text-fg-default">Notifications</h2>
+        <p className="text-sm text-fg-muted mt-0.5">Control how and when you hear from us</p>
+      </div>
+
+      <Section title="Email & Push">
+        <Toggle label="Email Notifications" description="Receive notifications via email" checked={prefs.email_notifications} onChange={(v) => setPrefs((p) => ({ ...p, email_notifications: v }))} />
+        <Toggle label="Push Notifications" description="Receive notifications in-app" checked={prefs.push_notifications} onChange={(v) => setPrefs((p) => ({ ...p, push_notifications: v }))} />
+      </Section>
+
+      <Section title="Digest">
+        <Toggle label="AI Weekly Review" description="Weekly summary of your career progress" checked={prefs.ai_weekly_review} onChange={(v) => setPrefs((p) => ({ ...p, ai_weekly_review: v }))} />
+      </Section>
+
+      <Section title="Reminders">
+        <Toggle label="Career Reminders" description="Nudges to update your profile and activity" checked={prefs.career_reminders} onChange={(v) => setPrefs((p) => ({ ...p, career_reminders: v }))} />
+        <Toggle label="Interview Reminders" description="Get reminded before scheduled interviews" checked={prefs.interview_reminders} onChange={(v) => setPrefs((p) => ({ ...p, interview_reminders: v }))} />
+        <Toggle label="Goal Reminders" description="Stay on track with your career goals" checked={prefs.goal_reminders} onChange={(v) => setPrefs((p) => ({ ...p, goal_reminders: v }))} />
+      </Section>
+
+      <Section title="Marketing">
+        <Toggle label="Marketing Emails" description="Tips, product updates, and offers" checked={prefs.marketing_emails} onChange={(v) => setPrefs((p) => ({ ...p, marketing_emails: v }))} />
+      </Section>
+
+      <Button icon={<Save size={14} />} size="sm" onClick={handleSave}>Save Preferences</Button>
+    </div>
+  );
+}
+
+/* ──────────────── PRIVACY & SECURITY ──────────────── */
+
+export function PrivacySecurityTab() {
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const { addToast } = useToast();
+
+  const handleChangePassword = async () => {
+    if (newPassword !== confirmPassword) {
+      addToast("error", "Passwords do not match");
+      return;
+    }
+    try {
+      await apiFetch("/api/auth/change-password", {
+        method: "POST",
+        body: JSON.stringify({ current_password: currentPassword, new_password: newPassword }),
+      });
+      addToast("success", "Password changed");
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+    } catch {
+      addToast("error", "Failed to change password");
+    }
+  };
+
+  const handleExportData = async () => {
+    try {
+      const blob = await fetch("/api/users/export", { credentials: "include" }).then((r) => r.blob());
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "career_os_export.zip";
+      a.click();
+      URL.revokeObjectURL(url);
+      addToast("success", "Data export started");
+    } catch {
+      addToast("error", "Failed to export data");
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!window.confirm("Are you sure you want to delete your account? This action cannot be undone.")) return;
+    try {
+      await apiFetch("/api/auth/delete-account", { method: "POST" });
+      addToast("success", "Account deleted");
+      window.location.href = "/";
+    } catch {
+      addToast("error", "Failed to delete account");
+    }
+  };
+
+  return (
+    <div>
+      <div className="mb-6">
+        <h2 className="font-serif text-xl font-medium text-fg-default">Privacy & Security</h2>
+        <p className="text-sm text-fg-muted mt-0.5">Protect your account and data</p>
+      </div>
+
+      <Section title="Change Password" icon={Key}>
+        <div className="space-y-4">
+          <Input label="Current Password" type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} />
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <Input label="New Password" type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
+            <Input label="Confirm Password" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
+          </div>
+          <Button icon={<Key size={14} />} size="sm" onClick={handleChangePassword}>Update Password</Button>
+        </div>
+      </Section>
+
+      <Section title="Two-Factor Authentication" icon={Shield}>
+        <p className="text-sm text-fg-muted mb-3">Add an extra layer of security to your account.</p>
+        <Button variant="secondary" size="sm" disabled>Enable 2FA (Coming Soon)</Button>
+      </Section>
+
+      <Section title="Active Sessions" icon={Smartphone}>
+        <p className="text-sm text-fg-muted">You are logged in on this device.</p>
+      </Section>
+
+      <Section title="Data">
+        <div className="flex flex-wrap gap-3">
+          <Button variant="secondary" size="sm" icon={<Download size={13} />} onClick={handleExportData}>Export Data</Button>
+          <Button variant="danger" size="sm" icon={<Trash2 size={13} />} onClick={handleDeleteAccount}>Delete Account</Button>
+        </div>
+      </Section>
+    </div>
+  );
+}
+
+/* ──────────────── AI PREFERENCES ──────────────── */
+
+export function AIPreferencesTab() {
+  const [model, setModel] = useState("gpt-4");
+  const [style, setStyle] = useState("balanced");
+  const [coaching, setCoaching] = useState("encouraging");
+  const [difficulty, setDifficulty] = useState("medium");
+  const [detail, setDetail] = useState("detailed");
+  const [autoSuggestions, setAutoSuggestions] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const { addToast } = useToast();
+
+  useEffect(() => {
+    apiFetch("/api/users/ai-preferences")
+      .then((d) => {
+        if (d.preferences) {
+          setModel(d.preferences.default_model || "gpt-4");
+          setStyle(d.preferences.response_style || "balanced");
+          setCoaching(d.preferences.coaching_mode || "encouraging");
+          setDifficulty(d.preferences.interview_difficulty || "medium");
+          setDetail(d.preferences.roadmap_detail || "detailed");
+          setAutoSuggestions(d.preferences.auto_suggestions ?? true);
+        }
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  const handleSave = async () => {
+    try {
+      await apiFetch("/api/users/ai-preferences", {
+        method: "POST",
+        body: JSON.stringify({
+          preferences: {
+            default_model: model,
+            response_style: style,
+            coaching_mode: coaching,
+            interview_difficulty: difficulty,
+            roadmap_detail: detail,
+            auto_suggestions: autoSuggestions,
+          },
+        }),
+      });
+      addToast("success", "AI preferences saved");
+    } catch {
+      addToast("error", "Failed to save AI preferences");
+    }
+  };
+
+  if (loading) return <p className="text-sm text-fg-muted">Loading...</p>;
+
+  return (
+    <div>
+      <div className="mb-6">
+        <h2 className="font-serif text-xl font-medium text-fg-default">AI Preferences</h2>
+        <p className="text-sm text-fg-muted mt-0.5">Configure your AI copilot experience</p>
+      </div>
+
+      <Section title="Model & Style">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <Select label="Default AI Model" options={[{ value: "gpt-4", label: "GPT-4" }, { value: "gpt-4o", label: "GPT-4o" }, { value: "claude-3", label: "Claude 3" }, { value: "gemini", label: "Gemini" }]} value={model} onChange={setModel} />
+          <Select label="Response Style" options={[{ value: "concise", label: "Concise" }, { value: "balanced", label: "Balanced" }, { value: "detailed", label: "Detailed" }]} value={style} onChange={setStyle} />
+        </div>
+      </Section>
+
+      <Section title="Career Coach">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <Select label="Coaching Mode" options={[{ value: "encouraging", label: "Encouraging" }, { value: "direct", label: "Direct" }, { value: "challenging", label: "Challenging" }]} value={coaching} onChange={setCoaching} />
+          <Select label="Interview Difficulty" options={[{ value: "easy", label: "Easy" }, { value: "medium", label: "Medium" }, { value: "hard", label: "Hard" }]} value={difficulty} onChange={setDifficulty} />
+          <Select label="Roadmap Detail Level" options={[{ value: "simple", label: "Simple" }, { value: "detailed", label: "Detailed" }, { value: "comprehensive", label: "Comprehensive" }]} value={detail} onChange={setDetail} />
+        </div>
+      </Section>
+
+      <Section title="Behavior">
+        <Toggle label="Auto Suggestions" description="AI suggests improvements as you work" checked={autoSuggestions} onChange={setAutoSuggestions} />
+      </Section>
+
+      <Button icon={<Save size={14} />} size="sm" onClick={handleSave}>Save Preferences</Button>
+    </div>
+  );
+}
+
+/* ──────────────── INTEGRATIONS ──────────────── */
+
+export function IntegrationsTab() {
+  const [integrations, setIntegrations] = useState([
+    { name: "GitHub", icon: GitBranch, connected: false, desc: "Sync your repositories and contributions", key: "github" },
+    { name: "LinkedIn", icon: Link, connected: false, desc: "Import your professional profile", key: "linkedin" },
+    { name: "Google Calendar", icon: CalendarDays, connected: false, desc: "Sync interviews and events", key: "google_calendar" },
+    { name: "Google Drive", icon: Globe, connected: false, desc: "Attach files from Drive", key: "google_drive" },
+    { name: "Outlook", icon: Mail, connected: false, desc: "Calendar and email integration", key: "outlook" },
+    { name: "Slack", icon: Hash, connected: false, desc: "Receive notifications in Slack", key: "slack" },
+  ]);
+  const [loading, setLoading] = useState(true);
+  const { addToast } = useToast();
+
+  useEffect(() => {
+    apiFetch("/api/users/integrations")
+      .then((d) => {
+        if (d.integrations) {
+          setIntegrations((prev) =>
+            prev.map((int) => ({
+              ...int,
+              connected: d.integrations[int.key]?.connected ?? false,
+            }))
+          );
+        }
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  const handleConnect = async (key: string) => {
+    try {
+      await apiFetch("/api/users/integrations/link", {
+        method: "POST",
+        body: JSON.stringify({ provider: key }),
+      });
+      setIntegrations((prev) =>
+        prev.map((int) => (int.key === key ? { ...int, connected: true } : int))
+      );
+      addToast("success", `${key} connected`);
+    } catch {
+      addToast("error", `Failed to connect ${key}`);
+    }
+  };
+
+  if (loading) return <p className="text-sm text-fg-muted">Loading...</p>;
+
+  return (
+    <div>
+      <div className="mb-6">
+        <h2 className="font-serif text-xl font-medium text-fg-default">Integrations</h2>
+        <p className="text-sm text-fg-muted mt-0.5">Connect your favorite tools</p>
+      </div>
+
+      <div className="space-y-3">
+        {integrations.map((int) => (
+          <Card key={int.name}>
+            <div className="flex items-center gap-4">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-border bg-bg-hover">
+                <int.icon size={18} className="text-fg-muted" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-medium text-fg-default">{int.name}</p>
+                <p className="text-xs text-fg-muted">{int.desc}</p>
+              </div>
+              <Button variant={int.connected ? "secondary" : "primary"} size="sm" onClick={() => handleConnect(int.key)}>
+                {int.connected ? "Connected" : "Connect"}
+              </Button>
+            </div>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ──────────────── BILLING ──────────────── */
+
+export function BillingTab() {
+  return (
+    <div>
+      <div className="mb-6">
+        <h2 className="font-serif text-xl font-medium text-fg-default">Billing</h2>
+        <p className="text-sm text-fg-muted mt-0.5">Manage your subscription and payment methods</p>
+      </div>
+
+      <Section title="Current Plan">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm font-medium text-fg-default">Free Plan</p>
+            <p className="text-xs text-fg-muted">Basic career tracking features</p>
+          </div>
+          <Badge tone="neutral">Active</Badge>
+        </div>
+      </Section>
+
+      <Section title="Payment Method">
+        <p className="text-sm text-fg-muted">No payment method added yet.</p>
+      </Section>
+
+      <Section title="Billing History">
+        <p className="text-sm text-fg-muted">No billing history available.</p>
+      </Section>
+    </div>
+  );
+}
+
+/* ──────────────── KEYBOARD SHORTCUTS ──────────────── */
+
+export function KeyboardTab() {
+  const shortcuts = [
+    { keys: ["Ctrl", "K"], desc: "Command palette" },
+    { keys: ["Ctrl", "B"], desc: "Toggle sidebar" },
+    { keys: ["Ctrl", "L"], desc: "Focus search" },
+    { keys: ["Ctrl", "D"], desc: "Go to Dashboard" },
+    { keys: ["Ctrl", ","], desc: "Open Settings" },
+    { keys: ["Ctrl", "S"], desc: "Save current form" },
+    { keys: ["Ctrl", "E"], desc: "Go to Resume Studio" },
+    { keys: ["Ctrl", "O"], desc: "Go to Opportunities" },
+    { keys: ["Ctrl", "J"], desc: "Go to Applications" },
+    { keys: ["G", "then", "C"], desc: "Go to Career Coach" },
+    { keys: ["G", "then", "A"], desc: "Go to Analytics" },
+    { keys: ["?"], desc: "Show keyboard shortcuts" },
+  ];
+
+  return (
+    <div>
+      <div className="mb-6">
+        <h2 className="font-serif text-xl font-medium text-fg-default">Keyboard Shortcuts</h2>
+        <p className="text-sm text-fg-muted mt-0.5">Navigate faster with keyboard shortcuts</p>
+      </div>
+
+      <Card>
+        <div className="space-y-1">
+          {shortcuts.map((s, i) => (
+            <div key={i} className="flex items-center justify-between py-1.5">
+              <span className="text-sm text-fg-default">{s.desc}</span>
+              <div className="flex items-center gap-1">
+                {s.keys.map((k, j) => (
+                  <span key={j} className="inline-flex items-center rounded-md border border-border bg-bg-hover px-2 py-0.5 font-mono text-[11px] font-medium text-fg-muted shadow-xs">
+                    {k}
+                  </span>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+/* ──────────────── ABOUT ──────────────── */
+
+export function AboutTab() {
+  const [version, setVersion] = useState("0.1.0");
+  const [build, setBuild] = useState("");
+
+  useEffect(() => {
+    apiFetch("/api/system/version")
+      .then((d) => {
+        if (d.version) setVersion(d.version);
+        if (d.build) setBuild(d.build);
+      })
+      .catch(() => {});
+  }, []);
+
+  return (
+    <div>
+      <div className="mb-6">
+        <h2 className="font-serif text-xl font-medium text-fg-default">About</h2>
+        <p className="text-sm text-fg-muted mt-0.5">Version information and resources</p>
+      </div>
+
+      <Section title="Application">
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-fg-muted">Version</span>
+            <span className="text-sm font-medium text-fg-default">{version}</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-fg-muted">Build Number</span>
+            <span className="text-sm font-medium text-fg-default">{build || "N/A"}</span>
+          </div>
+        </div>
+      </Section>
+
+      <Section title="Resources">
+        <div className="space-y-2">
+          {[
+            { label: "Release Notes", icon: FileText, href: "https://github.com/gurupratap-matharu/career-os/releases" },
+            { label: "Documentation", icon: Package, href: "https://docs.careeros.ai" },
+            { label: "Contact Support", icon: HelpCircle, href: "mailto:support@careeros.ai" },
+          ].map((item) => (
+            <a
+              key={item.label}
+              href={item.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm text-fg-muted hover:text-fg-default hover:bg-bg-hover transition-colors duration-100"
+            >
+              <div className="flex items-center gap-2.5">
+                <item.icon size={15} strokeWidth={1.5} className="shrink-0" />
+                <span>{item.label}</span>
+              </div>
+              <ExternalLink size={13} className="shrink-0 text-fg-subtle" />
+            </a>
+          ))}
+        </div>
+      </Section>
+
+      <Section title="Legal">
+        <div className="space-y-2">
+          {[
+            { label: "Privacy Policy", icon: FileText, href: "https://careeros.ai/privacy" },
+            { label: "Terms of Service", icon: FileText, href: "https://careeros.ai/terms" },
+          ].map((item) => (
+            <a
+              key={item.label}
+              href={item.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm text-fg-muted hover:text-fg-default hover:bg-bg-hover transition-colors duration-100"
+            >
+              <div className="flex items-center gap-2.5">
+                <item.icon size={15} strokeWidth={1.5} className="shrink-0" />
+                <span>{item.label}</span>
+              </div>
+              <ExternalLink size={13} className="shrink-0 text-fg-subtle" />
+            </a>
+          ))}
+        </div>
+      </Section>
+    </div>
+  );
+}
