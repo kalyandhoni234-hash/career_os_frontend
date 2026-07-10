@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, startTransition } from "react";
 import { motion } from "framer-motion";
-import { Sparkles, Pencil, RotateCcw, Copy, Check, X } from "lucide-react";
+import { Sparkles, Pencil, RotateCcw, Copy, Check } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { apiFetch } from "@/lib/api";

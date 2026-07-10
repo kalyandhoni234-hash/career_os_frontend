@@ -23,7 +23,7 @@ function MiniStat({ label, value, icon, accent }: { label: string; value: string
   );
 }
 
-export function ApplicationStats({ totalApplications, jobsByStatus, offers, activeApplications }: ApplicationStatsProps) {
+export function ApplicationStats({ totalApplications, jobsByStatus, offers }: ApplicationStatsProps) {
   const applied = jobsByStatus.applied || 0;
   const oa = jobsByStatus.oa || 0;
   const interview = jobsByStatus.interview || 0;

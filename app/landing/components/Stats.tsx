@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { FileText, Search, BrainCircuit, MessageSquare, Sparkles } from "lucide-react";
+import { FileText, Search, BrainCircuit, MessageSquare } from "lucide-react";
 import { fadeUp, stagger } from "./Section";
 
 const items = [

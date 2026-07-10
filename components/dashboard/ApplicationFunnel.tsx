@@ -1,5 +1,5 @@
 "use client";
-import { BarChart3, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import Link from "next/link";
 
 interface ApplicationFunnelProps {

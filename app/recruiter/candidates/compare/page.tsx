@@ -1,9 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
 import { Users, X, Search, Award, Code2, GraduationCap } from "lucide-react";
-import { Card } from "@/components/ui/Card";
 import { searchCandidates, compareCandidates } from "../../api";
 import type { CandidateCompareItem, CandidatePreview } from "../../types";
 
@@ -11,17 +9,14 @@ export default function ComparePage() {
   const [selected, setSelected] = useState<CandidateCompareItem[]>([]);
   const [searchResults, setSearchResults] = useState<CandidatePreview[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [searching, setSearching] = useState(false);
 
   const handleSearch = async (q: string) => {
     setSearchQuery(q);
     if (q.length < 2) { setSearchResults([]); return; }
-    setSearching(true);
     try {
       const res = await searchCandidates({ q, per_page: 10 });
       setSearchResults(res.candidates);
     } catch {}
-    setSearching(false);
   };
 
   const addCandidate = async (candidateId: number) => {

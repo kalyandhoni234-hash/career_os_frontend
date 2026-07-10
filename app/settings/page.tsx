@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { Suspense, useState, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
   Settings, Sun, User, Bell, Shield, Bot, Puzzle, CreditCard, Keyboard, Info,
@@ -33,7 +33,7 @@ const tabs = [
 
 type TabId = (typeof tabs)[number]["id"];
 
-export default function SettingsPage() {
+function SettingsContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const tabParam = searchParams.get("tab") as TabId | null;
@@ -106,5 +106,17 @@ export default function SettingsPage() {
         {renderTab()}
       </div>
     </div>
+  );
+}
+
+export default function SettingsPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-[50vh] items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    }>
+      <SettingsContent />
+    </Suspense>
   );
 }

@@ -12,7 +12,6 @@ import {
   Activity,
   FileText,
   MessageCircle,
-  Lightbulb,
   ListChecks,
   Goal,
   BrainCircuit,

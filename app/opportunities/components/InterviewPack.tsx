@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  ChevronDown, Code, MessageSquare, BrainCircuit, Building2,
+  Code, MessageSquare, BrainCircuit, Building2,
   CheckSquare, BookOpen, Loader2,
 } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";

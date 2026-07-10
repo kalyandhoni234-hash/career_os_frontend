@@ -1,9 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, TrendingUp, CheckCircle2, XCircle, AlertTriangle, Lightbulb, Loader2 } from "lucide-react";
-import { apiFetch } from "@/lib/api";
+import { Search, CheckCircle2, XCircle, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import type { AtsResult } from "../types";

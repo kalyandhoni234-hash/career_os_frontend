@@ -2,11 +2,10 @@
 
 import { useState, useEffect, useCallback, startTransition } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
-  Search, Filter, X, BookmarkCheck, ExternalLink, ChevronDown, SlidersHorizontal,
-  MapPin, GraduationCap, Code2, Award, Briefcase,
+  Search, Filter, X, BookmarkCheck, ExternalLink, SlidersHorizontal,
+  MapPin, GraduationCap,
 } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { CardSkeleton } from "@/components/ui/Skeleton";
@@ -17,7 +16,6 @@ const fadeUp = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0, transi
 const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.08 } } };
 
 export default function CandidatesPage() {
-  const router = useRouter();
   const [results, setResults] = useState<CandidateSearchResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);

@@ -3,9 +3,9 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  MapPin, Building2, Briefcase, Clock, IndianRupee, Star, ExternalLink,
-  Bookmark, BookmarkCheck, ChevronDown, TrendingUp, AlertTriangle,
-  CheckCircle2, Zap, Sparkles,
+  MapPin, Building2, Briefcase, Clock, IndianRupee, Star,
+  Bookmark, BookmarkCheck, ChevronDown, TrendingUp,
+  Zap, Sparkles,
 } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import type { Opportunity, CardMatchData } from "../types";
@@ -238,7 +238,7 @@ export function JobCard({ opportunity: o, matchData, isSaved, onSave, onUnsave, 
           <Sparkles size={10} /> AI Prep
         </button>
         <button
-          onClick={(e) => { e.stopPropagation(); isSaved ? onUnsave?.(o.id) : onSave?.(o.id); }}
+          onClick={(e) => { e.stopPropagation(); if (isSaved) { onUnsave?.(o.id); } else { onSave?.(o.id); } }}
           className={`btn-press p-1.5 rounded-lg transition-all ${isSaved ? "text-accent" : "text-fg-subtle hover:text-fg-default hover:bg-bg-hover"}`}
         >
           {isSaved ? <BookmarkCheck size={15} /> : <Bookmark size={15} />}

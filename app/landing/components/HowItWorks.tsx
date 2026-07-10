@@ -34,7 +34,7 @@ export function HowItWorks() {
           <div className="absolute left-1/2 top-0 hidden h-full w-px -translate-x-1/2 bg-border md:block" />
 
           <div className="space-y-12 md:space-y-24">
-            {steps.map((step, i) => {
+            {steps.map((step) => {
               const Icon = step.icon;
               const isLeft = step.number % 2 !== 0;
 

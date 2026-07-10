@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useMemo, startTransition } from "reac
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Briefcase, BookmarkCheck, TrendingUp, Zap, Sparkles, Cpu,
+  Briefcase, BookmarkCheck, Sparkles, Cpu,
   ChevronRight, ArrowRight, SearchCode, Clock, Loader2,
 } from "lucide-react";
 import { JobCard } from "./components/JobCard";
@@ -25,7 +25,6 @@ export default function OpportunitiesPage() {
   const [savedIds, setSavedIds] = useState<Set<number>>(new Set());
   const [trends, setTrends] = useState<MarketTrends | null>(null);
   const [recommendations, setRecommendations] = useState<{ opp: Opportunity; match: CardMatchData }[]>([]);
-  const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
@@ -53,7 +52,6 @@ export default function OpportunitiesPage() {
       params.per_page = "20";
       const result = await searchOpportunities(params);
       setOpportunities(result.opportunities);
-      setTotal(result.total);
       setPage(result.page);
       setTotalPages(result.total_pages);
     } catch { /* search will retry on next load */ }

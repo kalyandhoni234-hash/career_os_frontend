@@ -39,7 +39,6 @@ export function setLastVisited(path: string) {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
-  const [initialPath, setInitialPath] = useState<string | null>(null);
 
   const checkAuth = useCallback(async () => {
     try {
@@ -54,7 +53,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     startTransition(() => {
-      setInitialPath(getLastVisited());
       checkAuth();
     });
   }, [checkAuth]);

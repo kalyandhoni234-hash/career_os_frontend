@@ -86,7 +86,7 @@ function confidenceTone(level: string): "accent" | "success" | "warning" | "dang
   return "danger";
 }
 
-function ExpandableEntry({ entry, index }: { entry: Entry; index: number }) {
+function ExpandableEntry({ entry }: { entry: Entry; index: number }) {
   const [open, setOpen] = useState(false);
   return (
     <div className="rounded-lg border border-border bg-bg-raised">

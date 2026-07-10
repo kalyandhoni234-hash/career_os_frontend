@@ -28,7 +28,6 @@ import {
   X,
   AlertCircle,
   RefreshCw,
-  ArrowRight,
   BriefcaseBusiness,
   Building2,
 } from "lucide-react";

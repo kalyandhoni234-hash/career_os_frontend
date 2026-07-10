@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, startTransition } from "react";
-import { Save, User, MapPin, Globe, Camera, Upload, Palette, Monitor, Moon, Sun, Shield, Key, Trash2, Download, GitBranch, Link, CalendarDays, Mail, Hash, Smartphone, ExternalLink, Package, FileText, HelpCircle, Check, RefreshCw, XCircle, Users, Star, Code2, Activity, Clock, AlertTriangle, Building2, GraduationCap, Award, Folder, type LucideIcon } from "lucide-react";
+import { Save, User, MapPin, Globe, Camera, Upload, Palette, Monitor, Moon, Sun, Shield, Key, Trash2, Download, GitBranch, Link, CalendarDays, Mail, Hash, Smartphone, ExternalLink, Package, FileText, HelpCircle, Check, RefreshCw, XCircle, Users, Star, Code2, Activity, AlertTriangle, Building2, GraduationCap, Award, Folder, type LucideIcon } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { apiFetch } from "@/lib/api";
 import { Button } from "@/components/ui/Button";
@@ -179,7 +179,6 @@ function PinnedRepoCard({ repo }: { repo: { name?: string; description?: string;
 }
 
 function GitHubExpandedContent({ int, onSync, onDisconnect, syncing }: { int: IntegrationData; onSync: (p: string) => void; onDisconnect: (p: string) => void; syncing: boolean }) {
-  console.log("[GitHubExpandedContent] RENDERING — provider:", int.provider, "username:", int.provider_username, "provider_data keys:", Object.keys(int.provider_data || {}), "connected:", int.connected);
   const pd = int.provider_data || {};
   const pinnedRepos = (pd.pinned_repos as Array<{ name?: string; description?: string; url?: string; language?: string | null; stars?: number }>) || [];
   const topLanguages = pd.top_languages as Record<string, number> || {};
@@ -444,19 +443,11 @@ export function IntegrationsTab() {
     setLoading(true);
     try {
       const data = await apiFetch("/api/integrations");
-      console.log("[IntegrationsTab] API response:", JSON.stringify(data, null, 2));
       const github = data.integrations?.github;
       if (github) {
-        console.log("[IntegrationsTab] GitHub provider_data keys:", Object.keys(github.provider_data || {}));
-        console.log("[IntegrationsTab] GitHub connected:", github.connected);
-        console.log("[IntegrationsTab] GitHub sync_status:", github.sync_status);
-        console.log("[IntegrationsTab] GitHub token_health:", github.token_health);
-        console.log("[IntegrationsTab] GitHub sync_history_count:", github.sync_history_count);
-        console.log("[IntegrationsTab] GitHub last_sync_status:", github.last_sync_status);
       }
       setIntegrations(data.integrations || {});
-    } catch (e) {
-      console.log("[IntegrationsTab] fetch failed:", e);
+    } catch {
     } finally {
       setLoading(false);
     }
@@ -533,26 +524,19 @@ export function IntegrationsTab() {
     }
   };
 
-  console.log("[IntegrationsTab] render — expanded:", expanded, "expandedLoading:", [...expandedLoading]);
 
   const handleToggleExpanded = (provider: string) => {
-    console.log("[IntegrationsTab] handleToggleExpanded called with:", provider, "| current expanded:", expanded);
     if (expanded === provider) {
-      console.log("[IntegrationsTab] collapsing:", provider);
       setExpanded(null);
     } else {
-      console.log("[IntegrationsTab] expanding:", provider);
       setExpanded(provider);
       setExpandedLoading((prev) => {
-        console.log("[IntegrationsTab] adding to expandedLoading:", provider);
         return new Set(prev).add(provider);
       });
       setTimeout(() => {
-        console.log("[IntegrationsTab] timeout — removing from expandedLoading:", provider);
         setExpandedLoading((prev) => {
           const next = new Set(prev);
           next.delete(provider);
-          console.log("[IntegrationsTab] expandedLoading after removal:", [...next]);
           return next;
         });
       }, 400);

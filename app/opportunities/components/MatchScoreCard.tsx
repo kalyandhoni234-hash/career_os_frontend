@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { AlertCircle, CheckCircle2, Info, HelpCircle } from "lucide-react";
+import { Info } from "lucide-react";
 import type { MatchScore } from "../types";
 
 interface MatchScoreCardProps {

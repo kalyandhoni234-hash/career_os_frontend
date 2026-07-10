@@ -3,9 +3,9 @@
 import { useEffect, useState, useCallback, useRef, startTransition } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  FileText, Save, RotateCcw, Download, Eye, Layers, User,
+  FileText, Save, RotateCcw, Download, Eye, User,
   GraduationCap, Briefcase, Code2, Wand2, Award, Trophy, Globe, BookOpen,
-  ChevronRight, Loader2, History,
+  ChevronRight, History,
 } from "lucide-react";
 import { apiFetch } from "@/lib/api";
 import { Button } from "@/components/ui/Button";
@@ -17,7 +17,7 @@ import { AIAssistant } from "./components/AIAssistant";
 import { SkillTags } from "./components/SkillTags";
 import { ExperienceEditor } from "./components/ExperienceEditor";
 import { CoverLetterPanel } from "./components/CoverLetterPanel";
-import type { ResumeData, Experience, Education, Project, Certificate, Language, VersionInfo } from "./types";
+import type { ResumeData, Education, Project, Certificate, Language, VersionInfo } from "./types";
 import { RESUME_SECTIONS, TONES } from "./types";
 
 const fadeUp = {

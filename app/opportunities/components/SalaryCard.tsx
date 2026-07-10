@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { IndianRupee, TrendingUp, MapPin, BarChart3, Shield } from "lucide-react";
+import { TrendingUp, MapPin, BarChart3, Shield } from "lucide-react";
 import type { SalaryEstimate } from "../types";
 
 interface SalaryCardProps {

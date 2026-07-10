@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, FileText, BrainCircuit, LayoutDashboard, BarChart3, Briefcase, Map } from "lucide-react";
-import { SectionHeader, fadeUp, stagger } from "./Section";
+import { SectionHeader } from "./Section";
 
 const slides = [
   {

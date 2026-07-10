@@ -4,15 +4,14 @@ import { useState, useEffect, useMemo, startTransition } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
-  BookmarkCheck, Bookmark, Archive, Trash2, ExternalLink,
-  MapPin, Briefcase, IndianRupee, Clock, Tag, Sparkles,
-  Cpu, TrendingUp, FileText, MessageSquare, Zap, Loader2,
-  Layers,
+  BookmarkCheck, Bookmark, Archive, Trash2,
+  MapPin, Briefcase, IndianRupee, Clock, Sparkles,
+  Cpu, TrendingUp, FileText, Zap, Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { CardSkeleton } from "@/components/ui/Skeleton";
-import { getSavedOpportunities, unsaveOpportunity, updateSavedOpportunity } from "@/app/opportunities/api";
+import { getSavedOpportunities, unsaveOpportunity } from "@/app/opportunities/api";
 import type { SavedOpportunity } from "@/app/opportunities/types";
 
 type GroupKey = "ready" | "applied" | "exploring" | "archived";
@@ -59,11 +58,6 @@ export default function SavedJobsPage() {
     setSaved((prev) => prev.filter((s) => s.saved_id !== id));
   };
 
-  const handleTag = async (savedId: number, opportunityId: number, tags: string[]) => {
-    await updateSavedOpportunity(opportunityId, { tags });
-    setSaved((prev) => prev.map((s) => s.saved_id === savedId ? { ...s, tags } : s));
-  };
-
   const groups = useMemo(() => groupOpportunities(saved), [saved]);
   const totalCount = saved.length;
 
@@ -108,7 +102,6 @@ export default function SavedJobsPage() {
           icon={Zap}
           label="Prepare Interview"
           desc="AI-powered prep for saved roles"
-          tone="accent"
           disabled={saved.length === 0}
           onClick={async () => {
             if (saved.length === 0) return;
@@ -120,7 +113,6 @@ export default function SavedJobsPage() {
           icon={FileText}
           label="Optimize Resumes"
           desc="Tailor resumes for each role"
-          tone="accent"
           disabled={saved.length === 0}
           onClick={async () => {
             if (saved.length === 0) return;
@@ -132,7 +124,6 @@ export default function SavedJobsPage() {
           icon={TrendingUp}
           label="Rank by Match"
           desc="AI re-scores all saved jobs"
-          tone="accent"
           disabled={saved.length === 0}
           onClick={async () => {
             if (saved.length === 0) return;
@@ -144,7 +135,6 @@ export default function SavedJobsPage() {
           icon={Cpu}
           label="Command Center"
           desc="Full agent dashboard"
-          tone="accent"
           onClick={() => router.push("/agents")}
         />
       </div>
@@ -296,12 +286,11 @@ export default function SavedJobsPage() {
 }
 
 function QuickActionCard({
-  icon: Icon, label, desc, tone, disabled, onClick,
+  icon: Icon, label, desc, disabled, onClick,
 }: {
   icon: typeof Zap;
   label: string;
   desc: string;
-  tone: string;
   disabled?: boolean;
   onClick: () => void;
 }) {

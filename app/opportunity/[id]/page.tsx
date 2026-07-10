@@ -5,13 +5,13 @@ import { useParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
   ArrowLeft, Building2, MapPin, Briefcase, Clock, IndianRupee,
-  ExternalLink, BookmarkCheck, Bookmark, Share2, ChevronDown, Loader2,
+  ExternalLink, BookmarkCheck, Bookmark, ChevronDown, Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { CardSkeleton } from "@/components/ui/Skeleton";
 import {
-  MatchScoreCard, SkillGapCard, CompanyInsights, SalaryCard,
+  MatchScoreCard, SkillGapCard, CompanyInsights,
   ApplicationAssistant, InterviewPackView, ResumeOptimizer,
 } from "@/app/opportunities/components";
 import {

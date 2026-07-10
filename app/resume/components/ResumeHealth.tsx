@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { CheckCircle2, XCircle, MinusCircle } from "lucide-react";
+import { CheckCircle2, MinusCircle } from "lucide-react";
 import type { ResumeData } from "../types";
 
 interface ResumeHealthProps {

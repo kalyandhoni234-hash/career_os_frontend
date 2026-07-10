@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { ArrowLeft, Save, MapPin, Users, Clock } from "lucide-react";
+import { ArrowLeft, Save, MapPin, Users } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { CardSkeleton } from "@/components/ui/Skeleton";
 import { getJobPost, updateJobPost, deleteJobPost } from "../../api";

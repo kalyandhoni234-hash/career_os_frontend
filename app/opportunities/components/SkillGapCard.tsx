@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { AlertTriangle, CheckCircle2, TrendingUp, BookOpen } from "lucide-react";
+import { AlertTriangle, CheckCircle2, TrendingUp } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import type { SkillGap } from "../types";
 

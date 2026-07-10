@@ -4,7 +4,6 @@ import { useEffect, useState, startTransition } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Lightbulb, Sparkles, ArrowRight, Loader2 } from "lucide-react";
 import { apiFetch } from "@/lib/api";
-import { Button } from "@/components/ui/Button";
 import type { Suggestion } from "../types";
 
 const IMPACT_ORDER = { high: 0, medium: 1, low: 2 };

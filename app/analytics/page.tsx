@@ -9,7 +9,6 @@ import {
 } from "recharts";
 import { apiFetch } from "@/lib/api";
 import { Card } from "@/components/ui/Card";
-import { Badge } from "@/components/ui/Badge";
 import { CardSkeleton } from "@/components/ui/Skeleton";
 
 interface Job {

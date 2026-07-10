@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState, startTransition } from "react";
-import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
   Route,
@@ -12,9 +11,6 @@ import {
   TrendingUp,
   Calendar,
   Target,
-  FileText,
-  CheckCircle2,
-  Clock,
 } from "lucide-react";
 import { apiFetch } from "@/lib/api";
 import { Card } from "@/components/ui/Card";
@@ -65,7 +61,6 @@ const MILESTONE_COLORS: Record<string, string> = {
 };
 
 export default function CareerOverviewPage() {
-  const router = useRouter();
   const [overview, setOverview] = useState<Overview | null>(null);
   const [loading, setLoading] = useState(true);
 

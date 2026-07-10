@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect, startTransition } from "react";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
-import { Search, SlidersHorizontal, X, MapPin, Briefcase, IndianRupee, Sparkles, Zap } from "lucide-react";
+import { SlidersHorizontal, X, MapPin, Briefcase, IndianRupee, Sparkles, Zap } from "lucide-react";
 import type { SearchFilters } from "../types";
 
 interface JobFiltersProps {

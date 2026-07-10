@@ -179,7 +179,7 @@ export default function CareerProfileWizardPage() {
     }
   }, [snapshotCurrentState]);
 
-  const handleSaveCurrentStep = async (silent = false): Promise<boolean> => {
+  const handleSaveCurrentStep = useCallback(async (silent = false): Promise<boolean> => {
     setSaving(true);
     try {
       let result: { message: string; completion_pct: number };
@@ -210,7 +210,7 @@ export default function CareerProfileWizardPage() {
     } finally {
       setSaving(false);
     }
-  };
+  }, [currentStep, basicInfo, careerInfo, dreamCareer, preferences, completionPct, snapshotCurrentState, addToast]);
 
   const resetAutoSave = useCallback(() => {
     if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
@@ -220,7 +220,7 @@ export default function CareerProfileWizardPage() {
         handleSaveCurrentStep(true);
       }, AUTOSAVE_DELAY);
     }
-  }, [currentStep]);
+  }, [currentStep, handleSaveCurrentStep]);
 
   useEffect(() => {
     resetAutoSave();
@@ -279,7 +279,7 @@ export default function CareerProfileWizardPage() {
       })
       .catch(() => addToast("error", "Failed to load wizard data"))
       .finally(() => setLoading(false));
-  }, []);
+  }, [addToast]);
 
   const markDirty = () => setHasUnsavedChanges(true);
 

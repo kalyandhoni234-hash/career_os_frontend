@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Trash2, Wand2, GripVertical } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { useToast } from "@/components/ui/Toast";
 import type { Experience } from "../types";
 
@@ -11,7 +11,7 @@ interface ExperienceEditorProps {
 }
 
 export function ExperienceEditor({ experiences, onChange }: ExperienceEditorProps) {
-  const { addToast } = useToast();
+  useToast();
 
   const add = () => {
     onChange([

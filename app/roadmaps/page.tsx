@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useState, useCallback, startTransition } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { BookOpen, Plus, CheckCircle2, Circle, Loader2, ArrowLeft, ExternalLink, Clock, Award } from "lucide-react";
+import { BookOpen, Plus, CheckCircle2, Circle, Loader2, ExternalLink, Clock, Award } from "lucide-react";
 import { apiFetch } from "@/lib/api";
 import { Button } from "@/components/ui/Button";
 import { useToast } from "@/components/ui/Toast";

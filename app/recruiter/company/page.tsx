@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Building2, Save } from "lucide-react";
-import { Card } from "@/components/ui/Card";
 import { CardSkeleton } from "@/components/ui/Skeleton";
 import { getCompany, updateCompany } from "../api";
 import type { CompanyData } from "../types";

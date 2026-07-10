@@ -4,10 +4,10 @@ import { useEffect, useState, useCallback, startTransition } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   DndContext, DragOverlay, closestCorners, KeyboardSensor, PointerSensor, useSensor, useSensors,
-  type DragStartEvent, type DragEndEvent, type DragOverEvent,
+  type DragStartEvent, type DragEndEvent,
 } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
-import { Briefcase, SendHorizontal, X, Loader2, AlertCircle, ExternalLink } from "lucide-react";
+import { Briefcase, SendHorizontal, AlertCircle } from "lucide-react";
 import { apiFetch } from "@/lib/api";
 import { Button } from "@/components/ui/Button";
 import { useToast } from "@/components/ui/Toast";
@@ -17,7 +17,7 @@ import { ApplicationCard } from "./components/ApplicationCard";
 import { AISuggestions } from "./components/AISuggestions";
 import { QuickActions } from "./components/QuickActions";
 import { EmptyState } from "./components/EmptyState";
-import type { Job, DashboardSummary, Status } from "./types";
+import type { Job } from "./types";
 import { STATUSES, STATUS_LABELS, STATUS_COLORS } from "./types";
 
 const fadeUp = {
@@ -50,7 +50,6 @@ const defaultForm: FormData = {
 
 export default function JobsPage() {
   const [jobs, setJobs] = useState<Job[]>([]);
-  const [summary, setSummary] = useState<DashboardSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [showForm, setShowForm] = useState(false);
@@ -69,12 +68,8 @@ export default function JobsPage() {
 
   const loadJobs = useCallback(async () => {
     try {
-      const [jobsData, summaryData] = await Promise.all([
-        apiFetch("/api/jobs"),
-        apiFetch("/api/users/dashboard-summary"),
-      ]);
+      const jobsData = await apiFetch("/api/jobs");
       setJobs((jobsData.jobs || []) as Job[]);
-      setSummary(summaryData as DashboardSummary);
     } catch {
       setError("Failed to load applications");
     } finally {
