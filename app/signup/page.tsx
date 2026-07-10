@@ -55,7 +55,7 @@ export default function SignupPage() {
       });
 
       await checkAuth();
-      router.push("/dashboard");
+      router.push("/onboarding");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Signup failed");
     } finally {

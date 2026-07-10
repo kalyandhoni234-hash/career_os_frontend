@@ -6,7 +6,7 @@ import { useAuth, setLastVisited } from "@/components/AuthProvider";
 import { Sidebar } from "./sidebar";
 import { TopBar } from "./TopBar";
 
-const AUTH_ROUTES = ["/login", "/signup"];
+const AUTH_ROUTES = ["/login", "/signup", "/onboarding"];
 const LANDING_ROUTE = "/";
 const RECRUITER_PREFIX = "/recruiter";
 const PROTECTED_API_PREFIX = "/api";

@@ -37,8 +37,7 @@ export default function LoginPage() {
         body: JSON.stringify({ email, password }),
       });
       await checkAuth();
-      const lastVisited = localStorage.getItem("last_visited_page");
-      router.push(lastVisited || "/dashboard");
+      router.push("/onboarding");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed");
     } finally {

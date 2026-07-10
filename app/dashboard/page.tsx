@@ -17,6 +17,8 @@ import {
   BrainCircuit,
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { useAuth } from "@/components/AuthProvider";
+import { apiFetch } from "@/lib/api";
 import { useDashboard } from "@/hooks/useDashboard";
 import { Widget } from "@/components/dashboard/Widget";
 import { StatCard } from "@/components/dashboard/StatCard";
@@ -51,6 +53,17 @@ const stagger = {
 
 export default function DashboardPage() {
   const router = useRouter();
+  const { isAuthenticated } = useAuth();
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    apiFetch("/api/onboarding/status").then((res) => {
+      if (!res.onboarding_completed) {
+        router.replace("/onboarding");
+      }
+    }).catch(() => {});
+  }, [isAuthenticated, router]);
+
   const { data, loading, error, careerScore } = useDashboard();
   const [actionPlan, setActionPlan] = useState<ActionPlanItem[]>([]);
   const [goals, setGoals] = useState<CareerGoalData[]>([]);
