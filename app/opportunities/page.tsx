@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, startTransition } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -60,25 +60,27 @@ export default function OpportunitiesPage() {
     setLoading(false);
   }, [filters]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => { startTransition(() => { load(); }); }, [load]);
 
   useEffect(() => {
-    getMarketTrends().then((r) => { setTrends(r.trends); setTrendsLoading(false); }).catch(() => setTrendsLoading(false));
-    getSavedOpportunities().then((r) => setSavedIds(new Set(r.saved.map((s) => s.opportunity.id)))).catch(() => {});
-    getOpportunityRecommendations().then((r) => {
-      setRecommendations(r.recommendations.map((rec) => ({
-        opp: rec.opportunity,
-        match: {
-          overall_score: rec.match_score.overall_score,
-          ats_match: rec.match_score.ats_match,
-          skill_match: rec.match_score.skill_match,
-          experience_match: rec.match_score.experience_match,
-          explanation: rec.match_score.explanation,
-        },
-      })));
-      setRecoLoading(false);
-    }).catch(() => setRecoLoading(false));
-    getAgentDashboard().then((d) => setAgentDash({ running_count: d.running_count, completed_today: d.completed_today })).catch(() => {});
+    startTransition(() => {
+      getMarketTrends().then((r) => { setTrends(r.trends); setTrendsLoading(false); }).catch(() => setTrendsLoading(false));
+      getSavedOpportunities().then((r) => setSavedIds(new Set(r.saved.map((s) => s.opportunity.id)))).catch(() => {});
+      getOpportunityRecommendations().then((r) => {
+        setRecommendations(r.recommendations.map((rec) => ({
+          opp: rec.opportunity,
+          match: {
+            overall_score: rec.match_score.overall_score,
+            ats_match: rec.match_score.ats_match,
+            skill_match: rec.match_score.skill_match,
+            experience_match: rec.match_score.experience_match,
+            explanation: rec.match_score.explanation,
+          },
+        })));
+        setRecoLoading(false);
+      }).catch(() => setRecoLoading(false));
+      getAgentDashboard().then((d) => setAgentDash({ running_count: d.running_count, completed_today: d.completed_today })).catch(() => {});
+    });
   }, []);
 
   const handleSave = async (id: number) => {

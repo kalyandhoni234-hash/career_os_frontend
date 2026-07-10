@@ -37,6 +37,9 @@ export interface ActivityItem {
 
 export interface CandidatePreview {
   user_id: number;
+  saved_id?: number;
+  pipeline_name?: string;
+  pipeline_color?: string;
   email: string;
   full_name: string;
   title?: string;

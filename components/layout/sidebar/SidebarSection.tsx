@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, type ReactNode } from "react";
+import { useState, useEffect, useCallback, startTransition, type ReactNode } from "react";
 import { ChevronDown } from "lucide-react";
 
 interface SidebarSectionProps {
@@ -20,7 +20,7 @@ export function SidebarSection({ title, children, collapsed, defaultOpen = true 
     try {
       const stored = localStorage.getItem(`${STORAGE_PREFIX}${title}`);
       if (stored !== null) {
-        setOpen(stored === "true");
+        startTransition(() => { setOpen(stored === "true"); });
       }
     } catch {}
   }, [collapsed, title]);

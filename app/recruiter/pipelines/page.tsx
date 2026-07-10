@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, startTransition } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { BookmarkCheck, Plus, FolderKanban, ExternalLink, Trash2 } from "lucide-react";
@@ -11,7 +11,7 @@ import type { Pipeline, CandidatePreview } from "../types";
 
 export default function PipelinesPage() {
   const [pipelines, setPipelines] = useState<Pipeline[]>([]);
-  const [savedCandidates, setSavedCandidates] = useState<any[]>([]);
+  const [savedCandidates, setSavedCandidates] = useState<CandidatePreview[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
   const [newName, setNewName] = useState("");
@@ -25,7 +25,7 @@ export default function PipelinesPage() {
     } catch {}
     setLoading(false);
   };
-  useEffect(() => { load(); }, []);
+  useEffect(() => { startTransition(() => { load(); }); }, []);
 
   const handleCreate = async () => {
     if (!newName.trim()) return;

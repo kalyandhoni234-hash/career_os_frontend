@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useState, useCallback } from "react";
+import { Suspense, useEffect, useState, useCallback, startTransition } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { BookOpen, Plus, CheckCircle2, Circle, Loader2, ArrowLeft, ExternalLink, Clock, Award } from "lucide-react";
@@ -47,7 +47,7 @@ function RoadmapsContent() {
     }
   }, [addToast]);
 
-  useEffect(() => { loadRoadmaps(); }, [loadRoadmaps]);
+  useEffect(() => { startTransition(() => { loadRoadmaps(); }); }, [loadRoadmaps]);
 
   useEffect(() => {
     const roadmapId = searchParams?.get("id");

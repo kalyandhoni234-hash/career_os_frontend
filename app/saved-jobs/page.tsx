@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, startTransition } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
@@ -52,7 +52,7 @@ export default function SavedJobsPage() {
     setLoading(false);
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { startTransition(() => { load(); }); }, []);
 
   const handleRemove = async (id: number, opportunityId: number) => {
     await unsaveOpportunity(opportunityId);

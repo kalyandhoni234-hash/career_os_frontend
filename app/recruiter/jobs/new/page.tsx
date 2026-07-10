@@ -68,7 +68,7 @@ export default function NewJobPage() {
     }
   };
 
-  const update = (field: string, value: any) => setForm((prev) => ({ ...prev, [field]: value }));
+  const update = (field: string, value: unknown) => setForm((prev) => ({ ...prev, [field]: value }));
 
   return (
     <div className="mx-auto max-w-3xl space-y-6 p-6">

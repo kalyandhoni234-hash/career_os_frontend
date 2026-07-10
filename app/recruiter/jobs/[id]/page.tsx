@@ -25,7 +25,7 @@ export default function JobDetailPage() {
     if (!job) return;
     setSaving(true);
     try {
-      await updateJobPost(parseInt(id), job as any);
+      await updateJobPost(parseInt(id), job as unknown as Record<string, unknown>);
     } catch {}
     setSaving(false);
   };
@@ -36,7 +36,7 @@ export default function JobDetailPage() {
     router.push("/recruiter/jobs");
   };
 
-  const update = (field: string, value: any) => setJob((prev) => prev ? { ...prev, [field]: value } : prev);
+  const update = (field: string, value: unknown) => setJob((prev) => prev ? { ...prev, [field]: value } : prev);
 
   if (loading) {
     return (

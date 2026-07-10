@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, startTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Search, Command, ArrowRight, LayoutDashboard, FileText, Briefcase, Bot, BarChart3, Route, Settings as SettingsIcon, User } from "lucide-react";
 
@@ -42,7 +42,7 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
     : COMMANDS;
 
   useEffect(() => {
-    setSelectedIndex(0);
+    startTransition(() => { setSelectedIndex(0); });
     if (open) {
       setTimeout(() => inputRef.current?.focus(), 50);
     }
@@ -50,7 +50,7 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
 
   useEffect(() => {
     if (!open) {
-      setQuery("");
+      startTransition(() => { setQuery(""); });
     }
   }, [open]);
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, useCallback, startTransition, type ReactNode } from "react";
 
 type ThemeMode = "light" | "dark" | "system";
 
@@ -49,8 +49,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     html.classList.toggle("theme-transition", true);
     html.classList.toggle("dark", isDark);
 
-    clearTimeout((html as any)._themeTimeout);
-    (html as any)._themeTimeout = window.setTimeout(() => {
+    clearTimeout((html as HTMLElement & { _themeTimeout?: number })._themeTimeout);
+    (html as HTMLElement & { _themeTimeout?: number })._themeTimeout = window.setTimeout(() => {
       html.classList.toggle("theme-transition", false);
     }, 200);
   }, []);
@@ -67,7 +67,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   );
 
   useEffect(() => {
-    applyTheme(theme);
+    startTransition(() => { applyTheme(theme); });
   }, [theme, applyTheme]);
 
   useEffect(() => {

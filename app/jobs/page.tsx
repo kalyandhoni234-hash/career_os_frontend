@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, startTransition } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   DndContext, DragOverlay, closestCorners, KeyboardSensor, PointerSensor, useSensor, useSensors,
@@ -82,7 +82,7 @@ export default function JobsPage() {
     }
   }, []);
 
-  useEffect(() => { loadJobs(); }, [loadJobs]);
+  useEffect(() => { startTransition(() => { loadJobs(); }); }, [loadJobs]);
 
   const grouped = jobs.reduce<Record<string, Job[]>>((acc, job) => {
     const s = job.status || "applied";

@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, startTransition } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import {
@@ -308,7 +308,7 @@ export default function CareerProfilePage() {
     }
   }, []);
 
-  useEffect(() => { fetchData(); }, [fetchData]);
+  useEffect(() => { startTransition(() => { fetchData(); }); }, [fetchData]);
 
   const refreshDash = useCallback(async () => {
     try {

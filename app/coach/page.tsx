@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, startTransition } from "react";
 import { Send, Trash2, MessageCircle, Sparkles, GraduationCap, FileText, Briefcase, BrainCircuit, User, Target, Award, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { apiFetch } from "@/lib/api";
@@ -55,19 +55,21 @@ export default function CoachPage() {
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    apiFetch("/api/coach/history")
-      .then((data) => setMessages(data.messages || []))
-      .catch((err) => setError(err.message))
-      .finally(() => setHistoryLoading(false));
+    startTransition(() => {
+      apiFetch("/api/coach/history")
+        .then((data) => setMessages(data.messages || []))
+        .catch((err) => setError(err.message))
+        .finally(() => setHistoryLoading(false));
 
-    getCareerDashboard()
-      .then((d) => setCareerData(d))
-      .catch(() => setCareerData(null))
-      .finally(() => setCareerDataLoading(false));
+      getCareerDashboard()
+        .then((d) => setCareerData(d))
+        .catch(() => setCareerData(null))
+        .finally(() => setCareerDataLoading(false));
 
-    getSkillGaps()
-      .then((d) => setSkillGapAnalysis(d))
-      .catch(() => {});
+      getSkillGaps()
+        .then((d) => setSkillGapAnalysis(d))
+        .catch(() => {});
+    });
   }, []);
 
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);

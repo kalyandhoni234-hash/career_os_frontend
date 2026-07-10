@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, startTransition } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Lightbulb, Sparkles, ArrowRight, Loader2 } from "lucide-react";
 import { apiFetch } from "@/lib/api";
@@ -21,11 +21,13 @@ export function AISuggestions({ refreshKey }: { refreshKey: number }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setLoading(true);
-    apiFetch("/api/jobs/suggestions")
-      .then((data) => setSuggestions(data.suggestions || []))
-      .catch(() => {})
-      .finally(() => setLoading(false));
+    startTransition(() => {
+      setLoading(true);
+      apiFetch("/api/jobs/suggestions")
+        .then((data) => setSuggestions(data.suggestions || []))
+        .catch(() => {})
+        .finally(() => setLoading(false));
+    });
   }, [refreshKey]);
 
   const sorted = [...suggestions].sort((a, b) => IMPACT_ORDER[a.impact as keyof typeof IMPACT_ORDER] - IMPACT_ORDER[b.impact as keyof typeof IMPACT_ORDER]);

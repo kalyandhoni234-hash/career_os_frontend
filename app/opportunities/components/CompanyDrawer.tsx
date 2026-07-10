@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, startTransition } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   X, Building2, Globe, MapPin, Calendar, Star,
@@ -23,12 +23,14 @@ export function CompanyDrawer({ companyName, onClose }: CompanyDrawerProps) {
   const open = !!companyName;
 
   useEffect(() => {
-    if (!companyName) { setCompany(null); setError(null); return; }
-    setLoading(true);
-    setError(null);
-    getCompany(companyName)
-      .then((r) => { setCompany(r.company); setLoading(false); })
-      .catch((e) => { setError(e.message); setLoading(false); });
+    startTransition(() => {
+      if (!companyName) { setCompany(null); setError(null); return; }
+      setLoading(true);
+      setError(null);
+      getCompany(companyName)
+        .then((r) => { setCompany(r.company); setLoading(false); })
+        .catch((e) => { setError(e.message); setLoading(false); });
+    });
   }, [companyName]);
 
   const rating = company?.glassdoor_rating ?? company?.indeed_rating ?? null;

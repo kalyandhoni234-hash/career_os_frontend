@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, startTransition } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -21,7 +21,7 @@ export default function RecruiterLayout({ children }: { children: React.ReactNod
 
   useEffect(() => {
     const stored = localStorage.getItem("recruiter-sidebar-collapsed");
-    if (stored === "true") setCollapsed(true);
+    if (stored === "true") startTransition(() => { setCollapsed(true); });
   }, []);
 
   useEffect(() => {

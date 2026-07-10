@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback, useRef, startTransition } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FileText, Save, RotateCcw, Download, Eye, Layers, User,
@@ -112,7 +112,7 @@ export default function ResumePage() {
     return () => { if (autosaveTimer.current) clearTimeout(autosaveTimer.current); };
   }, [resume, saveResume]);
 
-  useEffect(() => { loadResume(); }, [loadResume]);
+  useEffect(() => { startTransition(() => { loadResume(); }); }, [loadResume]);
 
   const updateResume = (field: keyof ResumeData, value: unknown) => {
     setResume((prev) => prev ? { ...prev, [field]: value } : prev);

@@ -1,12 +1,12 @@
 "use client";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, startTransition } from "react";
 import { apiFetch } from "@/lib/api";
 
 export interface RecentActivity {
   type: "job" | "coach" | "resume";
   description: string;
   timestamp: string;
-  metadata: Record<string, any>;
+  metadata: Record<string, unknown>;
 }
 
 export interface DashboardData {
@@ -37,15 +37,15 @@ export function useDashboard() {
       setError("");
       const summary = await apiFetch("/api/users/dashboard-summary");
       setData(summary);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : String(err));
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    fetch();
+    startTransition(() => { fetch(); });
   }, [fetch]);
 
   const careerScore = (() => {

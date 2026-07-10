@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, startTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
@@ -41,8 +41,10 @@ export default function CandidatesPage() {
   const [skillInput, setSkillInput] = useState("");
 
   useEffect(() => {
-    getSavedCandidates().then((d) => setSavedIds(new Set(d.saved_candidates.map((c) => c.user_id)))).catch(() => {});
-    listPipelines().then((d) => setPipelines(d.pipelines)).catch(() => {});
+    startTransition(() => {
+      getSavedCandidates().then((d) => setSavedIds(new Set(d.saved_candidates.map((c) => c.user_id)))).catch(() => {});
+      listPipelines().then((d) => setPipelines(d.pipelines)).catch(() => {});
+    });
   }, []);
 
   const doSearch = useCallback(async (p: number) => {
@@ -60,7 +62,7 @@ export default function CandidatesPage() {
     }
   }, [filters]);
 
-  useEffect(() => { doSearch(1); }, [doSearch]);
+  useEffect(() => { startTransition(() => { doSearch(1); }); }, [doSearch]);
 
   const addSkill = () => {
     const s = skillInput.trim();

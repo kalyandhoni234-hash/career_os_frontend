@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, startTransition } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
@@ -44,14 +44,15 @@ export default function OpportunityDetailPage() {
         const [{ opportunity, saved }] = await Promise.all([
           getOpportunity(oppId),
         ]);
-        setOpp(opportunity);
-        setIsSaved(!!saved);
+        startTransition(() => {
+          setOpp(opportunity);
+          setIsSaved(!!saved);
+        });
 
-        // Load AI data in parallel
         Promise.all([
-          getMatchScore(oppId).then((r) => setMatchScore(r.match_score)).catch(() => {}),
-          getSkillGaps(oppId).then((r) => setSkillGap(r.skill_gaps)).catch(() => {}),
-          getApplicationReadiness(oppId).then((r) => setReadiness(r.readiness)).catch(() => {}),
+          getMatchScore(oppId).then((r) => startTransition(() => setMatchScore(r.match_score))).catch(() => {}),
+          getSkillGaps(oppId).then((r) => startTransition(() => setSkillGap(r.skill_gaps))).catch(() => {}),
+          getApplicationReadiness(oppId).then((r) => startTransition(() => setReadiness(r.readiness))).catch(() => {}),
         ]);
       } catch { /* ignore */ }
       setLoading(false);

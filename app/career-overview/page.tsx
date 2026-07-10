@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, startTransition } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
@@ -70,10 +70,12 @@ export default function CareerOverviewPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    apiFetch("/api/users/career-overview")
-      .then((d) => setOverview(d))
-      .catch(() => {})
-      .finally(() => setLoading(false));
+    startTransition(() => {
+      apiFetch("/api/users/career-overview")
+        .then((d) => setOverview(d))
+        .catch(() => {})
+        .finally(() => setLoading(false));
+    });
   }, []);
 
   if (loading) {

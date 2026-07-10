@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, startTransition } from "react";
 import { motion } from "framer-motion";
 import { Sparkles, Pencil, RotateCcw, Copy, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -32,7 +32,7 @@ export function AICareerSummary() {
   }, []);
 
   useEffect(() => {
-    fetchSummary();
+    startTransition(() => { fetchSummary(); });
   }, [fetchSummary]);
 
   const handleSave = async () => {

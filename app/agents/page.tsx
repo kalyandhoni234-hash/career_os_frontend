@@ -1,25 +1,39 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, startTransition } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Search, Target, BarChart3, MessageSquare, Cpu, BrainCircuit,
   TrendingUp, Sparkles, Zap, Clock, CheckCircle2, AlertTriangle,
-  BookmarkCheck, Briefcase, GraduationCap, Award, ChevronDown,
-  ChevronRight, ExternalLink, Loader2, Bot, User, Sun, Moon,
+  Briefcase, GraduationCap, Award, ChevronDown,
+  ChevronRight, Loader2, Bot, User,
   FileText, Globe, Lightbulb, Star, ArrowRight,
 } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { getBriefing, runAgent } from "./api";
-import type { AgentBriefing, AgentActivity, AgentRecommendation, TimelineEvent } from "./types";
+import type { AgentBriefing, AgentActivity, AgentRecommendation, TimelineEvent, AgentType } from "./types";
 
 function useBriefing() {
   const [data, setData] = useState<AgentBriefing | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const load = useCallback(async () => {
+  useEffect(() => {
+    startTransition(async () => {
+      setLoading(true);
+      try {
+        const result = await getBriefing();
+        setData(result);
+        setError(null);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Failed to load briefing");
+      }
+      setLoading(false);
+    });
+  }, []);
+
+  const refresh = async () => {
     setLoading(true);
     try {
       const result = await getBriefing();
@@ -29,11 +43,9 @@ function useBriefing() {
       setError(e instanceof Error ? e.message : "Failed to load briefing");
     }
     setLoading(false);
-  }, []);
+  };
 
-  useEffect(() => { load(); }, [load]);
-
-  return { data, loading, error, refresh: load };
+  return { data, loading, error, refresh };
 }
 
 // ── Animated Counter ──
@@ -161,17 +173,17 @@ export default function CommandCenterPage() {
   const router = useRouter();
   const { data, loading, error, refresh } = useBriefing();
 
+  const [expandedAgent, setExpandedAgent] = useState<string | null>(null);
+  const [runLoading, setRunLoading] = useState<string | null>(null);
+
   if (error && error.toLowerCase().includes("unauthorized")) {
     router.push("/login");
     return null;
   }
-  const [expandedAgent, setExpandedAgent] = useState<string | null>(null);
-  const [runLoading, setRunLoading] = useState<string | null>(null);
-
   const handleRunAgent = async (agentType: string) => {
     setRunLoading(agentType);
     try {
-      await runAgent(agentType as any);
+      await runAgent(agentType as AgentType);
       setTimeout(refresh, 2000);
     } catch { /* ignore */ }
     setRunLoading(null);
@@ -250,7 +262,7 @@ export default function CommandCenterPage() {
       >
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-sm font-semibold flex items-center gap-1.5">
-            <Sparkles size={14} className="text-accent" /> Today's Briefing
+            <Sparkles size={14} className="text-accent" /> Today&apos;s Briefing
           </h2>
           <span className="text-[10px] text-fg-muted">{daily_brief.date}</span>
         </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ComponentType } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
@@ -140,7 +140,7 @@ function MetricCard({ label, value, icon, subtitle }: { label: string; value: st
   );
 }
 
-function QuickAction({ href, icon: Icon, label, desc }: { href: string; icon: any; label: string; desc: string }) {
+function QuickAction({ href, icon: Icon, label, desc }: { href: string; icon: ComponentType<{ size?: number }>; label: string; desc: string }) {
   return (
     <Link href={href} className="card-hover group rounded-lg border border-border bg-bg-raised p-3.5 transition-all duration-150 hover:border-accent/30 hover:shadow-sm">
       <div className="flex items-center gap-2.5">

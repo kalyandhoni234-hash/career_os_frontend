@@ -43,7 +43,6 @@ import {
   updateSkill,
   deleteSkill,
   batchInterests,
-  deleteInterest,
   createLanguage,
   updateLanguage,
   deleteLanguage,
@@ -115,6 +114,25 @@ const defaultPreferences: Preferences = {
   public_profile: false, resume_visibility: "private", theme_preference: "system",
 };
 
+function CompletionCircle({ pct }: { pct: number }) {
+  const r = 28;
+  const circumference = 2 * Math.PI * r;
+  const offset = circumference - (pct / 100) * circumference;
+  return (
+    <div className="relative flex h-16 w-16 items-center justify-center">
+      <svg className="h-16 w-16 -rotate-90" viewBox="0 0 64 64">
+        <circle cx="32" cy="32" r={r} fill="none" stroke="currentColor" strokeWidth="4" className="text-border" />
+        <circle
+          cx="32" cy="32" r={r} fill="none" stroke="currentColor" strokeWidth="4"
+          strokeDasharray={circumference} strokeDashoffset={offset}
+          strokeLinecap="round" className="text-accent transition-all duration-700 ease-out"
+        />
+      </svg>
+      <span className="absolute text-xs font-semibold text-fg-default">{pct}%</span>
+    </div>
+  );
+}
+
 export default function CareerProfileWizardPage() {
   const router = useRouter();
   const { addToast } = useToast();
@@ -160,6 +178,39 @@ export default function CareerProfileWizardPage() {
       setHasUnsavedChanges(true);
     }
   }, [snapshotCurrentState]);
+
+  const handleSaveCurrentStep = async (silent = false): Promise<boolean> => {
+    setSaving(true);
+    try {
+      let result: { message: string; completion_pct: number };
+      switch (currentStep) {
+        case 0:
+          result = await saveWizardStep("basic_info", basicInfo);
+          break;
+        case 2:
+          result = await saveWizardStep("career_info", careerInfo);
+          break;
+        case 3:
+          result = await saveWizardStep("dream_career", dreamCareer);
+          break;
+        case 9:
+          result = await saveWizardStep("preferences", preferences);
+          break;
+        default:
+          result = { message: "Saved", completion_pct: completionPct };
+      }
+      setCompletionPct(result.completion_pct);
+      setHasUnsavedChanges(false);
+      lastSavedSnapshot.current = snapshotCurrentState();
+      if (!silent) addToast("success", result.message || "Step saved successfully");
+      return true;
+    } catch (err) {
+      if (!silent) addToast("error", err instanceof Error ? err.message : "Failed to save");
+      return false;
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const resetAutoSave = useCallback(() => {
     if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
@@ -255,39 +306,6 @@ export default function CareerProfileWizardPage() {
       setDirection(target > currentStep ? 1 : -1);
       setCurrentStep(target);
       setHasUnsavedChanges(false);
-    }
-  };
-
-  const handleSaveCurrentStep = async (silent = false): Promise<boolean> => {
-    setSaving(true);
-    try {
-      let result: { message: string; completion_pct: number };
-      switch (currentStep) {
-        case 0:
-          result = await saveWizardStep("basic_info", basicInfo);
-          break;
-        case 2:
-          result = await saveWizardStep("career_info", careerInfo);
-          break;
-        case 3:
-          result = await saveWizardStep("dream_career", dreamCareer);
-          break;
-        case 9:
-          result = await saveWizardStep("preferences", preferences);
-          break;
-        default:
-          result = { message: "Saved", completion_pct: completionPct };
-      }
-      setCompletionPct(result.completion_pct);
-      setHasUnsavedChanges(false);
-      lastSavedSnapshot.current = snapshotCurrentState();
-      if (!silent) addToast("success", result.message || "Step saved successfully");
-      return true;
-    } catch (err) {
-      if (!silent) addToast("error", err instanceof Error ? err.message : "Failed to save");
-      return false;
-    } finally {
-      setSaving(false);
     }
   };
 
@@ -499,25 +517,6 @@ export default function CareerProfileWizardPage() {
     } catch (err) {
       addToast("error", err instanceof Error ? err.message : "Failed to delete resume");
     }
-  };
-
-  const CompletionCircle = ({ pct }: { pct: number }) => {
-    const r = 28;
-    const circumference = 2 * Math.PI * r;
-    const offset = circumference - (pct / 100) * circumference;
-    return (
-      <div className="relative flex h-16 w-16 items-center justify-center">
-        <svg className="h-16 w-16 -rotate-90" viewBox="0 0 64 64">
-          <circle cx="32" cy="32" r={r} fill="none" stroke="currentColor" strokeWidth="4" className="text-border" />
-          <circle
-            cx="32" cy="32" r={r} fill="none" stroke="currentColor" strokeWidth="4"
-            strokeDasharray={circumference} strokeDashoffset={offset}
-            strokeLinecap="round" className="text-accent transition-all duration-700 ease-out"
-          />
-        </svg>
-        <span className="absolute text-xs font-semibold text-fg-default">{pct}%</span>
-      </div>
-    );
   };
 
   const renderStepContent = () => {
@@ -1112,7 +1111,6 @@ export default function CareerProfileWizardPage() {
             {STEPS.map((step, idx) => {
               const isCompleted = idx < currentStep;
               const isCurrent = idx === currentStep;
-              const Icon = step.icon;
               return (
                 <button
                   key={step.stepKey}

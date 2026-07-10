@@ -601,7 +601,7 @@ export default function ImportHubPage() {
                       <label className="mb-1 block text-[10px] font-medium text-fg-muted">{field.label}</label>
                       <input
                         className="field"
-                        value={(editableData.personal_info as any)[field.key]}
+                        value={(editableData.personal_info as Record<string, string>)[field.key]}
                         onChange={(e) => updatePersonalInfo(field.key, e.target.value)}
                       />
                     </div>

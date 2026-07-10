@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, useCallback, startTransition, type ReactNode } from "react";
 import { apiFetch } from "@/lib/api";
 import { SplashScreen } from "./SplashScreen";
 
@@ -53,8 +53,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    setInitialPath(getLastVisited());
-    checkAuth();
+    startTransition(() => {
+      setInitialPath(getLastVisited());
+      checkAuth();
+    });
   }, [checkAuth]);
 
   const logout = useCallback(async () => {

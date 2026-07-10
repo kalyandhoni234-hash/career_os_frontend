@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { Save, User, MapPin, Globe, Clock, Camera, Upload, Palette, Monitor, Moon, Sun, Bell, Shield, Key, LogOut, Trash2, Download, Bot, Brain, GraduationCap, GitBranch, Link, CalendarDays, Mail, Hash, Smartphone, Info, ExternalLink, Package, FileText, HelpCircle, Check } from "lucide-react";
+import { useState, useEffect, useRef, startTransition } from "react";
+import { Save, User, MapPin, Globe, Camera, Upload, Palette, Monitor, Moon, Sun, Shield, Key, Trash2, Download, GitBranch, Link, CalendarDays, Mail, Hash, Smartphone, ExternalLink, Package, FileText, HelpCircle, Check, RefreshCw, XCircle, type LucideIcon } from "lucide-react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { apiFetch } from "@/lib/api";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -59,6 +60,363 @@ function Select({ label, options, value, onChange }: { label: string; options: {
           <option key={o.value} value={o.value}>{o.label}</option>
         ))}
       </select>
+    </div>
+  );
+}
+
+function capitalize(s: string) {
+  return s.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+/* ──────────────── INTEGRATION ICON MAP ──────────────── */
+
+const INTEGRATION_ICONS: Record<string, LucideIcon> = {
+  github: GitBranch,
+  linkedin: Link,
+  google_calendar: CalendarDays,
+  google_drive: Globe,
+  outlook: Mail,
+  slack: Hash,
+};
+
+const INTEGRATION_NAMES: Record<string, string> = {
+  github: "GitHub",
+  linkedin: "LinkedIn",
+  google_calendar: "Google Calendar",
+  google_drive: "Google Drive",
+  outlook: "Outlook",
+  slack: "Slack",
+};
+
+const INTEGRATION_DESCS: Record<string, string> = {
+  github: "Sync your repositories, contributions, and profile",
+  linkedin: "Import your professional profile and network",
+  google_calendar: "Sync interviews, events, and deadlines",
+  google_drive: "Import resumes, certificates, and documents",
+  outlook: "Calendar sync and email integration",
+  slack: "Receive career reminders and AI summaries",
+};
+
+interface IntegrationData {
+  provider: string;
+  name: string;
+  available: boolean;
+  connected: boolean;
+  sync_status: string;
+  sync_error: string | null;
+  provider_username: string | null;
+  provider_email: string | null;
+  connected_at: string | null;
+  last_sync_at: string | null;
+  provider_data: Record<string, unknown>;
+  setup_guide?: string;
+}
+
+/* ──────────────── INTEGRATIONS TAB ──────────────── */
+
+export function IntegrationsTab() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const { addToast } = useToast();
+  const [integrations, setIntegrations] = useState<Record<string, IntegrationData>>({});
+  const [loading, setLoading] = useState(true);
+  const [syncing, setSyncing] = useState<Set<string>>(new Set());
+  const [expanded, setExpanded] = useState<string | null>(null);
+  const [linkedinUrl, setLinkedinUrl] = useState("");
+
+  const fetchIntegrations = async () => {
+    setLoading(true);
+    try {
+      const data = await apiFetch("/api/integrations");
+      setIntegrations(data.integrations || {});
+    } catch {
+      /* silent */
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const integration = searchParams.get("integration");
+    const status = searchParams.get("status");
+    if (integration && status) {
+      const name = INTEGRATION_NAMES[integration] || capitalize(integration);
+      if (status === "success") {
+        addToast("success", `${name} connected successfully`);
+      } else {
+        addToast("error", `Failed to connect ${name}`);
+      }
+      router.replace("/settings?tab=integrations", { scroll: false });
+    }
+    startTransition(() => { fetchIntegrations(); });
+  }, [addToast, router, searchParams]);
+
+  const handleConnect = async (provider: string) => {
+    try {
+      const data = await apiFetch(`/api/integrations/${provider}/connect`, { method: "POST" });
+      if (data.redirect_url) {
+        window.location.assign(data.redirect_url);
+      }
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "Connection failed";
+      addToast("error", msg);
+    }
+  };
+
+  const handleDisconnect = async (provider: string) => {
+    try {
+      await apiFetch(`/api/integrations/${provider}/disconnect`, { method: "POST" });
+      addToast("success", `${INTEGRATION_NAMES[provider] || capitalize(provider)} disconnected`);
+      fetchIntegrations();
+    } catch {
+      addToast("error", `Failed to disconnect`);
+    }
+  };
+
+  const handleSync = async (provider: string) => {
+    setSyncing((prev) => new Set(prev).add(provider));
+    try {
+      await apiFetch(`/api/integrations/${provider}/sync`, { method: "POST" });
+      addToast("success", `${INTEGRATION_NAMES[provider] || capitalize(provider)} synced`);
+      fetchIntegrations();
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "Sync failed";
+      addToast("error", msg);
+      fetchIntegrations();
+    } finally {
+      setSyncing((prev) => {
+        const next = new Set(prev);
+        next.delete(provider);
+        return next;
+      });
+    }
+  };
+
+  const handleLinkedinImport = async () => {
+    if (!linkedinUrl.trim()) return;
+    try {
+      await apiFetch("/api/integrations/linkedin/import", {
+        method: "POST",
+        body: JSON.stringify({ profile_url: linkedinUrl.trim() }),
+      });
+      addToast("success", "LinkedIn profile imported");
+      fetchIntegrations();
+      setLinkedinUrl("");
+    } catch {
+      addToast("error", "Failed to import LinkedIn profile");
+    }
+  };
+
+  const formatDate = (iso: string | null) => {
+    if (!iso) return "Never";
+    try {
+      return new Date(iso).toLocaleString();
+    } catch {
+      return iso;
+    }
+  };
+
+  /* ── Render helpers ── */
+
+  const renderSyncButton = (int: IntegrationData) => {
+    if (syncing.has(int.provider)) {
+      return (
+        <Button variant="secondary" size="sm" disabled>
+          <RefreshCw size={13} className="mr-1 animate-spin" />
+          Syncing...
+        </Button>
+      );
+    }
+    return (
+      <Button variant="secondary" size="sm" onClick={() => handleSync(int.provider)}>
+        <RefreshCw size={13} className="mr-1" />
+        Sync Now
+      </Button>
+    );
+  };
+
+  const renderStatusBadge = (int: IntegrationData) => {
+    switch (int.sync_status) {
+      case "connected":
+        return <Badge tone="success">Connected</Badge>;
+      case "syncing":
+        return <Badge tone="neutral">Syncing</Badge>;
+      case "sync_failed":
+        return <Badge tone="warning">Sync Failed</Badge>;
+      case "connection_error":
+        return <Badge tone="danger">Connection Error</Badge>;
+      default:
+        return null;
+    }
+  };
+
+  const renderExpanded = (int: IntegrationData) => {
+    if (int.provider !== expanded) return null;
+
+    return (
+      <div className="border-t border-border pt-4 mt-4 space-y-3">
+        <div className="grid grid-cols-2 gap-3 text-xs">
+          {int.provider_username && (
+            <div>
+              <span className="text-fg-muted">Connected as:</span>
+              <p className="text-fg-default font-medium">{int.provider_username}</p>
+            </div>
+          )}
+          <div>
+            <span className="text-fg-muted">Last Sync:</span>
+            <p className="text-fg-default font-medium">{formatDate(int.last_sync_at)}</p>
+          </div>
+          {int.provider === "github" && (
+            <>
+              <div>
+                <span className="text-fg-muted">Repositories</span>
+                <p className="text-fg-default font-medium">{(int.provider_data?.repositories as number) || "-"}</p>
+              </div>
+              <div>
+                <span className="text-fg-muted">Contributions</span>
+                <p className="text-fg-default font-medium">{(int.provider_data?.contributions as number) || "-"}</p>
+              </div>
+            </>
+          )}
+          {int.sync_error && (
+            <div className="col-span-2 rounded-lg bg-danger/10 p-2.5">
+              <p className="text-xs text-danger font-medium">Error: {int.sync_error}</p>
+            </div>
+          )}
+        </div>
+        <div className="flex flex-wrap gap-2 pt-1">
+          {renderSyncButton(int)}
+          <Button variant="ghost" size="sm" className="text-danger hover:text-danger hover:bg-danger/10" onClick={() => handleDisconnect(int.provider)}>
+            <XCircle size={13} className="mr-1" />
+            Disconnect
+          </Button>
+        </div>
+      </div>
+    );
+  };
+
+  const renderProviderIntro = (int: IntegrationData) => {
+    const Icon = INTEGRATION_ICONS[int.provider] || Link;
+    return (
+      <div className="flex items-center gap-4">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-border bg-bg-hover">
+          <Icon size={18} className="text-fg-muted" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+            <p className="text-sm font-medium text-fg-default">{INTEGRATION_NAMES[int.provider] || capitalize(int.provider)}</p>
+            {renderStatusBadge(int)}
+            {!int.available && <Badge tone="neutral">Coming Soon</Badge>}
+          </div>
+          <p className="text-xs text-fg-muted mt-0.5">
+            {int.connected && int.last_sync_at ? `Last sync: ${formatDate(int.last_sync_at)}` : INTEGRATION_DESCS[int.provider] || ""}
+          </p>
+        </div>
+      </div>
+    );
+  };
+
+  const renderActions = (int: IntegrationData) => {
+    if (!int.available) {
+      return null;
+    }
+
+    if (int.connected) {
+      return (
+        <Button variant="secondary" size="sm" onClick={() => setExpanded(expanded === int.provider ? null : int.provider)}>
+          {expanded === int.provider ? "Hide" : "Manage"}
+        </Button>
+      );
+    }
+
+    if (int.provider === "linkedin") {
+      return null;
+    }
+
+    return (
+      <Button variant="primary" size="sm" onClick={() => handleConnect(int.provider)}>
+        Connect
+      </Button>
+    );
+  };
+
+  /* ── Main render ── */
+
+  if (loading) {
+    return (
+      <div>
+        <div className="mb-6">
+          <h2 className="font-serif text-xl font-medium text-fg-default">Integrations</h2>
+          <p className="text-sm text-fg-muted mt-0.5">Connect your favorite tools</p>
+        </div>
+        <div className="space-y-3">
+          {[1, 2, 3].map((i) => (
+            <Card key={i}>
+              <div className="flex items-center gap-4">
+                <div className="h-10 w-10 rounded-lg bg-bg-hover animate-pulse" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-4 w-24 bg-bg-hover rounded animate-pulse" />
+                  <div className="h-3 w-48 bg-bg-hover rounded animate-pulse" />
+                </div>
+                <div className="h-8 w-20 bg-bg-hover rounded-lg animate-pulse" />
+              </div>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <div className="mb-6">
+        <h2 className="font-serif text-xl font-medium text-fg-default">Integrations</h2>
+        <p className="text-sm text-fg-muted mt-0.5">Connect your favorite tools</p>
+      </div>
+
+      <div className="space-y-3">
+        {Object.entries(integrations).map(([key, int]) => (
+          <Card key={key}>
+            <div className="flex items-center justify-between gap-4">
+              {renderProviderIntro(int)}
+              {renderActions(int)}
+            </div>
+            {int.provider === "linkedin" && !int.connected && int.available && expanded !== "linkedin" && (
+              <div className="mt-3 pt-3 border-t border-border">
+                <Button variant="primary" size="sm" onClick={() => handleConnect("linkedin")}>
+                  Connect with OAuth
+                </Button>
+                <span className="text-xs text-fg-muted mx-2">or</span>
+                <button
+                  onClick={() => setExpanded(expanded === "linkedin" ? null : "linkedin")}
+                  className="text-xs text-accent hover:underline"
+                >
+                  Import via profile URL
+                </button>
+              </div>
+            )}
+            {int.provider === "linkedin" && expanded === "linkedin" && !int.connected && (
+              <div className="border-t border-border pt-3 mt-3">
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="https://linkedin.com/in/username"
+                    value={linkedinUrl}
+                    onChange={(e) => setLinkedinUrl(e.target.value)}
+                    className="flex-1"
+                  />
+                  <Button variant="primary" size="sm" onClick={handleLinkedinImport} disabled={!linkedinUrl.trim()}>
+                    Import
+                  </Button>
+                </div>
+                <p className="text-xs text-fg-muted mt-1.5">
+                  Paste your public LinkedIn profile URL to import your professional information.
+                </p>
+              </div>
+            )}
+            {renderExpanded(int)}
+          </Card>
+        ))}
+      </div>
     </div>
   );
 }
@@ -177,12 +535,14 @@ export function AppearanceTab() {
   const [reducedMotion, setReducedMotion] = useState(false);
 
   useEffect(() => {
-    const side = localStorage.getItem("sidebar-collapsed");
-    setSidebar(side === "true" ? "collapsed" : "expanded");
-    setCompact(localStorage.getItem("app-compact") === "true");
-    setFontSize(localStorage.getItem("app-font-size") || "medium");
-    setAnimations(localStorage.getItem("app-animations") !== "false");
-    setReducedMotion(localStorage.getItem("app-reduced-motion") === "true");
+    startTransition(() => {
+      const side = localStorage.getItem("sidebar-collapsed");
+      setSidebar(side === "true" ? "collapsed" : "expanded");
+      setCompact(localStorage.getItem("app-compact") === "true");
+      setFontSize(localStorage.getItem("app-font-size") || "medium");
+      setAnimations(localStorage.getItem("app-animations") !== "false");
+      setReducedMotion(localStorage.getItem("app-reduced-motion") === "true");
+    });
   }, []);
 
   useEffect(() => { localStorage.setItem("app-compact", String(compact)); }, [compact]);
@@ -543,82 +903,6 @@ export function AIPreferencesTab() {
       </Section>
 
       <Button icon={<Save size={14} />} size="sm" onClick={handleSave}>Save Preferences</Button>
-    </div>
-  );
-}
-
-/* ──────────────── INTEGRATIONS ──────────────── */
-
-export function IntegrationsTab() {
-  const [integrations, setIntegrations] = useState([
-    { name: "GitHub", icon: GitBranch, connected: false, desc: "Sync your repositories and contributions", key: "github" },
-    { name: "LinkedIn", icon: Link, connected: false, desc: "Import your professional profile", key: "linkedin" },
-    { name: "Google Calendar", icon: CalendarDays, connected: false, desc: "Sync interviews and events", key: "google_calendar" },
-    { name: "Google Drive", icon: Globe, connected: false, desc: "Attach files from Drive", key: "google_drive" },
-    { name: "Outlook", icon: Mail, connected: false, desc: "Calendar and email integration", key: "outlook" },
-    { name: "Slack", icon: Hash, connected: false, desc: "Receive notifications in Slack", key: "slack" },
-  ]);
-  const [loading, setLoading] = useState(true);
-  const { addToast } = useToast();
-
-  useEffect(() => {
-    apiFetch("/api/users/integrations")
-      .then((d) => {
-        if (d.integrations) {
-          setIntegrations((prev) =>
-            prev.map((int) => ({
-              ...int,
-              connected: d.integrations[int.key]?.connected ?? false,
-            }))
-          );
-        }
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, []);
-
-  const handleConnect = async (key: string) => {
-    try {
-      await apiFetch("/api/users/integrations/link", {
-        method: "POST",
-        body: JSON.stringify({ provider: key }),
-      });
-      setIntegrations((prev) =>
-        prev.map((int) => (int.key === key ? { ...int, connected: true } : int))
-      );
-      addToast("success", `${key} connected`);
-    } catch {
-      addToast("error", `Failed to connect ${key}`);
-    }
-  };
-
-  if (loading) return <p className="text-sm text-fg-muted">Loading...</p>;
-
-  return (
-    <div>
-      <div className="mb-6">
-        <h2 className="font-serif text-xl font-medium text-fg-default">Integrations</h2>
-        <p className="text-sm text-fg-muted mt-0.5">Connect your favorite tools</p>
-      </div>
-
-      <div className="space-y-3">
-        {integrations.map((int) => (
-          <Card key={int.name}>
-            <div className="flex items-center gap-4">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-border bg-bg-hover">
-                <int.icon size={18} className="text-fg-muted" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium text-fg-default">{int.name}</p>
-                <p className="text-xs text-fg-muted">{int.desc}</p>
-              </div>
-              <Button variant={int.connected ? "secondary" : "primary"} size="sm" onClick={() => handleConnect(int.key)}>
-                {int.connected ? "Connected" : "Connect"}
-              </Button>
-            </div>
-          </Card>
-        ))}
-      </div>
     </div>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, startTransition } from "react";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { Search, SlidersHorizontal, X, MapPin, Briefcase, IndianRupee, Sparkles, Zap } from "lucide-react";
@@ -23,7 +23,7 @@ export function JobFilters({ filters, onChange, onSearch, smartFilters, onSmartF
   const [localQ, setLocalQ] = useState(filters.q || "");
 
   useEffect(() => {
-    setLocalQ(filters.q || "");
+    startTransition(() => { setLocalQ(filters.q || ""); });
   }, [filters.q]);
 
   const update = useCallback((key: keyof SearchFilters, value: string) => {

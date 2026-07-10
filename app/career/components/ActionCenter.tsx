@@ -17,7 +17,7 @@ export function ActionCenter({ items, loading, compact }: ActionCenterProps) {
   if (loading) {
     return (
       <div className="rounded-xl border border-border bg-bg-surface p-4">
-        <h3 className={`font-mono font-medium uppercase tracking-widest text-fg-muted ${compact ? "text-[10px]" : "text-xs"}`}>Today's Career Plan</h3>
+        <h3 className={`font-mono font-medium uppercase tracking-widest text-fg-muted ${compact ? "text-[10px]" : "text-xs"}`}>Today&apos;s Career Plan</h3>
         <div className="mt-3 flex items-center justify-center py-6">
           <Loader2 size={18} className="animate-spin text-fg-muted" />
         </div>
@@ -28,7 +28,7 @@ export function ActionCenter({ items, loading, compact }: ActionCenterProps) {
   if (!items || items.length === 0) {
     return (
       <div className="rounded-xl border border-border bg-bg-surface p-4">
-        <h3 className={`font-mono font-medium uppercase tracking-widest text-fg-muted ${compact ? "text-[10px]" : "text-xs"}`}>Today's Career Plan</h3>
+        <h3 className={`font-mono font-medium uppercase tracking-widest text-fg-muted ${compact ? "text-[10px]" : "text-xs"}`}>Today&apos;s Career Plan</h3>
         <p className="mt-3 text-xs text-fg-subtle">No recommendations yet. Update your resume to get started.</p>
       </div>
     );
@@ -37,7 +37,7 @@ export function ActionCenter({ items, loading, compact }: ActionCenterProps) {
   return (
     <div className="rounded-xl border border-border bg-bg-surface p-4">
       <div className="mb-3 flex items-center justify-between">
-        <h3 className={`font-mono font-medium uppercase tracking-widest text-fg-muted ${compact ? "text-[10px]" : "text-xs"}`}>Today's Career Plan</h3>
+        <h3 className={`font-mono font-medium uppercase tracking-widest text-fg-muted ${compact ? "text-[10px]" : "text-xs"}`}>Today&apos;s Career Plan</h3>
         <span className="text-[10px] text-fg-subtle">{items.length} actions</span>
       </div>
       <div className="space-y-1.5">
