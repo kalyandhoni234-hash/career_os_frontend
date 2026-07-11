@@ -136,14 +136,14 @@ function RoadmapsContent() {
             <p className="text-xs text-fg-muted">Personalized learning paths to reach your career goals</p>
           </div>
         </div>
-        <Button size="sm" icon={<Plus size={13} />} onClick={() => setShowGenerator(true)}>
+        <Button size="sm" icon={<Plus size={16} />} onClick={() => setShowGenerator(true)} className="min-h-[44px]">
           New Roadmap
         </Button>
       </motion.div>
 
-      <div className="flex gap-6">
+      <div className="flex flex-col gap-4 lg:flex-row lg:gap-6">
         {/* Sidebar: roadmap list */}
-        <div className="w-64 shrink-0 space-y-2">
+        <div className="w-full lg:w-64 shrink-0 space-y-2">
           <h3 className="font-mono text-[10px] font-medium uppercase tracking-widest text-fg-muted">
             Your Roadmaps ({roadmaps.length})
           </h3>
@@ -157,7 +157,7 @@ function RoadmapsContent() {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.03 }}
                 onClick={() => viewRoadmap(r.id)}
-                className={`w-full rounded-lg border p-3 text-left transition-all ${
+                className={`w-full min-h-[44px] rounded-lg border p-3 text-left transition-all ${
                   activeRoadmap?.id === r.id
                     ? "border-accent bg-accent/5"
                     : "border-border bg-bg-surface hover:border-accent/30"
@@ -188,7 +188,7 @@ function RoadmapsContent() {
               >
                 <div className="mb-4 flex items-center justify-between">
                   <h2 className="font-mono text-xs font-medium uppercase tracking-widest text-fg-default">Choose a Career Path</h2>
-                  <button onClick={() => setShowGenerator(false)} className="text-xs text-fg-muted hover:text-fg-default">Cancel</button>
+                  <button onClick={() => setShowGenerator(false)} className="min-h-[44px] px-3 text-xs text-fg-muted hover:text-fg-default">Cancel</button>
                 </div>
                 <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
                   {ROADMAP_CATEGORIES.map((cat) => (
@@ -198,7 +198,7 @@ function RoadmapsContent() {
                       whileTap={{ scale: 0.98 }}
                       onClick={() => generateRoadmap(cat.id, cat.label)}
                       disabled={generating}
-                      className="rounded-lg border border-border bg-bg-default p-3 text-left transition-all hover:border-accent/30 disabled:opacity-50"
+                      className="min-h-[44px] rounded-lg border border-border bg-bg-default p-3 text-left transition-all hover:border-accent/30 disabled:opacity-50"
                     >
                       <p className="text-sm font-medium text-fg-default">{cat.label}</p>
                       <p className="text-[11px] text-fg-muted mt-1">
@@ -228,7 +228,7 @@ function RoadmapsContent() {
                         <span className="flex items-center gap-1"><Award size={11} /> {activeRoadmap.completed_nodes}/{activeRoadmap.total_nodes} completed</span>
                       </div>
                     </div>
-                    <button onClick={() => deleteRoadmap(activeRoadmap.id)} className="text-[11px] text-fg-muted hover:text-danger transition-colors">
+                    <button onClick={() => deleteRoadmap(activeRoadmap.id)} className="min-h-[44px] px-3 text-[11px] text-fg-muted hover:text-danger transition-colors">
                       Delete
                     </button>
                   </div>
@@ -268,7 +268,7 @@ function RoadmapsContent() {
                 <h2 className="mt-3 font-serif text-lg text-fg-muted">Select or Create a Roadmap</h2>
                 <p className="mt-1 text-xs text-fg-subtle">Choose a learning path to start tracking your progress.</p>
                 <button onClick={() => setShowGenerator(true)}
-                  className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-accent px-4 py-2 text-xs font-medium text-white transition-all hover:bg-accent/90 active:scale-95"
+                  className="mt-4 min-h-[44px] inline-flex items-center gap-1.5 rounded-lg bg-accent px-4 py-2 text-xs font-medium text-white transition-all hover:bg-accent/90 active:scale-95"
                 >
                   <Plus size={13} /> Create Your First Roadmap
                 </button>
@@ -314,7 +314,7 @@ function NodeCard({ node, onToggle }: { node: RoadmapNodeData; onToggle: (id: nu
     >
       <div className="flex items-start gap-3">
         <button onClick={() => onToggle(node.id, isCompleted ? "pending" : "completed")}
-          className="mt-0.5 shrink-0 transition-colors hover:scale-110"
+          className="mt-0.5 shrink-0 p-2 -ml-2 transition-colors hover:scale-110"
         >
           {isCompleted ? (
             <CheckCircle2 size={16} className="text-success" />

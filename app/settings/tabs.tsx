@@ -271,14 +271,14 @@ function GitHubExpandedContent({ int, onSync, onDisconnect, syncing }: { int: In
       )}
 
       {/* Sync health */}
-      <div className="flex items-center justify-between pt-1">
+      <div className="flex flex-col gap-3 pt-1 sm:flex-row sm:items-center sm:justify-between">
         <SyncHealth int={int} />
         <div className="flex items-center gap-2">
-          <Button variant="secondary" size="sm" onClick={() => onSync(int.provider)} disabled={syncing}>
+          <Button variant="secondary" size="sm" className="min-h-[44px]" onClick={() => onSync(int.provider)} disabled={syncing}>
             <RefreshCw size={12} className={`mr-1 ${syncing ? "animate-spin" : ""}`} />
             {syncing ? "Syncing..." : "Sync"}
           </Button>
-          <Button variant="ghost" size="sm" className="text-danger hover:text-danger hover:bg-danger/10" onClick={() => onDisconnect(int.provider)}>
+          <Button variant="ghost" size="sm" className="min-h-[44px] text-danger hover:text-danger hover:bg-danger/10" onClick={() => onDisconnect(int.provider)}>
             <XCircle size={12} className="mr-1" />
             Disconnect
           </Button>
@@ -403,14 +403,14 @@ function LinkedInExpandedContent({ int, onSync, onDisconnect, syncing }: { int: 
       )}
 
       {/* Sync health */}
-      <div className="flex items-center justify-between pt-1">
+      <div className="flex flex-col gap-3 pt-1 sm:flex-row sm:items-center sm:justify-between">
         <SyncHealth int={int} />
         <div className="flex items-center gap-2">
-          <Button variant="secondary" size="sm" onClick={() => onSync(int.provider)} disabled={syncing}>
+          <Button variant="secondary" size="sm" className="min-h-[44px]" onClick={() => onSync(int.provider)} disabled={syncing}>
             <RefreshCw size={12} className={`mr-1 ${syncing ? "animate-spin" : ""}`} />
             {syncing ? "Syncing..." : "Sync"}
           </Button>
-          <Button variant="ghost" size="sm" className="text-danger hover:text-danger hover:bg-danger/10" onClick={() => onDisconnect(int.provider)}>
+          <Button variant="ghost" size="sm" className="min-h-[44px] text-danger hover:text-danger hover:bg-danger/10" onClick={() => onDisconnect(int.provider)}>
             <XCircle size={12} className="mr-1" />
             Disconnect
           </Button>
@@ -597,7 +597,7 @@ export function IntegrationsTab() {
 
     if (int.connected) {
       return (
-        <Button variant="secondary" size="sm" onClick={() => handleToggleExpanded(int.provider)}>
+        <Button variant="secondary" size="sm" className="min-h-[44px]" onClick={() => handleToggleExpanded(int.provider)}>
           {expanded === int.provider ? "Hide" : "Manage"}
         </Button>
       );
@@ -608,7 +608,7 @@ export function IntegrationsTab() {
     }
 
     return (
-      <Button variant="primary" size="sm" onClick={() => handleConnect(int.provider)}>
+      <Button variant="primary" size="sm" className="min-h-[44px]" onClick={() => handleConnect(int.provider)}>
         Connect
       </Button>
     );
@@ -681,19 +681,19 @@ export function IntegrationsTab() {
       <div className="space-y-3">
         {Object.entries(integrations).map(([key, int]) => (
           <Card key={key}>
-            <div className="flex items-center justify-between gap-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
               {renderProviderIntro(int)}
               {renderActions(int)}
             </div>
             {int.provider === "linkedin" && !int.connected && int.available && expanded !== "linkedin" && (
               <div className="mt-3 pt-3 border-t border-border">
-                <Button variant="primary" size="sm" onClick={() => handleConnect("linkedin")}>
+                <Button variant="primary" size="sm" className="min-h-[44px]" onClick={() => handleConnect("linkedin")}>
                   Connect with OAuth
                 </Button>
                 <span className="text-xs text-fg-muted mx-2">or</span>
                 <button
                   onClick={() => setExpanded(expanded === "linkedin" ? null : "linkedin")}
-                  className="text-xs text-accent hover:underline"
+                  className="min-h-[44px] inline-flex items-center text-xs text-accent hover:underline"
                 >
                   Import via profile URL
                 </button>
@@ -701,14 +701,14 @@ export function IntegrationsTab() {
             )}
             {int.provider === "linkedin" && expanded === "linkedin" && !int.connected && (
               <div className="border-t border-border pt-3 mt-3">
-                <div className="flex gap-2">
+                <div className="flex flex-col gap-2 sm:flex-row">
                   <Input
                     placeholder="https://linkedin.com/in/username"
                     value={linkedinUrl}
                     onChange={(e) => setLinkedinUrl(e.target.value)}
-                    className="flex-1"
+                    className="flex-1 min-h-[44px]"
                   />
-                  <Button variant="primary" size="sm" onClick={handleLinkedinImport} disabled={!linkedinUrl.trim()}>
+                  <Button variant="primary" size="sm" className="min-h-[44px]" onClick={handleLinkedinImport} disabled={!linkedinUrl.trim()}>
                     Import
                   </Button>
                 </div>
@@ -735,7 +735,7 @@ export function IntegrationsTab() {
                 />
               ) : (
                 <div className="border-t border-border pt-4 mt-4 space-y-3">
-                  <div className="grid grid-cols-2 gap-3 text-xs">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                     {int.provider_username && (
                       <div>
                         <span className="text-fg-muted">Connected as:</span>
@@ -747,17 +747,17 @@ export function IntegrationsTab() {
                       <p className="text-fg-default font-medium">{formatDate(int.last_sync_at)}</p>
                     </div>
                     {int.sync_error && (
-                      <div className="col-span-2 rounded-lg bg-danger/10 p-2.5">
+                      <div className="sm:col-span-2 rounded-lg bg-danger/10 p-2.5">
                         <p className="text-xs text-danger font-medium">Error: {int.sync_error}</p>
                       </div>
                     )}
                   </div>
                   <div className="flex flex-wrap gap-2 pt-1">
-                    <Button variant="secondary" size="sm" onClick={() => handleSync(int.provider)} disabled={syncing.has(int.provider)}>
+                    <Button variant="secondary" size="sm" className="min-h-[44px]" onClick={() => handleSync(int.provider)} disabled={syncing.has(int.provider)}>
                       <RefreshCw size={12} className={`mr-1 ${syncing.has(int.provider) ? "animate-spin" : ""}`} />
                       {syncing.has(int.provider) ? "Syncing..." : "Sync Now"}
                     </Button>
-                    <Button variant="ghost" size="sm" className="text-danger hover:text-danger hover:bg-danger/10" onClick={() => handleDisconnect(int.provider)}>
+                    <Button variant="ghost" size="sm" className="min-h-[44px] text-danger hover:text-danger hover:bg-danger/10" onClick={() => handleDisconnect(int.provider)}>
                       <XCircle size={12} className="mr-1" />
                       Disconnect
                     </Button>
@@ -839,18 +839,18 @@ export function GeneralTab() {
           <h2 className="font-serif text-xl font-medium text-fg-default">General</h2>
           <p className="text-sm text-fg-muted mt-0.5">Manage your basic profile information</p>
         </div>
-        <Button onClick={handleSave} icon={<Save size={14} />} size="sm">Save</Button>
+        <Button onClick={handleSave} icon={<Save size={14} />} size="sm" className="min-h-[44px]">Save</Button>
       </div>
 
       <Section title="Profile Picture" icon={Camera}>
-        <div className="flex items-center gap-5">
+        <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-center sm:gap-5">
           <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-accent/10 text-xl font-semibold text-accent">
             {name ? name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) : "U"}
           </div>
           <div className="flex gap-2">
             <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleUploadAvatar} />
-            <Button variant="secondary" size="sm" icon={<Upload size={13} />} onClick={() => fileRef.current?.click()}>Upload</Button>
-            <Button variant="ghost" size="sm" onClick={handleRemoveAvatar}>Remove</Button>
+            <Button variant="secondary" size="sm" className="min-h-[44px]" icon={<Upload size={13} />} onClick={() => fileRef.current?.click()}>Upload</Button>
+            <Button variant="ghost" size="sm" className="min-h-[44px]" onClick={handleRemoveAvatar}>Remove</Button>
           </div>
         </div>
       </Section>
@@ -909,7 +909,7 @@ export function AppearanceTab() {
       </div>
 
       <Section title="Theme">
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {[
             { id: "light" as const, label: "Light", icon: Sun },
             { id: "dark" as const, label: "Dark", icon: Moon },
@@ -918,7 +918,7 @@ export function AppearanceTab() {
             <button
               key={t.id}
               onClick={() => setTheme(t.id)}
-              className={`flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-all duration-150 ${
+              className={`flex flex-col items-center gap-2 rounded-xl border-2 p-4 min-h-[44px] transition-all duration-150 ${
                 theme === t.id
                   ? "border-accent bg-accent/5"
                   : "border-border hover:border-accent/30 hover:bg-bg-hover"
@@ -1008,7 +1008,7 @@ export function AccountTab() {
               <Input label="Phone" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+1 234 567 890" />
             </div>
             <div className="mt-4">
-              <Button icon={<Save size={14} />} size="sm" onClick={handleSave}>Save</Button>
+              <Button icon={<Save size={14} />} size="sm" className="min-h-[44px]" onClick={handleSave}>Save</Button>
             </div>
           </>
         )}
@@ -1081,7 +1081,7 @@ export function NotificationsTab() {
         <Toggle label="Marketing Emails" description="Tips, product updates, and offers" checked={prefs.marketing_emails} onChange={(v) => setPrefs((p) => ({ ...p, marketing_emails: v }))} />
       </Section>
 
-      <Button icon={<Save size={14} />} size="sm" onClick={handleSave}>Save Preferences</Button>
+      <Button icon={<Save size={14} />} size="sm" className="min-h-[44px]" onClick={handleSave}>Save Preferences</Button>
     </div>
   );
 }
@@ -1153,13 +1153,13 @@ export function PrivacySecurityTab() {
             <Input label="New Password" type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
             <Input label="Confirm Password" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
           </div>
-          <Button icon={<Key size={14} />} size="sm" onClick={handleChangePassword}>Update Password</Button>
+          <Button icon={<Key size={14} />} size="sm" className="min-h-[44px]" onClick={handleChangePassword}>Update Password</Button>
         </div>
       </Section>
 
       <Section title="Two-Factor Authentication" icon={Shield}>
         <p className="text-sm text-fg-muted mb-3">Add an extra layer of security to your account.</p>
-        <Button variant="secondary" size="sm" disabled>Enable 2FA (Coming Soon)</Button>
+        <Button variant="secondary" size="sm" className="min-h-[44px]" disabled>Enable 2FA (Coming Soon)</Button>
       </Section>
 
       <Section title="Active Sessions" icon={Smartphone}>
@@ -1167,9 +1167,9 @@ export function PrivacySecurityTab() {
       </Section>
 
       <Section title="Data">
-        <div className="flex flex-wrap gap-3">
-          <Button variant="secondary" size="sm" icon={<Download size={13} />} onClick={handleExportData}>Export Data</Button>
-          <Button variant="danger" size="sm" icon={<Trash2 size={13} />} onClick={handleDeleteAccount}>Delete Account</Button>
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <Button variant="secondary" size="sm" className="min-h-[44px] w-full sm:w-auto" icon={<Download size={13} />} onClick={handleExportData}>Export Data</Button>
+          <Button variant="danger" size="sm" className="min-h-[44px] w-full sm:w-auto" icon={<Trash2 size={13} />} onClick={handleDeleteAccount}>Delete Account</Button>
         </div>
       </Section>
     </div>
@@ -1253,7 +1253,7 @@ export function AIPreferencesTab() {
         <Toggle label="Auto Suggestions" description="AI suggests improvements as you work" checked={autoSuggestions} onChange={setAutoSuggestions} />
       </Section>
 
-      <Button icon={<Save size={14} />} size="sm" onClick={handleSave}>Save Preferences</Button>
+      <Button icon={<Save size={14} />} size="sm" className="min-h-[44px]" onClick={handleSave}>Save Preferences</Button>
     </div>
   );
 }
@@ -1381,7 +1381,7 @@ export function AboutTab() {
               href={item.href}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm text-fg-muted hover:text-fg-default hover:bg-bg-hover transition-colors duration-100"
+              className="flex w-full min-h-[44px] items-center justify-between rounded-lg px-3 py-2 text-sm text-fg-muted hover:text-fg-default hover:bg-bg-hover transition-colors duration-100"
             >
               <div className="flex items-center gap-2.5">
                 <item.icon size={15} strokeWidth={1.5} className="shrink-0" />
@@ -1404,7 +1404,7 @@ export function AboutTab() {
               href={item.href}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm text-fg-muted hover:text-fg-default hover:bg-bg-hover transition-colors duration-100"
+              className="flex w-full min-h-[44px] items-center justify-between rounded-lg px-3 py-2 text-sm text-fg-muted hover:text-fg-default hover:bg-bg-hover transition-colors duration-100"
             >
               <div className="flex items-center gap-2.5">
                 <item.icon size={15} strokeWidth={1.5} className="shrink-0" />

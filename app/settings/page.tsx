@@ -75,34 +75,34 @@ function SettingsContent() {
   };
 
   return (
-    <div className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-6xl flex-col gap-0 p-0 md:flex-row md:p-6">
-      <aside className="flex-shrink-0 border-b border-border md:w-56 md:border-b-0 md:border-r md:pr-4">
-        <div className="flex items-center gap-2 px-4 pt-4 pb-3 md:px-0 md:pt-0">
+    <div className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-6xl flex-col gap-0 p-4 lg:flex-row lg:p-6">
+      <aside className="flex-shrink-0 border-b border-border lg:w-56 lg:border-b-0 lg:border-r lg:pr-4">
+        <div className="flex items-center gap-2 pb-3 lg:pt-0">
           <Settings size={16} className="text-accent" />
           <h1 className="font-serif text-lg font-medium text-fg-default">Settings</h1>
         </div>
-        <nav className="flex gap-0 overflow-x-auto px-4 pb-2 md:flex-col md:gap-0 md:overflow-visible md:px-0 md:pb-0">
+        <nav className="flex gap-0 overflow-x-auto pb-2 lg:flex-col lg:gap-0 lg:overflow-visible lg:px-0 lg:pb-0">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.id;
             return (
               <button
                 key={tab.id}
                 onClick={() => handleTabChange(tab.id)}
-                className={`flex shrink-0 items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-all duration-150 md:w-full ${
+                className={`flex shrink-0 items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-all duration-150 lg:w-full ${
                   isActive
                     ? "bg-accent/10 text-accent font-medium"
                     : "text-fg-muted hover:text-fg-default hover:bg-bg-hover"
                 }`}
               >
                 <tab.icon size={15} strokeWidth={isActive ? 2 : 1.5} className="shrink-0" />
-                <span className="whitespace-nowrap md:whitespace-normal">{tab.label}</span>
+                <span className="whitespace-nowrap lg:whitespace-normal">{tab.label}</span>
               </button>
             );
           })}
         </nav>
       </aside>
 
-      <div className="flex-1 overflow-y-auto px-4 pb-12 pt-4 md:pl-8 md:pr-0 md:pt-0">
+      <div className="flex-1 overflow-y-auto pb-12 lg:pl-8 lg:pr-0 lg:pt-0">
         {renderTab()}
       </div>
     </div>

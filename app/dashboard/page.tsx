@@ -383,7 +383,7 @@ export default function DashboardPage() {
           { label: "Interviews", value: interviewCount, icon: Target, sub: interviewCount > 0 ? `${interviewCount} upcoming` : "None scheduled", color: interviewCount > 0 ? "text-success" : "text-fg-muted" },
           { label: "Offers", value: offerCount, icon: Award, sub: offerCount > 0 ? `${offerCount} received` : "No offers yet", color: offerCount > 0 ? "text-success" : "text-fg-muted" },
         ].map((m) => (
-          <div key={m.label} className="group rounded-xl border border-border bg-bg-surface p-5 card-hover">
+          <div key={m.label} className="group rounded-xl border border-border bg-bg-surface p-4 lg:p-5 card-hover">
             <div className="flex items-start justify-between">
               <div className="min-w-0 flex-1">
                 <p className="font-mono text-[10px] font-medium uppercase tracking-widest text-fg-muted">{m.label}</p>
@@ -402,7 +402,7 @@ export default function DashboardPage() {
 
       {/* AI Summary + This Week */}
       <motion.div variants={fadeUp} className="grid grid-cols-1 gap-4 lg:gap-6 lg:grid-cols-2">
-        <div className="rounded-xl border border-accent/20 bg-gradient-to-br from-accent/5 via-bg-surface to-bg-surface p-5 card-hover">
+        <div className="rounded-xl border border-accent/20 bg-gradient-to-br from-accent/5 via-bg-surface to-bg-surface p-4 lg:p-5 card-hover">
           <div className="flex items-start gap-4">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent/20">
               <Sparkles size={18} className="text-accent" />
@@ -426,7 +426,7 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
-        <div className="rounded-xl border border-border bg-bg-surface p-5 card-hover">
+        <div className="rounded-xl border border-border bg-bg-surface p-4 lg:p-5 card-hover">
           <div className="mb-4 flex items-center gap-2">
             <Zap size={14} className="text-fg-muted" />
             <h3 className="font-mono text-xs font-medium uppercase tracking-widest text-fg-muted">This Week</h3>
@@ -449,13 +449,13 @@ export default function DashboardPage() {
       </motion.div>
 
       {/* Application Pipeline */}
-      <motion.div variants={fadeUp} className="rounded-xl border border-border bg-bg-surface p-5 card-hover">
+      <motion.div variants={fadeUp} className="rounded-xl border border-border bg-bg-surface p-4 lg:p-5 card-hover">
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <BarChart3 size={14} className="text-fg-muted" />
             <h3 className="font-mono text-xs font-medium uppercase tracking-widest text-fg-muted">Application Pipeline</h3>
           </div>
-          <Link href="/jobs" className="text-[11px] font-medium text-accent transition-colors hover:text-accent/80 hover:underline">View all <ArrowRight size={11} className="ml-0.5 inline" /></Link>
+          <Link href="/jobs" className="inline-flex items-center min-h-[44px] text-[11px] font-medium text-accent transition-colors hover:text-accent/80 hover:underline">View all <ArrowRight size={11} className="ml-0.5 inline" /></Link>
         </div>
 
         {totalApps === 0 ? (
@@ -503,7 +503,7 @@ export default function DashboardPage() {
 
       {/* Dream Career + Resume Intel */}
       <motion.div variants={fadeUp} className="grid grid-cols-1 gap-4 lg:gap-6 lg:grid-cols-2">
-        <div className="rounded-xl border border-border bg-bg-surface p-5 card-hover">
+        <div className="rounded-xl border border-border bg-bg-surface p-4 lg:p-5 card-hover">
           <div className="mb-4 flex items-center gap-2">
             <Target size={14} className="text-fg-muted" />
             <h3 className="font-mono text-xs font-medium uppercase tracking-widest text-fg-muted">Dream Career Progress</h3>
@@ -558,13 +558,13 @@ export default function DashboardPage() {
             </div>
           )}
         </div>
-        <div className="rounded-xl border border-border bg-bg-surface p-5 card-hover">
+        <div className="rounded-xl border border-border bg-bg-surface p-4 lg:p-5 card-hover">
           <div className="mb-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <FileText size={14} className="text-fg-muted" />
               <h3 className="font-mono text-xs font-medium uppercase tracking-widest text-fg-muted">Resume Intelligence</h3>
             </div>
-            {data.has_resume && <Link href="/resume" className="text-[11px] font-medium text-accent transition-colors hover:text-accent/80 hover:underline">Improve <ArrowRight size={11} className="ml-0.5 inline" /></Link>}
+            {data.has_resume && <Link href="/resume" className="inline-flex items-center min-h-[44px] text-[11px] font-medium text-accent transition-colors hover:text-accent/80 hover:underline">Improve <ArrowRight size={11} className="ml-0.5 inline" /></Link>}
           </div>
 
           {!data.has_resume ? (
@@ -624,14 +624,14 @@ export default function DashboardPage() {
 
       {/* Career Feed + Upcoming */}
       <motion.div variants={fadeUp} className="grid grid-cols-1 gap-4 lg:gap-6 lg:grid-cols-2">
-        <div className="rounded-xl border border-border bg-bg-surface p-5 card-hover">
+        <div className="rounded-xl border border-border bg-bg-surface p-4 lg:p-5 card-hover">
           <div className="mb-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Activity size={14} className="text-fg-muted" />
               <h3 className="font-mono text-xs font-medium uppercase tracking-widest text-fg-muted">Career Feed</h3>
             </div>
             {data.recent_activity.length > 0 && (
-              <Link href="/timeline" className="text-[11px] font-medium text-accent transition-colors hover:text-accent/80 hover:underline">View all <ArrowRight size={11} className="ml-0.5 inline" /></Link>
+              <Link href="/timeline" className="inline-flex items-center min-h-[44px] text-[11px] font-medium text-accent transition-colors hover:text-accent/80 hover:underline">View all <ArrowRight size={11} className="ml-0.5 inline" /></Link>
             )}
           </div>
 
@@ -662,7 +662,7 @@ export default function DashboardPage() {
             </div>
           )}
         </div>
-        <div className="rounded-xl border border-border bg-bg-surface p-5 card-hover">
+        <div className="rounded-xl border border-border bg-bg-surface p-4 lg:p-5 card-hover">
           <div className="mb-4 flex items-center gap-2">
             <Calendar size={14} className="text-fg-muted" />
             <h3 className="font-mono text-xs font-medium uppercase tracking-widest text-fg-muted">Upcoming</h3>
@@ -703,7 +703,7 @@ export default function DashboardPage() {
                   <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-accent/10 text-accent"><Sparkles size={12} /></div>
                   <div className="min-w-0 flex-1">
                     <p className="text-xs text-fg-muted line-clamp-2">{data.last_coach_message}</p>
-                    <Link href="/coach" className="mt-1 inline-flex items-center gap-1 text-[11px] font-medium text-accent hover:underline">Continue conversation <ArrowUpRight size={10} /></Link>
+                    <Link href="/coach" className="mt-1 inline-flex items-center min-h-[44px] gap-1 text-[11px] font-medium text-accent hover:underline">Continue conversation <ArrowUpRight size={10} /></Link>
                   </div>
                 </div>
               )}
@@ -717,7 +717,7 @@ export default function DashboardPage() {
         <motion.div variants={fadeUp}>
           {(scoreContributors.length > 0 && actionPlan.length > 0) ? (
             <div className="grid grid-cols-1 gap-4 lg:gap-6 lg:grid-cols-2">
-              <div className="rounded-xl border border-border bg-bg-surface p-5 card-hover">
+              <div className="rounded-xl border border-border bg-bg-surface p-4 lg:p-5 card-hover">
                 <div className="mb-4 flex items-center gap-2">
                   <Award size={14} className="text-fg-muted" />
                   <h3 className="font-mono text-xs font-medium uppercase tracking-widest text-fg-muted">Career Score Breakdown</h3>
@@ -745,13 +745,13 @@ export default function DashboardPage() {
                   })}
                 </div>
               </div>
-              <div className="rounded-xl border border-border bg-bg-surface p-5 card-hover">
+              <div className="rounded-xl border border-border bg-bg-surface p-4 lg:p-5 card-hover">
                 <div className="mb-3 flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <ListChecks size={14} className="text-fg-muted" />
                     <h3 className="font-mono text-xs font-medium uppercase tracking-widest text-fg-muted">Action Plan</h3>
                   </div>
-                  <Link href="/career/roadmaps" className="text-[11px] font-medium text-accent transition-colors hover:text-accent/80 hover:underline">View all <ArrowRight size={11} className="ml-0.5 inline" /></Link>
+                  <Link href="/career/roadmaps" className="inline-flex items-center min-h-[44px] text-[11px] font-medium text-accent transition-colors hover:text-accent/80 hover:underline">View all <ArrowRight size={11} className="ml-0.5 inline" /></Link>
                 </div>
                 <div className="space-y-2.5">
                   {actionPlan.slice(0, 4).map((a) => (
@@ -768,7 +768,7 @@ export default function DashboardPage() {
               </div>
             </div>
           ) : scoreContributors.length > 0 ? (
-            <div className="rounded-xl border border-border bg-bg-surface p-5 card-hover">
+            <div className="rounded-xl border border-border bg-bg-surface p-4 lg:p-5 card-hover">
               <div className="mb-4 flex items-center gap-2">
                 <Award size={14} className="text-fg-muted" />
                 <h3 className="font-mono text-xs font-medium uppercase tracking-widest text-fg-muted">Career Score Breakdown</h3>
@@ -797,13 +797,13 @@ export default function DashboardPage() {
               </div>
             </div>
           ) : (
-            <div className="rounded-xl border border-border bg-bg-surface p-5 card-hover">
+            <div className="rounded-xl border border-border bg-bg-surface p-4 lg:p-5 card-hover">
               <div className="mb-3 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <ListChecks size={14} className="text-fg-muted" />
                   <h3 className="font-mono text-xs font-medium uppercase tracking-widest text-fg-muted">Action Plan</h3>
                 </div>
-                <Link href="/career/roadmaps" className="text-[11px] font-medium text-accent transition-colors hover:text-accent/80 hover:underline">View all <ArrowRight size={11} className="ml-0.5 inline" /></Link>
+                <Link href="/career/roadmaps" className="inline-flex items-center min-h-[44px] text-[11px] font-medium text-accent transition-colors hover:text-accent/80 hover:underline">View all <ArrowRight size={11} className="ml-0.5 inline" /></Link>
               </div>
               <div className="space-y-2.5">
                 {actionPlan.slice(0, 4).map((a) => (
@@ -823,13 +823,13 @@ export default function DashboardPage() {
       )}
 
       {/* ═══ INTEGRATION INTELLIGENCE ═══ */}
-      <motion.div variants={fadeUp} className="rounded-xl border border-border bg-bg-surface p-5 card-hover">
+      <motion.div variants={fadeUp} className="rounded-xl border border-border bg-bg-surface p-4 lg:p-5 card-hover">
         <div className="mb-5 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Link2 size={14} className="text-fg-muted" />
             <h3 className="font-mono text-xs font-medium uppercase tracking-widest text-fg-muted">Integration Intelligence</h3>
           </div>
-          <Link href="/settings" className="text-[11px] font-medium text-accent transition-colors hover:text-accent/80 hover:underline">Manage <ArrowRight size={11} className="ml-0.5 inline" /></Link>
+          <Link href="/settings" className="inline-flex items-center min-h-[44px] text-[11px] font-medium text-accent transition-colors hover:text-accent/80 hover:underline">Manage <ArrowRight size={11} className="ml-0.5 inline" /></Link>
         </div>
 
         {connectedIntegrations === 0 ? (
@@ -837,7 +837,7 @@ export default function DashboardPage() {
             <Link href="/settings" className="btn-press inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-xs font-medium text-fg-default transition-all hover:border-accent/40 hover:bg-bg-hover">Connect Accounts <ArrowRight size={12} /></Link>
           } />
         ) : (
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:grid-cols-4">
             {/* GitHub */}
             <div className="rounded-lg border border-border bg-bg-default p-4">
               <div className="mb-3 flex items-center gap-2">
@@ -878,7 +878,7 @@ export default function DashboardPage() {
                   )}
                 </div>
               )}
-              {!githubData?.connected && <Link href="/api/auth/github/login" className="mt-2 inline-flex items-center gap-1 rounded-md border border-border px-2.5 py-1 text-[10px] font-medium text-fg-muted transition-all hover:border-accent/40 hover:text-accent">Connect <ArrowRight size={10} /></Link>}
+              {!githubData?.connected && <Link href="/api/auth/github/login" className="mt-2 inline-flex items-center min-h-[44px] gap-1 rounded-md border border-border px-2.5 py-1 text-[10px] font-medium text-fg-muted transition-all hover:border-accent/40 hover:text-accent">Connect <ArrowRight size={10} /></Link>}
             </div>
 
             {/* LinkedIn */}
@@ -903,7 +903,7 @@ export default function DashboardPage() {
                   {Object.keys(skillSources).length > 0 && skillSources.linkedin && <p className="text-[10px] text-fg-muted"><span className="text-success">{skillSources.linkedin}</span> skills imported</p>}
                 </div>
               )}
-              {!linkedinData?.connected && <Link href="/api/auth/linkedin/login" className="mt-2 inline-flex items-center gap-1 rounded-md border border-border px-2.5 py-1 text-[10px] font-medium text-fg-muted transition-all hover:border-accent/40 hover:text-accent">Connect <ArrowRight size={10} /></Link>}
+              {!linkedinData?.connected && <Link href="/api/auth/linkedin/login" className="mt-2 inline-flex items-center min-h-[44px] gap-1 rounded-md border border-border px-2.5 py-1 text-[10px] font-medium text-fg-muted transition-all hover:border-accent/40 hover:text-accent">Connect <ArrowRight size={10} /></Link>}
             </div>
 
             {/* Calendar & Drive */}
@@ -928,7 +928,7 @@ export default function DashboardPage() {
                   ) : (
                     <div>
                       <p className="text-xs text-fg-muted">{desc[provider]}</p>
-                      <Link href="/api/auth/google/login" className="mt-2 inline-flex items-center gap-1 rounded-md border border-border px-2.5 py-1 text-[10px] font-medium text-fg-muted transition-all hover:border-accent/40 hover:text-accent">Connect <ArrowRight size={10} /></Link>
+                      <Link href="/api/auth/google/login" className="mt-2 inline-flex items-center min-h-[44px] gap-1 rounded-md border border-border px-2.5 py-1 text-[10px] font-medium text-fg-muted transition-all hover:border-accent/40 hover:text-accent">Connect <ArrowRight size={10} /></Link>
                     </div>
                   )}
                 </div>
@@ -940,10 +940,10 @@ export default function DashboardPage() {
 
       {/* ═══ SKILLS ═══ */}
       {skillsList.length > 0 && (
-        <motion.div variants={fadeUp} className="rounded-xl border border-border bg-bg-surface p-5 card-hover">
+        <motion.div variants={fadeUp} className="rounded-xl border border-border bg-bg-surface p-4 lg:p-5 card-hover">
           <div className="mb-4 flex items-center justify-between">
             <div className="flex items-center gap-2"><Zap size={14} className="text-fg-muted" /><h3 className="font-mono text-xs font-medium uppercase tracking-widest text-fg-muted">Skills</h3></div>
-            <Link href="/career/roadmaps" className="text-[11px] font-medium text-accent transition-colors hover:text-accent/80 hover:underline">Upskill <ArrowRight size={11} className="ml-0.5 inline" /></Link>
+            <Link href="/career/roadmaps" className="inline-flex items-center min-h-[44px] text-[11px] font-medium text-accent transition-colors hover:text-accent/80 hover:underline">Upskill <ArrowRight size={11} className="ml-0.5 inline" /></Link>
           </div>
           <div className="flex flex-wrap gap-1.5">
             {skillsList.slice(0, 12).map((s) => (<Badge key={s} tone="accent">{s}</Badge>))}
@@ -966,10 +966,10 @@ export default function DashboardPage() {
 
       {/* ═══ AI RECOMMENDATIONS ═══ */}
       {aiInsights.length > 0 && (
-        <motion.div variants={fadeUp} className="rounded-xl border border-border bg-bg-surface p-5 card-hover">
+        <motion.div variants={fadeUp} className="rounded-xl border border-border bg-bg-surface p-4 lg:p-5 card-hover">
           <div className="mb-4 flex items-center justify-between">
             <div className="flex items-center gap-2"><BrainCircuit size={14} className="text-fg-muted" /><h3 className="font-mono text-xs font-medium uppercase tracking-widest text-fg-muted">AI Recommendations</h3></div>
-            {aiInsights.length > 3 && <Link href="/intelligence" className="text-[11px] font-medium text-accent transition-colors hover:text-accent/80 hover:underline">View all <ArrowRight size={11} className="ml-0.5 inline" /></Link>}
+            {aiInsights.length > 3 && <Link href="/intelligence" className="inline-flex items-center min-h-[44px] text-[11px] font-medium text-accent transition-colors hover:text-accent/80 hover:underline">View all <ArrowRight size={11} className="ml-0.5 inline" /></Link>}
           </div>
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
             {aiInsights.map((rec, i) => (

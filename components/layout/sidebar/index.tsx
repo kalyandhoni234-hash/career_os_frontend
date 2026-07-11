@@ -82,21 +82,20 @@ export function Sidebar({ mobileOpen = false, onMobileClose }: SidebarProps) {
 
   return (
     <>
-      {mobileOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm lg:hidden transition-opacity duration-200 cursor-pointer"
-          onClick={onMobileClose}
-        />
-      )}
+      <div
+        className={`fixed inset-0 z-40 bg-black/30 backdrop-blur-sm lg:hidden transition-opacity duration-300 cursor-pointer ${mobileOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+        onClick={onMobileClose}
+      />
 
       <aside
         role="navigation"
         aria-label="Main navigation"
         className={`
-          flex h-screen flex-col border-r border-border bg-bg-surface transition-all duration-200
+          flex h-screen flex-col border-r border-border bg-bg-surface transition-all duration-300
           self-start shrink-0
           ${collapsed ? "w-[72px]" : "w-64"}
-          ${mobileOpen ? "fixed left-0 top-0 z-50" : "hidden"}
+          fixed left-0 top-0 z-50
+          ${mobileOpen ? "translate-x-0" : "-translate-x-full"}
           lg:sticky lg:top-0 lg:flex lg:translate-x-0
         `}
       >
