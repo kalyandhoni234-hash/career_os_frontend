@@ -155,7 +155,7 @@ export default function DashboardPage() {
       getCareerScore(),
       getRecommendations(),
       getSkillGaps().catch(() => null),
-      apiFetch("/api/intelligence/profile").catch(() => null),
+      apiFetch("/api/intelligence/profile").catch((e) => { if (process.env.NODE_ENV === "development") console.warn("Intelligence profile unavailable:", e?.message); return null; }),
     ]).then(([ap, , , cs, ri, gaps, ip]) => {
       if (ap.status === "fulfilled") setActionPlan(ap.value.action_plan || []);
       if (cs.status === "fulfilled") setCareerScoreData(cs.value);
@@ -220,10 +220,10 @@ export default function DashboardPage() {
     if (!data) return { label: "Get Started", href: "/onboarding" };
     const ms = skillGaps?.missing_skills || [];
     if (!data.has_resume) return { label: "Upload Resume", href: "/resume" };
-    if (ms.length > 0) return { label: "Bridge Skill Gaps", href: "/career/roadmaps" };
+    if (ms.length > 0) return { label: "Bridge Skill Gaps", href: "/roadmaps" };
     if (data.active_applications === 0) return { label: "Find Jobs", href: "/jobs" };
     if ((data.jobs_by_status?.interview || 0) > 0) return { label: "Prepare for Interview", href: "/coach" };
-    return { label: "Continue Career Plan", href: "/career/roadmaps" };
+    return { label: "Continue Career Plan", href: "/roadmaps" };
   }, [data, skillGaps]);
 
   function getWeeklyActivity() {
@@ -544,7 +544,7 @@ export default function DashboardPage() {
                     {missingSkills.slice(0, 6).map((s) => (<Badge key={s} tone="warning">{s}</Badge>))}
                     {missingSkills.length > 6 && <Badge tone="neutral">+{missingSkills.length - 6} more</Badge>}
                   </div>
-                  <Link href={`/career/roadmaps?role=${encodeURIComponent(dreamRole)}`} className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-accent transition-colors hover:text-accent/80 hover:underline">
+                  <Link href={`/roadmaps?role=${encodeURIComponent(dreamRole)}`} className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-accent transition-colors hover:text-accent/80 hover:underline">
                     <BookOpen size={12} /> Build learning roadmap <ArrowRight size={11} />
                   </Link>
                 </div>
@@ -751,7 +751,7 @@ export default function DashboardPage() {
                     <ListChecks size={14} className="text-fg-muted" />
                     <h3 className="font-mono text-xs font-medium uppercase tracking-widest text-fg-muted">Action Plan</h3>
                   </div>
-                  <Link href="/career/roadmaps" className="inline-flex items-center min-h-[44px] text-[11px] font-medium text-accent transition-colors hover:text-accent/80 hover:underline">View all <ArrowRight size={11} className="ml-0.5 inline" /></Link>
+                  <Link href="/roadmaps" className="inline-flex items-center min-h-[44px] text-[11px] font-medium text-accent transition-colors hover:text-accent/80 hover:underline">View all <ArrowRight size={11} className="ml-0.5 inline" /></Link>
                 </div>
                 <div className="space-y-2.5">
                   {actionPlan.slice(0, 4).map((a) => (
@@ -803,7 +803,7 @@ export default function DashboardPage() {
                   <ListChecks size={14} className="text-fg-muted" />
                   <h3 className="font-mono text-xs font-medium uppercase tracking-widest text-fg-muted">Action Plan</h3>
                 </div>
-                <Link href="/career/roadmaps" className="inline-flex items-center min-h-[44px] text-[11px] font-medium text-accent transition-colors hover:text-accent/80 hover:underline">View all <ArrowRight size={11} className="ml-0.5 inline" /></Link>
+                <Link href="/roadmaps" className="inline-flex items-center min-h-[44px] text-[11px] font-medium text-accent transition-colors hover:text-accent/80 hover:underline">View all <ArrowRight size={11} className="ml-0.5 inline" /></Link>
               </div>
               <div className="space-y-2.5">
                 {actionPlan.slice(0, 4).map((a) => (
@@ -943,7 +943,7 @@ export default function DashboardPage() {
         <motion.div variants={fadeUp} className="rounded-xl border border-border bg-bg-surface p-5 card-hover">
           <div className="mb-4 flex items-center justify-between">
             <div className="flex items-center gap-2"><Zap size={14} className="text-fg-muted" /><h3 className="font-mono text-xs font-medium uppercase tracking-widest text-fg-muted">Skills</h3></div>
-            <Link href="/career/roadmaps" className="inline-flex items-center min-h-[44px] text-[11px] font-medium text-accent transition-colors hover:text-accent/80 hover:underline">Upskill <ArrowRight size={11} className="ml-0.5 inline" /></Link>
+            <Link href="/roadmaps" className="inline-flex items-center min-h-[44px] text-[11px] font-medium text-accent transition-colors hover:text-accent/80 hover:underline">Upskill <ArrowRight size={11} className="ml-0.5 inline" /></Link>
           </div>
           <div className="flex flex-wrap gap-1.5">
             {skillsList.slice(0, 12).map((s) => (<Badge key={s} tone="accent">{s}</Badge>))}

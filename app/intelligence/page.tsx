@@ -66,7 +66,12 @@ export default function IntelligencePage() {
   }, []);
 
   if (loading) return <div className="flex min-h-screen items-center justify-center bg-bg-default"><div className="h-8 w-8 animate-spin rounded-full border-2 border-accent border-t-transparent" /></div>;
-  if (error) return <div className="flex min-h-screen items-center justify-center bg-bg-default text-danger">{error}</div>;
+  if (error) return (
+    <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-bg-default">
+      <p className="text-sm text-danger">{error}</p>
+      <button onClick={() => window.location.reload()} className="btn-press inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm font-medium text-fg-default transition-all hover:border-accent/40 hover:bg-bg-hover">Try again</button>
+    </div>
+  );
   if (!profile) return null;
 
   const { basic, career, skills, education, experience, projects, goals, certificates, integrations, completion, sources } = profile;
