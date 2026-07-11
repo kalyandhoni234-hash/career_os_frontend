@@ -271,7 +271,7 @@ function GitHubExpandedContent({ int, onSync, onDisconnect, syncing }: { int: In
       )}
 
       {/* Sync health */}
-      <div className="flex flex-col gap-3 pt-1 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex items-center justify-between pt-1">
         <SyncHealth int={int} />
         <div className="flex items-center gap-2">
           <Button variant="secondary" size="sm" className="min-h-[44px]" onClick={() => onSync(int.provider)} disabled={syncing}>
@@ -403,7 +403,7 @@ function LinkedInExpandedContent({ int, onSync, onDisconnect, syncing }: { int: 
       )}
 
       {/* Sync health */}
-      <div className="flex flex-col gap-3 pt-1 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex items-center justify-between pt-1">
         <SyncHealth int={int} />
         <div className="flex items-center gap-2">
           <Button variant="secondary" size="sm" className="min-h-[44px]" onClick={() => onSync(int.provider)} disabled={syncing}>
@@ -681,7 +681,7 @@ export function IntegrationsTab() {
       <div className="space-y-3">
         {Object.entries(integrations).map(([key, int]) => (
           <Card key={key}>
-            <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center justify-between gap-4">
               {renderProviderIntro(int)}
               {renderActions(int)}
             </div>
@@ -701,7 +701,7 @@ export function IntegrationsTab() {
             )}
             {int.provider === "linkedin" && expanded === "linkedin" && !int.connected && (
               <div className="border-t border-border pt-3 mt-3">
-                <div className="flex flex-col gap-2 sm:flex-row">
+                <div className="flex gap-2">
                   <Input
                     placeholder="https://linkedin.com/in/username"
                     value={linkedinUrl}
@@ -735,7 +735,7 @@ export function IntegrationsTab() {
                 />
               ) : (
                 <div className="border-t border-border pt-4 mt-4 space-y-3">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                  <div className="grid grid-cols-2 gap-3 text-xs">
                     {int.provider_username && (
                       <div>
                         <span className="text-fg-muted">Connected as:</span>
@@ -747,7 +747,7 @@ export function IntegrationsTab() {
                       <p className="text-fg-default font-medium">{formatDate(int.last_sync_at)}</p>
                     </div>
                     {int.sync_error && (
-                      <div className="sm:col-span-2 rounded-lg bg-danger/10 p-2.5">
+                      <div className="col-span-2 rounded-lg bg-danger/10 p-2.5">
                         <p className="text-xs text-danger font-medium">Error: {int.sync_error}</p>
                       </div>
                     )}
@@ -843,7 +843,7 @@ export function GeneralTab() {
       </div>
 
       <Section title="Profile Picture" icon={Camera}>
-        <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-center sm:gap-5">
+        <div className="flex items-center gap-5">
           <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-accent/10 text-xl font-semibold text-accent">
             {name ? name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) : "U"}
           </div>
@@ -909,7 +909,7 @@ export function AppearanceTab() {
       </div>
 
       <Section title="Theme">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="grid grid-cols-3 gap-3">
           {[
             { id: "light" as const, label: "Light", icon: Sun },
             { id: "dark" as const, label: "Dark", icon: Moon },
@@ -918,7 +918,7 @@ export function AppearanceTab() {
             <button
               key={t.id}
               onClick={() => setTheme(t.id)}
-              className={`flex flex-col items-center gap-2 rounded-xl border-2 p-4 min-h-[44px] transition-all duration-150 ${
+              className={`flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-all duration-150 ${
                 theme === t.id
                   ? "border-accent bg-accent/5"
                   : "border-border hover:border-accent/30 hover:bg-bg-hover"
@@ -1081,7 +1081,7 @@ export function NotificationsTab() {
         <Toggle label="Marketing Emails" description="Tips, product updates, and offers" checked={prefs.marketing_emails} onChange={(v) => setPrefs((p) => ({ ...p, marketing_emails: v }))} />
       </Section>
 
-      <Button icon={<Save size={14} />} size="sm" className="min-h-[44px]" onClick={handleSave}>Save Preferences</Button>
+      <Button icon={<Save size={14} />} size="sm" onClick={handleSave}>Save Preferences</Button>
     </div>
   );
 }
@@ -1167,9 +1167,9 @@ export function PrivacySecurityTab() {
       </Section>
 
       <Section title="Data">
-        <div className="flex flex-col gap-3 sm:flex-row">
-          <Button variant="secondary" size="sm" className="min-h-[44px] w-full sm:w-auto" icon={<Download size={13} />} onClick={handleExportData}>Export Data</Button>
-          <Button variant="danger" size="sm" className="min-h-[44px] w-full sm:w-auto" icon={<Trash2 size={13} />} onClick={handleDeleteAccount}>Delete Account</Button>
+        <div className="flex flex-wrap gap-3">
+          <Button variant="secondary" size="sm" className="min-h-[44px]" icon={<Download size={13} />} onClick={handleExportData}>Export Data</Button>
+          <Button variant="danger" size="sm" className="min-h-[44px]" icon={<Trash2 size={13} />} onClick={handleDeleteAccount}>Delete Account</Button>
         </div>
       </Section>
     </div>
