@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, startTransition } from "react";
-import { Save, User, MapPin, Globe, Camera, Upload, Palette, Monitor, Moon, Sun, Shield, Key, Trash2, Download, GitBranch, Link, CalendarDays, Mail, Hash, Smartphone, ExternalLink, Package, FileText, HelpCircle, Check, RefreshCw, XCircle, Users, Star, Code2, Activity, AlertTriangle, Building2, GraduationCap, Award, Folder, type LucideIcon } from "lucide-react";
+import { Save, User, MapPin, Globe, Camera, Upload, Palette, Monitor, Moon, Sun, Shield, Key, Trash2, Download, GitBranch, Link, CalendarDays, Mail, Hash, Smartphone, ExternalLink, Package, FileText, HelpCircle, Check, RefreshCw, XCircle, Users, Star, Code2, Activity, AlertTriangle, Building2, GraduationCap, Award, Folder, Puzzle, type LucideIcon } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { apiFetch } from "@/lib/api";
 import { Button } from "@/components/ui/Button";
@@ -679,18 +679,25 @@ export function IntegrationsTab() {
       </div>
 
       <div className="space-y-3">
-        {Object.entries(integrations).map(([key, int]) => (
+        {Object.keys(integrations).length === 0 ? (
+          <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-bg-surface/50 px-6 py-12 text-center">
+            <Puzzle size={32} className="text-fg-subtle mb-3" />
+            <p className="text-sm font-medium text-fg-default">No integration data available</p>
+            <p className="mt-1 max-w-[280px] text-xs text-fg-muted">Connect your accounts to sync professional data, interviews, and documents.</p>
+          </div>
+        ) : (
+          Object.entries(integrations).map(([key, int]) => (
           <Card key={key}>
             <div className="flex items-center justify-between gap-4">
               {renderProviderIntro(int)}
               {renderActions(int)}
             </div>
             {int.provider === "linkedin" && !int.connected && int.available && expanded !== "linkedin" && (
-              <div className="mt-3 pt-3 border-t border-border">
+              <div className="mt-3 pt-3 border-t border-border flex flex-col sm:flex-row items-start sm:items-center gap-2">
                 <Button variant="primary" size="sm" className="min-h-[44px]" onClick={() => handleConnect("linkedin")}>
                   Connect with OAuth
                 </Button>
-                <span className="text-xs text-fg-muted mx-2">or</span>
+                <span className="text-xs text-fg-muted">or</span>
                 <button
                   onClick={() => setExpanded(expanded === "linkedin" ? null : "linkedin")}
                   className="min-h-[44px] inline-flex items-center text-xs text-accent hover:underline"
@@ -701,7 +708,7 @@ export function IntegrationsTab() {
             )}
             {int.provider === "linkedin" && expanded === "linkedin" && !int.connected && (
               <div className="border-t border-border pt-3 mt-3">
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2">
                   <Input
                     placeholder="https://linkedin.com/in/username"
                     value={linkedinUrl}
@@ -766,7 +773,8 @@ export function IntegrationsTab() {
               )
             )}
           </Card>
-        ))}
+          ))
+        )}
       </div>
     </div>
   );
@@ -1163,7 +1171,13 @@ export function PrivacySecurityTab() {
       </Section>
 
       <Section title="Active Sessions" icon={Smartphone}>
-        <p className="text-sm text-fg-muted">You are logged in on this device.</p>
+        <div className="flex items-center gap-3 rounded-lg border border-border bg-bg-default p-3">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-success/10 text-success"><Smartphone size={14} /></div>
+          <div>
+            <p className="text-sm font-medium text-fg-default">Current device</p>
+            <p className="text-xs text-fg-muted">Active now · {typeof window !== "undefined" ? window.navigator.userAgent.match(/\((.*?)\)/)?.[1] || "Unknown" : "Unknown"}</p>
+          </div>
+        </div>
       </Section>
 
       <Section title="Data">

@@ -318,7 +318,7 @@ export default function DashboardPage() {
         <div className="relative z-10 flex flex-col items-start gap-4 lg:gap-6 lg:flex-row lg:items-center lg:justify-between">
           <div className="min-w-0 flex-1 space-y-2 lg:space-y-3 w-full">
             <div className="flex flex-wrap items-center gap-2 lg:gap-3">
-              <span className="font-serif text-lg font-medium text-fg-default lg:text-2xl">{timeOfDay()}, {data.name}</span>
+              <span className="font-serif text-base sm:text-lg font-medium text-fg-default lg:text-2xl break-words">{timeOfDay()}, {data.name}</span>
               {stageName && (
                 <span className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-accent/20 bg-accent/10 px-3 py-1 text-xs font-medium text-accent">
                   <StageIcon size={12} />
@@ -336,7 +336,7 @@ export default function DashboardPage() {
 
             <p className="max-w-2xl text-sm leading-relaxed text-fg-muted">{aiSummary}</p>
 
-            <div className="flex flex-wrap gap-3 pt-1">
+            <div className="flex flex-col sm:flex-row gap-3 pt-1">
               <Link href={primaryCta.href} className="btn-press inline-flex items-center gap-2 rounded-lg bg-accent px-5 py-2.5 text-sm font-medium text-white shadow-sm shadow-accent/20 transition-all hover:bg-accent/90 hover:shadow-accent/30">
                 {primaryCta.label} <ArrowRight size={15} />
               </Link>
@@ -376,7 +376,7 @@ export default function DashboardPage() {
       </motion.div>
 
       {/* ═══ METRICS ROW (KPIs near top) ═══ */}
-      <motion.div variants={fadeUp} className="grid grid-cols-2 gap-3 lg:gap-4 sm:grid-cols-4">
+      <motion.div variants={fadeUp} className="grid grid-cols-1 gap-3 lg:gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {[
           { label: "Active Applications", value: activeApps, icon: Briefcase, sub: `${totalInPipeline} in pipeline`, color: "text-accent" },
           { label: "Total Applied", value: totalApps, icon: TrendingUp, sub: "All time", color: "text-accent" },

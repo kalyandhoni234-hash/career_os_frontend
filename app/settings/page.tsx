@@ -81,7 +81,30 @@ function SettingsContent() {
           <Settings size={16} className="text-accent" />
           <h1 className="font-serif text-lg font-medium text-fg-default">Settings</h1>
         </div>
-        <nav className="flex gap-0 overflow-x-auto pb-2 lg:flex-col lg:gap-0 lg:overflow-visible lg:px-0 lg:pb-0">
+        <div className="relative lg:hidden">
+          <nav className="flex gap-2 overflow-x-auto pb-2 snap-x snap-mandatory scrollbar-none [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {tabs.map((tab) => {
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => handleTabChange(tab.id)}
+                  className={`snap-start shrink-0 flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-all duration-150 min-h-[44px] ${
+                    isActive
+                      ? "bg-accent text-white shadow-sm"
+                      : "bg-bg-hover text-fg-muted hover:text-fg-default hover:bg-border"
+                  }`}
+                >
+                  <tab.icon size={15} strokeWidth={isActive ? 2 : 1.5} className="shrink-0" />
+                  <span>{tab.label}</span>
+                </button>
+              );
+            })}
+          </nav>
+          <div className="pointer-events-none absolute inset-y-0 left-0 w-6 bg-gradient-to-r from-bg-default to-transparent" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-6 bg-gradient-to-l from-bg-default to-transparent" />
+        </div>
+        <nav className="hidden lg:flex lg:flex-col lg:gap-0">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.id;
             return (
@@ -95,7 +118,7 @@ function SettingsContent() {
                 }`}
               >
                 <tab.icon size={15} strokeWidth={isActive ? 2 : 1.5} className="shrink-0" />
-                <span className="whitespace-nowrap lg:whitespace-normal">{tab.label}</span>
+                <span className="whitespace-nowrap">{tab.label}</span>
               </button>
             );
           })}
