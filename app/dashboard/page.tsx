@@ -310,17 +310,17 @@ export default function DashboardPage() {
   const connectedIntegrations = Object.entries(integrations).filter(([, v]) => v?.connected).length;
 
   return (
-    <motion.div initial="hidden" animate="show" variants={stagger} className="mx-auto max-w-7xl space-y-4 lg:space-y-5 p-4 lg:p-6">
+    <motion.div initial="hidden" animate="show" variants={stagger} className="mx-auto max-w-7xl space-y-4 lg:space-y-5 overflow-x-hidden p-4 lg:p-6">
 
       {/* ═══ HERO ═══ */}
-      <motion.div variants={fadeUp} className="relative overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-bg-surface via-bg-surface to-accent/5 p-4 lg:p-6">
+      <motion.div variants={fadeUp} className="relative overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-bg-surface via-bg-surface to-accent/5 p-5 sm:p-5 lg:p-6">
         <div className="absolute right-0 top-0 h-56 w-56 translate-x-16 -translate-y-16 rounded-full bg-accent/5 blur-3xl" />
-        <div className="relative z-10 flex flex-col items-start gap-4 lg:gap-6 lg:flex-row lg:items-center lg:justify-between">
-          <div className="min-w-0 flex-1 space-y-2 lg:space-y-3 w-full">
+        <div className="relative z-10 flex flex-col items-start gap-5 lg:gap-6 lg:flex-row lg:items-center lg:justify-between">
+          <div className="min-w-0 flex-1 space-y-3 w-full">
             <div className="flex flex-wrap items-center gap-2 lg:gap-3">
-              <span className="font-serif text-base sm:text-lg font-medium text-fg-default lg:text-2xl break-words">{timeOfDay()}, {data.name}</span>
+              <span className="font-serif text-xl sm:text-xl font-medium text-fg-default lg:text-2xl break-words">{timeOfDay()}, {data.name}</span>
               {stageName && (
-                <span className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-accent/20 bg-accent/10 px-3 py-1 text-xs font-medium text-accent">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-accent/20 bg-accent/10 px-3 py-1 text-xs font-medium text-accent">
                   <StageIcon size={12} />
                   {stageName}
                 </span>
@@ -329,31 +329,31 @@ export default function DashboardPage() {
 
             {dreamRole && (
               <div className="flex items-center gap-2 text-sm text-fg-muted">
-                <Star size={14} className="text-accent" />
+                <Star size={14} className="text-accent shrink-0" />
                 <span>Dream Role: <span className="font-medium text-fg-default">{dreamRole}</span></span>
               </div>
             )}
 
             <p className="max-w-2xl text-sm leading-relaxed text-fg-muted">{aiSummary}</p>
 
-            <div className="flex flex-col sm:flex-row gap-3 pt-1">
-              <Link href={primaryCta.href} className="btn-press inline-flex items-center gap-2 rounded-lg bg-accent px-5 py-2.5 text-sm font-medium text-white shadow-sm shadow-accent/20 transition-all hover:bg-accent/90 hover:shadow-accent/30">
+            <div className="flex flex-col sm:flex-row gap-2.5 sm:gap-3 pt-1">
+              <Link href={primaryCta.href} className="btn-press inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-lg bg-accent px-5 py-3 sm:py-2.5 text-sm font-medium text-white shadow-sm shadow-accent/20 transition-all hover:bg-accent/90 hover:shadow-accent/30 min-h-[44px]">
                 {primaryCta.label} <ArrowRight size={15} />
               </Link>
-              <Link href="/intelligence" className="btn-press inline-flex items-center gap-2 rounded-lg border border-border px-5 py-2.5 text-sm font-medium text-fg-default transition-all hover:border-accent/40 hover:bg-bg-hover">
+              <Link href="/intelligence" className="btn-press inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-lg border border-border px-5 py-3 sm:py-2.5 text-sm font-medium text-fg-default transition-all hover:border-accent/40 hover:bg-bg-hover min-h-[44px]">
                 <Sparkles size={15} className="text-accent" /> View Intelligence
               </Link>
             </div>
           </div>
 
-          <div className="flex w-full shrink-0 items-center justify-start gap-4 lg:w-auto lg:justify-center lg:gap-5">
+          <div className="flex w-full shrink-0 items-center justify-center gap-8 border-t border-border pt-4 lg:w-auto lg:justify-center lg:gap-5 lg:border-t-0 lg:pt-0">
             <div className="flex flex-col items-center">
-              <ScoreRing score={score} size={76} stroke={6} />
-              <span className="mt-1.5 text-[10px] font-mono uppercase tracking-wider text-fg-muted">Career Score</span>
+              <ScoreRing score={score} size={84} stroke={7} />
+              <span className="mt-1.5 text-[11px] lg:text-[10px] font-mono uppercase tracking-wider text-fg-muted">Career Score</span>
             </div>
             <div className="flex flex-col items-center">
-              <div className="relative flex h-[76px] w-[76px] lg:h-[88px] lg:w-[88px] items-center justify-center">
-                <svg width="76" height="76" viewBox="0 0 88 88" className="-rotate-90 w-[76px] h-[76px] lg:w-[88px] lg:h-[88px]">
+              <div className="relative flex h-[84px] w-[84px] lg:h-[88px] lg:w-[88px] items-center justify-center">
+                <svg width="84" height="84" viewBox="0 0 88 88" className="-rotate-90 w-[84px] h-[84px] lg:w-[88px] lg:h-[88px]">
                   <circle cx="44" cy="44" r="38" fill="none" stroke="var(--color-bg-hover)" strokeWidth="6" />
                   <motion.circle
                     cx="44" cy="44" r="38"
@@ -366,10 +366,10 @@ export default function DashboardPage() {
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
                   <span className="text-lg font-bold text-fg-default">{data.profile_completeness || 0}</span>
-                  <span className="text-[9px] font-mono uppercase tracking-wider text-fg-muted">Complete</span>
+                  <span className="text-[10px] lg:text-[9px] font-mono uppercase tracking-wider text-fg-muted">Complete</span>
                 </div>
               </div>
-              <span className="mt-1.5 text-[10px] font-mono uppercase tracking-wider text-fg-muted">Profile</span>
+              <span className="mt-1.5 text-[11px] lg:text-[10px] font-mono uppercase tracking-wider text-fg-muted">Profile</span>
             </div>
           </div>
         </div>
@@ -386,7 +386,7 @@ export default function DashboardPage() {
           <div key={m.label} className="group rounded-xl border border-border bg-bg-surface p-5 card-hover">
             <div className="flex items-start justify-between">
               <div className="min-w-0 flex-1">
-                <p className="font-mono text-[10px] font-medium uppercase tracking-widest text-fg-muted">{m.label}</p>
+                <p className="font-mono text-[11px] lg:text-[10px] font-medium uppercase tracking-widest text-fg-muted">{m.label}</p>
                 <p className="mt-1.5 font-serif text-2xl font-medium tracking-tight text-fg-default">{m.value}</p>
                 <p className="mt-0.5 text-xs text-fg-muted">{m.sub}</p>
               </div>
@@ -438,10 +438,10 @@ export default function DashboardPage() {
               { label: "Profile", value: `${data.profile_completeness}%`, icon: User, color: "text-success" },
               { label: "Skills", value: skillsList.length, icon: Code, color: "text-accent" },
             ].map((stat) => (
-              <div key={stat.label} className="rounded-lg border border-border bg-bg-default p-3 text-center">
-                <div className={`mx-auto mb-1 flex h-7 w-7 items-center justify-center rounded-lg bg-bg-hover ${stat.color}`}><stat.icon size={13} /></div>
-                <p className="font-serif text-lg font-medium tracking-tight text-fg-default">{stat.value}</p>
-                <p className="font-mono text-[10px] uppercase tracking-wider text-fg-muted">{stat.label}</p>
+              <div key={stat.label} className="rounded-lg border border-border bg-bg-default p-3.5 sm:p-3 text-center">
+                <div className={`mx-auto mb-1.5 flex h-8 w-8 sm:h-7 sm:w-7 items-center justify-center rounded-lg bg-bg-hover ${stat.color}`}><stat.icon size={13} /></div>
+                <p className="font-serif text-xl sm:text-lg font-medium tracking-tight text-fg-default">{stat.value}</p>
+                <p className="font-mono text-[11px] sm:text-[10px] uppercase tracking-wider text-fg-muted">{stat.label}</p>
               </div>
             ))}
           </div>
@@ -464,17 +464,17 @@ export default function DashboardPage() {
           } />
         ) : (
           <>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
               {pipelineSteps.map((step) => {
                 const pct = totalApps > 0 ? Math.round((step.count / totalApps) * 100) : 0;
                 return (
-                  <div key={step.key} className="relative rounded-lg border border-border bg-bg-default p-3 transition-all hover:border-accent/30 hover:bg-bg-hover">
+                  <div key={step.key} className="relative rounded-lg border border-border bg-bg-default p-3.5 sm:p-3 transition-all hover:border-accent/30 hover:bg-bg-hover">
                     <p className="font-mono text-xs uppercase tracking-wider text-fg-muted">{step.label}</p>
                     <p className="mt-1 font-serif text-2xl font-medium tracking-tight text-fg-default">{step.count}</p>
                     <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-bg-hover">
                       <div className={`h-full rounded-full transition-all duration-500 ${step.color}`} style={{ width: `${Math.max(pct, step.count > 0 ? 4 : 0)}%` }} />
                     </div>
-                    <p className="mt-1 font-mono text-[10px] text-fg-subtle">{pct}% of total</p>
+                    <p className="mt-1 font-mono text-[11px] sm:text-[10px] text-fg-subtle">{pct}% of total</p>
                     {step.count > 0 && <Link href={`/jobs?status=${step.key}`} className="absolute inset-0 rounded-lg" />}
                   </div>
                 );

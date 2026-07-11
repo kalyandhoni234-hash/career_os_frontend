@@ -225,7 +225,7 @@ function GitHubExpandedContent({ int, onSync, onDisconnect, syncing }: { int: In
       </div>
 
       {/* Stats grid */}
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
         {[
           { icon: Folder, label: "Repos", value: publicRepos ?? "-" },
           { icon: Users, label: "Followers", value: followers ?? "-" },
@@ -234,10 +234,10 @@ function GitHubExpandedContent({ int, onSync, onDisconnect, syncing }: { int: In
           { icon: Code2, label: "Languages", value: Object.keys(topLanguages).length || "-" },
           { icon: Star, label: "Pinned", value: pinnedRepos.length || "-" },
         ].map((stat) => (
-          <div key={stat.label} className="rounded-lg border border-border bg-bg-hover/50 p-2.5 text-center">
+          <div key={stat.label} className="rounded-lg border border-border bg-bg-hover/50 p-3 sm:p-2.5 text-center">
             <stat.icon size={13} className="mx-auto text-fg-muted mb-1" />
-            <p className="text-xs font-semibold text-fg-default">{stat.value}</p>
-            <p className="text-[10px] text-fg-muted mt-0.5">{stat.label}</p>
+            <p className="text-sm sm:text-xs font-semibold text-fg-default">{stat.value}</p>
+            <p className="text-[11px] sm:text-[10px] text-fg-muted mt-0.5">{stat.label}</p>
           </div>
         ))}
       </div>
@@ -626,7 +626,7 @@ export function IntegrationsTab() {
           <div className="h-3 w-40 bg-bg-hover rounded" />
         </div>
       </div>
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
         {[1, 2, 3, 4, 5, 6].map((i) => (
           <div key={i} className="rounded-lg border border-border bg-bg-hover/50 p-3 space-y-1.5">
             <div className="h-4 w-6 bg-bg-hover rounded mx-auto" />
@@ -917,7 +917,7 @@ export function AppearanceTab() {
       </div>
 
       <Section title="Theme">
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-3 gap-2 sm:gap-3">
           {[
             { id: "light" as const, label: "Light", icon: Sun },
             { id: "dark" as const, label: "Dark", icon: Moon },
@@ -926,7 +926,7 @@ export function AppearanceTab() {
             <button
               key={t.id}
               onClick={() => setTheme(t.id)}
-              className={`flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-all duration-150 ${
+              className={`flex flex-col items-center gap-2 rounded-xl border-2 p-3 sm:p-4 min-h-[44px] transition-all duration-150 ${
                 theme === t.id
                   ? "border-accent bg-accent/5"
                   : "border-border hover:border-accent/30 hover:bg-bg-hover"
@@ -943,24 +943,24 @@ export function AppearanceTab() {
             Currently using <span className="font-medium text-fg-default capitalize">{resolvedTheme}</span> mode (follows your system preference)
           </p>
         )}
+        <div className="mt-4 flex items-center gap-2 border-t border-border pt-4">
+          <Palette size={13} className="text-fg-subtle shrink-0" />
+          <p className="text-xs text-fg-muted">Accent color — coming soon</p>
+        </div>
       </Section>
 
-      <Section title="Accent Color" icon={Palette}>
-        <p className="text-sm text-fg-muted">Coming soon — choose your accent color.</p>
-      </Section>
-
-      <Section title="Sidebar">
-        <Select label="Sidebar Mode" options={[{ value: "expanded", label: "Expanded" }, { value: "collapsed", label: "Collapsed by default" }]} value={sidebar} onChange={(v) => { setSidebar(v); localStorage.setItem("sidebar-collapsed", String(v === "collapsed")); }} />
-      </Section>
-
-      <Section title="Layout">
-        <Toggle label="Compact Mode" description="Reduce spacing and padding" checked={compact} onChange={setCompact} />
-        <Select label="Font Size" options={[{ value: "small", label: "Small" }, { value: "medium", label: "Medium" }, { value: "large", label: "Large" }]} value={fontSize} onChange={setFontSize} />
-      </Section>
-
-      <Section title="Motion">
-        <Toggle label="Animations" description="Enable UI animations and transitions" checked={animations} onChange={setAnimations} />
-        <Toggle label="Reduced Motion" description="Minimize animations for accessibility" checked={reducedMotion} onChange={setReducedMotion} />
+      <Section title="Preferences">
+        <div className="space-y-1">
+          <Select label="Sidebar Mode" options={[{ value: "expanded", label: "Expanded" }, { value: "collapsed", label: "Collapsed by default" }]} value={sidebar} onChange={(v) => { setSidebar(v); localStorage.setItem("sidebar-collapsed", String(v === "collapsed")); }} />
+        </div>
+        <div className="mt-5 border-t border-border pt-4 space-y-1">
+          <Toggle label="Compact Mode" description="Reduce spacing and padding" checked={compact} onChange={setCompact} />
+          <Select label="Font Size" options={[{ value: "small", label: "Small" }, { value: "medium", label: "Medium" }, { value: "large", label: "Large" }]} value={fontSize} onChange={setFontSize} />
+        </div>
+        <div className="mt-5 border-t border-border pt-4 space-y-1">
+          <Toggle label="Animations" description="Enable UI animations and transitions" checked={animations} onChange={setAnimations} />
+          <Toggle label="Reduced Motion" description="Minimize animations for accessibility" checked={reducedMotion} onChange={setReducedMotion} />
+        </div>
       </Section>
     </div>
   );
@@ -1290,14 +1290,17 @@ export function BillingTab() {
           </div>
           <Badge tone="neutral">Active</Badge>
         </div>
-      </Section>
 
-      <Section title="Payment Method">
-        <p className="text-sm text-fg-muted">No payment method added yet.</p>
-      </Section>
-
-      <Section title="Billing History">
-        <p className="text-sm text-fg-muted">No billing history available.</p>
+        <div className="mt-5 space-y-3 border-t border-border pt-5">
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-sm text-fg-muted">Payment method</span>
+            <span className="text-sm font-medium text-fg-subtle">Not added yet</span>
+          </div>
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-sm text-fg-muted">Billing history</span>
+            <span className="text-sm font-medium text-fg-subtle">No history yet</span>
+          </div>
+        </div>
       </Section>
     </div>
   );

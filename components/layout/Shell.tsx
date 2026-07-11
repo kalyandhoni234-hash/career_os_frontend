@@ -63,9 +63,9 @@ export function Shell({ children }: ShellProps) {
     return (
       <div className="flex h-screen">
         <Sidebar mobileOpen={mobileOpen} onMobileClose={() => setMobileOpen(false)} />
-        <div className="flex flex-1 flex-col">
+        <div className="flex min-w-0 flex-1 flex-col">
           <TopBar onMenuToggle={() => setMobileOpen(!mobileOpen)} />
-          <main className="flex-1 overflow-y-auto bg-bg-default pb-16">
+          <main className="flex-1 min-w-0 overflow-y-auto overflow-x-hidden bg-bg-default pb-16">
             {children}
           </main>
         </div>
@@ -77,9 +77,9 @@ export function Shell({ children }: ShellProps) {
   return (
     <div className="flex h-screen">
       <Sidebar />
-      <div className="flex flex-1 flex-col">
+      <div className="flex min-w-0 flex-1 flex-col">
         <TopBar />
-        <main className="flex-1 overflow-y-auto bg-bg-default">
+        <main className="flex-1 min-w-0 overflow-y-auto overflow-x-hidden bg-bg-default">
           {children}
         </main>
       </div>

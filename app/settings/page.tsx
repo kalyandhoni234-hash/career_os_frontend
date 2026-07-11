@@ -3,7 +3,7 @@
 import { Suspense, useState, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
-  Settings, Sun, User, Bell, Shield, Bot, Puzzle, CreditCard, Keyboard, Info,
+  Settings, Sun, User, Bell, Shield, Bot, Puzzle, CreditCard, Keyboard, Info, ChevronDown, Check,
 } from "lucide-react";
 import {
   GeneralTab,
@@ -38,10 +38,13 @@ function SettingsContent() {
   const router = useRouter();
   const tabParam = searchParams.get("tab") as TabId | null;
   const [activeTab, setActiveTab] = useState<TabId>(tabParam || "general");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const activeTabInfo = tabs.find((t) => t.id === activeTab) || tabs[0];
 
   const handleTabChange = useCallback(
     (id: TabId) => {
       setActiveTab(id);
+      setMobileMenuOpen(false);
       router.replace(`/settings?tab=${id}`, { scroll: false });
     },
     [router]
@@ -75,34 +78,51 @@ function SettingsContent() {
   };
 
   return (
-    <div className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-6xl flex-col gap-0 p-4 lg:flex-row lg:p-6">
+    <div className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-6xl min-w-0 flex-col gap-0 overflow-x-hidden p-4 lg:flex-row lg:p-6">
       <aside className="flex-shrink-0 border-b border-border lg:w-56 lg:border-b-0 lg:border-r lg:pr-4">
         <div className="flex items-center gap-2 pb-3 lg:pt-0">
           <Settings size={16} className="text-accent" />
           <h1 className="font-serif text-lg font-medium text-fg-default">Settings</h1>
         </div>
-        <div className="relative lg:hidden">
-          <nav className="flex gap-2 overflow-x-auto pb-2 snap-x snap-mandatory scrollbar-none [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {tabs.map((tab) => {
-              const isActive = activeTab === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => handleTabChange(tab.id)}
-                  className={`snap-start shrink-0 flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-all duration-150 min-h-[44px] ${
-                    isActive
-                      ? "bg-accent text-white shadow-sm"
-                      : "bg-bg-hover text-fg-muted hover:text-fg-default hover:bg-border"
-                  }`}
-                >
-                  <tab.icon size={15} strokeWidth={isActive ? 2 : 1.5} className="shrink-0" />
-                  <span>{tab.label}</span>
-                </button>
-              );
-            })}
-          </nav>
-          <div className="pointer-events-none absolute inset-y-0 left-0 w-6 bg-gradient-to-r from-bg-default to-transparent" />
-          <div className="pointer-events-none absolute inset-y-0 right-0 w-6 bg-gradient-to-l from-bg-default to-transparent" />
+        <div className="relative pb-3 lg:hidden">
+          <button
+            onClick={() => setMobileMenuOpen((v) => !v)}
+            aria-expanded={mobileMenuOpen}
+            className="flex w-full min-h-[48px] items-center justify-between gap-2 rounded-lg border border-border bg-bg-surface px-4 py-3 text-left transition-colors active:bg-bg-hover"
+          >
+            <span className="flex items-center gap-2.5">
+              <activeTabInfo.icon size={16} className="shrink-0 text-accent" />
+              <span className="text-sm font-medium text-fg-default">{activeTabInfo.label}</span>
+            </span>
+            <ChevronDown size={18} className={`shrink-0 text-fg-muted transition-transform duration-150 ${mobileMenuOpen ? "rotate-180" : ""}`} />
+          </button>
+
+          {mobileMenuOpen && (
+            <>
+              {/* Backdrop closes the menu on outside tap */}
+              <div className="fixed inset-0 z-40" onClick={() => setMobileMenuOpen(false)} />
+              <nav className="absolute left-0 right-0 top-full z-50 mt-1.5 max-h-[70vh] overflow-y-auto rounded-lg border border-border bg-bg-surface shadow-lg">
+                {tabs.map((tab) => {
+                  const isActive = activeTab === tab.id;
+                  return (
+                    <button
+                      key={tab.id}
+                      onClick={() => handleTabChange(tab.id)}
+                      className={`flex w-full min-h-[48px] items-center justify-between gap-2.5 px-4 py-3 text-left transition-colors ${
+                        isActive ? "bg-accent/10 text-accent" : "text-fg-default hover:bg-bg-hover"
+                      }`}
+                    >
+                      <span className="flex items-center gap-2.5">
+                        <tab.icon size={16} strokeWidth={isActive ? 2 : 1.5} className="shrink-0" />
+                        <span className="text-sm font-medium">{tab.label}</span>
+                      </span>
+                      {isActive && <Check size={16} className="shrink-0" />}
+                    </button>
+                  );
+                })}
+              </nav>
+            </>
+          )}
         </div>
         <nav className="hidden lg:flex lg:flex-col lg:gap-0">
           {tabs.map((tab) => {
