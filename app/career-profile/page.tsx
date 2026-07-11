@@ -38,6 +38,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Input } from "@/components/ui/Input";
 import { CardSkeleton, Skeleton } from "@/components/ui/Skeleton";
 import { useToast } from "@/components/ui/Toast";
+import { useMutationRefresh } from "@/hooks/useMutationRefresh";
 import {
   getProfileDashboard,
   createEducation,
@@ -264,6 +265,7 @@ export default function CareerProfilePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { addToast } = useToast();
+  const { notifyMutation } = useMutationRefresh();
 
   const [addSkillOpen, setAddSkillOpen] = useState(false);
   const [newSkillName, setNewSkillName] = useState("");
@@ -333,23 +335,25 @@ export default function CareerProfilePage() {
       setDashboard((prev) => prev ? { ...prev, skills: [...prev.skills, skill] } : prev);
       setNewSkillName("");
       setAddSkillOpen(false);
+      notifyMutation("profile");
       addToast("success", `Added "${skill.name}" to your skills`);
     } catch (e) {
       addToast("error", e instanceof Error ? e.message : "Failed to add skill");
     } finally {
       setSavingSkill(false);
     }
-  }, [newSkillName, newSkillLevel, addToast]);
+  }, [newSkillName, newSkillLevel, addToast, notifyMutation]);
 
   const handleDeleteSkill = useCallback(async (id: number) => {
     try {
       await deleteSkill(id);
       setDashboard((prev) => prev ? { ...prev, skills: prev.skills.filter((s) => s.id !== id) } : prev);
+      notifyMutation("profile");
       addToast("success", "Skill removed");
     } catch {
       addToast("error", "Failed to remove skill");
     }
-  }, [addToast]);
+  }, [addToast, notifyMutation]);
 
   const handleAddEducation = useCallback(async () => {
     if (!eduForm.institution.trim()) return;
@@ -371,23 +375,25 @@ export default function CareerProfilePage() {
       setDashboard((prev) => prev ? { ...prev, education: [...prev.education, edu] } : prev);
       setEduForm({ institution: "", degree: "", branch: "", cgpa: "", graduation_year: "" });
       setAddEduOpen(false);
+      notifyMutation("profile");
       addToast("success", `Added "${edu.institution}"`);
     } catch (e) {
       addToast("error", e instanceof Error ? e.message : "Failed to add education");
     } finally {
       setSavingEdu(false);
     }
-  }, [eduForm, addToast]);
+  }, [eduForm, addToast, notifyMutation]);
 
   const handleDeleteEducation = useCallback(async (id: number) => {
     try {
       await deleteEducation(id);
       setDashboard((prev) => prev ? { ...prev, education: prev.education.filter((e) => e.id !== id) } : prev);
+      notifyMutation("profile");
       addToast("success", "Education removed");
     } catch {
       addToast("error", "Failed to remove education");
     }
-  }, [addToast]);
+  }, [addToast, notifyMutation]);
 
   const handleAddInterests = useCallback(async () => {
     if (!newInterest.trim()) return;
@@ -398,23 +404,25 @@ export default function CareerProfilePage() {
       await refreshDash();
       setNewInterest("");
       setAddInterestOpen(false);
+      notifyMutation("profile");
       addToast("success", `Added ${names.length} interest(s)`);
     } catch (e) {
       addToast("error", e instanceof Error ? e.message : "Failed to add interests");
     } finally {
       setSavingInterest(false);
     }
-  }, [newInterest, refreshDash, addToast]);
+  }, [newInterest, refreshDash, addToast, notifyMutation]);
 
   const handleDeleteInterest = useCallback(async (id: number) => {
     try {
       await deleteInterest(id);
       setDashboard((prev) => prev ? { ...prev, interests: prev.interests.filter((i) => i.id !== id) } : prev);
+      notifyMutation("profile");
       addToast("success", "Interest removed");
     } catch {
       addToast("error", "Failed to remove interest");
     }
-  }, [addToast]);
+  }, [addToast, notifyMutation]);
 
   const handleAddLanguage = useCallback(async () => {
     if (!langForm.language.trim()) return;
@@ -424,23 +432,25 @@ export default function CareerProfilePage() {
       setDashboard((prev) => prev ? { ...prev, languages: [...prev.languages, lang] } : prev);
       setLangForm({ language: "", proficiency: "intermediate" });
       setAddLangOpen(false);
+      notifyMutation("profile");
       addToast("success", `Added "${lang.language}"`);
     } catch (e) {
       addToast("error", e instanceof Error ? e.message : "Failed to add language");
     } finally {
       setSavingLang(false);
     }
-  }, [langForm, addToast]);
+  }, [langForm, addToast, notifyMutation]);
 
   const handleDeleteLanguage = useCallback(async (id: number) => {
     try {
       await deleteLanguage(id);
       setDashboard((prev) => prev ? { ...prev, languages: prev.languages.filter((l) => l.id !== id) } : prev);
+      notifyMutation("profile");
       addToast("success", "Language removed");
     } catch {
       addToast("error", "Failed to remove language");
     }
-  }, [addToast]);
+  }, [addToast, notifyMutation]);
 
   const handleAddSocial = useCallback(async () => {
     if (!socialForm.url.trim()) return;
@@ -450,23 +460,25 @@ export default function CareerProfilePage() {
       setDashboard((prev) => prev ? { ...prev, social_links: [...prev.social_links, link] } : prev);
       setSocialForm({ platform: "github", url: "" });
       setAddSocialOpen(false);
+      notifyMutation("profile");
       addToast("success", "Social link added");
     } catch (e) {
       addToast("error", e instanceof Error ? e.message : "Failed to add link");
     } finally {
       setSavingSocial(false);
     }
-  }, [socialForm, addToast]);
+  }, [socialForm, addToast, notifyMutation]);
 
   const handleDeleteSocial = useCallback(async (id: number) => {
     try {
       await deleteSocialLink(id);
       setDashboard((prev) => prev ? { ...prev, social_links: prev.social_links.filter((l) => l.id !== id) } : prev);
+      notifyMutation("profile");
       addToast("success", "Link removed");
     } catch {
       addToast("error", "Failed to remove link");
     }
-  }, [addToast]);
+  }, [addToast, notifyMutation]);
 
   const handleUploadResume = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -474,22 +486,24 @@ export default function CareerProfilePage() {
     try {
       const result = await uploadResume(file);
       setDashboard((prev) => prev ? { ...prev, resume_files: [...prev.resume_files, result] } : prev);
+      notifyMutation("profile");
       addToast("success", "Resume uploaded successfully");
     } catch (err) {
       addToast("error", err instanceof Error ? err.message : "Upload failed");
     }
     if (fileInputRef.current) fileInputRef.current.value = "";
-  }, [addToast]);
+  }, [addToast, notifyMutation]);
 
   const handleDeleteResume = useCallback(async (id: number) => {
     try {
       await deleteResume(id);
       setDashboard((prev) => prev ? { ...prev, resume_files: prev.resume_files.filter((r) => r.id !== id) } : prev);
+      notifyMutation("profile");
       addToast("success", "Resume deleted");
     } catch {
       addToast("error", "Failed to delete resume");
     }
-  }, [addToast]);
+  }, [addToast, notifyMutation]);
   if (loading) {
     return (
       <div className="mx-auto max-w-7xl p-4 lg:p-6">

@@ -10,6 +10,7 @@ import {
 import { apiFetch } from "@/lib/api";
 import { Button } from "@/components/ui/Button";
 import { useToast } from "@/components/ui/Toast";
+import { useMutationRefresh } from "@/hooks/useMutationRefresh";
 import { ResumePreview } from "./components/ResumePreview";
 import { ResumeHealth } from "./components/ResumeHealth";
 import { ATSPanel } from "./components/ATSPanel";
@@ -48,6 +49,7 @@ export default function ResumePage() {
   const [versions, setVersions] = useState<VersionInfo[]>([]);
   const [showCoverLetter, setShowCoverLetter] = useState(false);
   const { addToast } = useToast();
+  const { notifyMutation } = useMutationRefresh();
   const autosaveTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const loadResume = useCallback(async () => {
@@ -96,6 +98,7 @@ export default function ResumePage() {
     setSaving(true);
     try {
       await apiFetch("/api/resume", { method: "POST", body: JSON.stringify(resume) });
+      notifyMutation("resume");
       if (showToast) addToast("success", "Resume saved");
     } catch {
       if (showToast) addToast("error", "Failed to save");

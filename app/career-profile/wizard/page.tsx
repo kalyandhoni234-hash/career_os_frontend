@@ -32,6 +32,7 @@ import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { useToast } from "@/components/ui/Toast";
+import { useMutationRefresh } from "@/hooks/useMutationRefresh";
 import {
   getWizardData,
   saveWizardStep,
@@ -137,6 +138,7 @@ function CompletionCircle({ pct }: { pct: number }) {
 export default function CareerProfileWizardPage() {
   const router = useRouter();
   const { addToast } = useToast();
+  const { notifyMutation } = useMutationRefresh();
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -201,6 +203,7 @@ export default function CareerProfileWizardPage() {
           result = { message: "Saved", completion_pct: completionPct };
       }
       setCompletionPct(result.completion_pct);
+      notifyMutation("profile");
       setHasUnsavedChanges(false);
       lastSavedSnapshot.current = snapshotCurrentState();
       if (!silent) addToast("success", result.message || "Step saved successfully");
@@ -211,7 +214,7 @@ export default function CareerProfileWizardPage() {
     } finally {
       setSaving(false);
     }
-  }, [currentStep, basicInfo, careerInfo, dreamCareer, preferences, completionPct, snapshotCurrentState, addToast]);
+  }, [currentStep, basicInfo, careerInfo, dreamCareer, preferences, completionPct, snapshotCurrentState, addToast, notifyMutation]);
 
   const resetAutoSave = useCallback(() => {
     if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
@@ -339,6 +342,7 @@ export default function CareerProfileWizardPage() {
       setEducationList((prev) => [...prev, created]);
       setShowEduModal(false);
       setEditingEdu(null);
+      notifyMutation("profile");
       addToast("success", "Education added");
     } catch (err) {
       addToast("error", err instanceof Error ? err.message : "Failed to add education");
@@ -352,6 +356,7 @@ export default function CareerProfileWizardPage() {
       setEducationList((prev) => prev.map((e) => (e.id === edu.id ? edu : e)));
       setShowEduModal(false);
       setEditingEdu(null);
+      notifyMutation("profile");
       addToast("success", "Education updated");
     } catch (err) {
       addToast("error", err instanceof Error ? err.message : "Failed to update education");
@@ -362,6 +367,7 @@ export default function CareerProfileWizardPage() {
     try {
       await deleteEducation(id);
       setEducationList((prev) => prev.filter((e) => e.id !== id));
+      notifyMutation("profile");
       addToast("success", "Education removed");
     } catch (err) {
       addToast("error", err instanceof Error ? err.message : "Failed to delete education");
@@ -380,6 +386,7 @@ export default function CareerProfileWizardPage() {
     });
     try {
       await reorderEducation(orderMap);
+      notifyMutation("profile");
     } catch {
       addToast("error", "Failed to reorder");
     }
@@ -396,6 +403,7 @@ export default function CareerProfileWizardPage() {
       const created = await createSkill({ name, experience_level: "beginner", years_of_experience: 0, confidence_rating: 5 });
       setSkills((prev) => [...prev, created]);
       setSkillInput("");
+      notifyMutation("profile");
       addToast("success", `Skill "${name}" added`);
     } catch (err) {
       addToast("error", err instanceof Error ? err.message : "Failed to add skill");
@@ -407,6 +415,7 @@ export default function CareerProfileWizardPage() {
     try {
       await updateSkill(skill.id, skill);
       setSkills((prev) => prev.map((s) => (s.id === skill.id ? skill : s)));
+      notifyMutation("profile");
       addToast("success", "Skill updated");
     } catch (err) {
       addToast("error", err instanceof Error ? err.message : "Failed to update skill");
@@ -417,6 +426,7 @@ export default function CareerProfileWizardPage() {
     try {
       await deleteSkill(id);
       setSkills((prev) => prev.filter((s) => s.id !== id));
+      notifyMutation("profile");
       addToast("success", "Skill removed");
     } catch (err) {
       addToast("error", err instanceof Error ? err.message : "Failed to delete skill");
@@ -426,6 +436,7 @@ export default function CareerProfileWizardPage() {
   const handleInterestsSave = async () => {
     try {
       await batchInterests(interests);
+      notifyMutation("profile");
       addToast("success", "Interests saved");
       setHasUnsavedChanges(false);
       lastSavedSnapshot.current = snapshotCurrentState();
@@ -446,6 +457,7 @@ export default function CareerProfileWizardPage() {
       }
       setShowLangForm(false);
       setEditingLang({ language: "", proficiency: "basic" });
+      notifyMutation("profile");
       addToast("success", "Language saved");
     } catch (err) {
       addToast("error", err instanceof Error ? err.message : "Failed to save language");
@@ -456,6 +468,7 @@ export default function CareerProfileWizardPage() {
     try {
       await deleteLanguage(id);
       setLanguages((prev) => prev.filter((l) => l.id !== id));
+      notifyMutation("profile");
       addToast("success", "Language removed");
     } catch (err) {
       addToast("error", err instanceof Error ? err.message : "Failed to delete language");
@@ -469,6 +482,7 @@ export default function CareerProfileWizardPage() {
         try {
           await deleteSocialLink(existing.id);
           setSocialLinks((prev) => prev.filter((l) => l.platform !== platform));
+          notifyMutation("profile");
           addToast("success", `${platform} link removed`);
         } catch (err) {
           addToast("error", err instanceof Error ? err.message : "Failed");
@@ -484,6 +498,7 @@ export default function CareerProfileWizardPage() {
         const created = await createSocialLink({ platform, url });
         setSocialLinks((prev) => [...prev, created]);
       }
+      notifyMutation("profile");
       addToast("success", `${platform} link saved`);
     } catch (err) {
       addToast("error", err instanceof Error ? err.message : "Failed to save link");
@@ -501,6 +516,7 @@ export default function CareerProfileWizardPage() {
       clearInterval(progressInterval);
       setUploadProgress(100);
       setResumeFiles((prev) => [...prev, uploaded]);
+      notifyMutation("profile");
       addToast("success", "Resume uploaded");
     } catch (err) {
       addToast("error", err instanceof Error ? err.message : "Upload failed");
@@ -514,6 +530,7 @@ export default function CareerProfileWizardPage() {
     try {
       await deleteResume(id);
       setResumeFiles((prev) => prev.filter((f) => f.id !== id));
+      notifyMutation("profile");
       addToast("success", "Resume deleted");
     } catch (err) {
       addToast("error", err instanceof Error ? err.message : "Failed to delete resume");

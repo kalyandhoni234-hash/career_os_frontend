@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useCallback, startTransition } from "react";
+import { useEffect, useState, useCallback, startTransition, useRef } from "react";
 import { apiFetch } from "@/lib/api";
 
 export interface RecentActivity {
@@ -45,26 +45,48 @@ function normalize(raw: Record<string, unknown>): DashboardData {
   };
 }
 
+const POLL_INTERVAL = 30000;
+
 export function useDashboard() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const mountedRef = useRef(true);
 
-  const fetch = useCallback(async () => {
+  const fetch = useCallback(async (isInitial = false) => {
     try {
-      setLoading(true);
+      if (isInitial) setLoading(true);
       setError("");
       const summary = await apiFetch("/api/users/dashboard-summary");
-      setData(normalize(summary));
+      if (mountedRef.current) {
+        setData(normalize(summary));
+      }
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : String(err));
+      if (mountedRef.current) {
+        setError(err instanceof Error ? err.message : String(err));
+      }
     } finally {
-      setLoading(false);
+      if (isInitial && mountedRef.current) {
+        setLoading(false);
+      }
     }
   }, []);
 
   useEffect(() => {
-    startTransition(() => { fetch(); });
+    mountedRef.current = true;
+    startTransition(() => { fetch(true); });
+
+    pollRef.current = setInterval(() => {
+      if (document.visibilityState === "visible") {
+        fetch(false);
+      }
+    }, POLL_INTERVAL);
+
+    return () => {
+      mountedRef.current = false;
+      if (pollRef.current) clearInterval(pollRef.current);
+    };
   }, [fetch]);
 
   const careerScore = (() => {
@@ -81,5 +103,5 @@ export function useDashboard() {
     return Math.round(profileScore + resumeScore + appScore + interviewScore);
   })();
 
-  return { data, loading, error, careerScore, refetch: fetch };
+  return { data, loading, error, careerScore, refetch: () => fetch(false) };
 }

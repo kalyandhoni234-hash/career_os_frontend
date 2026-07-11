@@ -11,6 +11,7 @@ import { Briefcase, SendHorizontal, AlertCircle } from "lucide-react";
 import { apiFetch } from "@/lib/api";
 import { Button } from "@/components/ui/Button";
 import { useToast } from "@/components/ui/Toast";
+import { useMutationRefresh } from "@/hooks/useMutationRefresh";
 import { ApplicationStats } from "./components/ApplicationStats";
 import { KanbanColumn } from "./components/KanbanColumn";
 import { ApplicationCard } from "./components/ApplicationCard";
@@ -60,6 +61,7 @@ export default function JobsPage() {
   const [activeDragJob, setActiveDragJob] = useState<Job | null>(null);
 
   const { addToast } = useToast();
+  const { notifyMutation } = useMutationRefresh();
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -108,6 +110,7 @@ export default function JobsPage() {
       setShowForm(false);
       setFormData(defaultForm);
       setEditingId(null);
+      notifyMutation("application");
       await loadJobs();
     } catch {
       addToast("error", "Failed to save application");
@@ -137,6 +140,7 @@ export default function JobsPage() {
     try {
       await apiFetch(`/api/jobs/${id}`, { method: "DELETE" });
       setJobs((prev) => prev.filter((j) => j.id !== id));
+      notifyMutation("application");
       addToast("success", "Application deleted");
       setSuggestionsKey((k) => k + 1);
     } catch {
@@ -148,6 +152,7 @@ export default function JobsPage() {
     try {
       const updated = await apiFetch(`/api/jobs/${id}`, { method: "PUT", body: JSON.stringify({ status }) });
       setJobs((prev) => prev.map((j) => (j.id === id ? updated.job as Job : j)));
+      notifyMutation("application");
     } catch {
       addToast("error", "Failed to update status");
     }

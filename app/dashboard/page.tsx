@@ -15,6 +15,7 @@ import { motion } from "framer-motion";
 import { useAuth } from "@/components/AuthProvider";
 import { apiFetch } from "@/lib/api";
 import { useDashboard } from "@/hooks/useDashboard";
+import { useMutationRefresh } from "@/hooks/useMutationRefresh";
 import {
   getActionPlan, getGoals, getSkillGraph, getCareerScore, getRecommendations, getSkillGaps,
 } from "@/app/career/api";
@@ -139,12 +140,18 @@ export default function DashboardPage() {
   }, [isAuthenticated, router]);
 
   const { data, loading, error, careerScore: computedScore } = useDashboard();
+  const { lastMutationTime } = useMutationRefresh();
 
   const [actionPlan, setActionPlan] = useState<ActionPlanItem[]>([]);
   const [careerScoreData, setCareerScoreData] = useState<CareerScoreResult | null>(null);
   const [aiInsights, setAiInsights] = useState<RecommendationData[]>([]);
   const [skillGaps, setSkillGaps] = useState<SkillGapAnalysis | null>(null);
   const [intelProfile, setIntelProfile] = useState<Record<string, unknown> | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  useEffect(() => {
+    if (lastMutationTime) setRefreshKey((k) => k + 1);
+  }, [lastMutationTime]);
 
   useEffect(() => {
     if (!data) return;
@@ -163,7 +170,7 @@ export default function DashboardPage() {
       if (gaps.status === "fulfilled" && gaps.value) setSkillGaps(gaps.value);
       if (ip.status === "fulfilled" && ip.value) setIntelProfile(ip.value as Record<string, unknown>);
     });
-  }, [data]);
+  }, [data, refreshKey]);
 
   useEffect(() => {
     if (error && error.toLowerCase().includes("unauthorized")) router.push("/login");
@@ -435,7 +442,7 @@ export default function DashboardPage() {
             {[
               { label: "Actions", value: getWeeklyActivity(), icon: Activity, color: "text-accent" },
               { label: "Active Apps", value: activeApps, icon: Briefcase, color: "text-accent" },
-              { label: "Profile", value: `${data.profile_completeness}%`, icon: User, color: "text-success" },
+              { label: "Profile", value: `${data.profile_completeness ?? 0}%`, icon: User, color: "text-success" },
               { label: "Skills", value: skillsList.length, icon: Code, color: "text-accent" },
             ].map((stat) => (
               <div key={stat.label} className="rounded-lg border border-border bg-bg-default p-3.5 sm:p-3 text-center">
