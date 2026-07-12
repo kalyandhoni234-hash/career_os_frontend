@@ -121,21 +121,47 @@ export interface SkillGraphData {
 
 export interface SkillGapAnalysis {
   target_role: string;
+  role_description?: string;
+  estimated_months?: number;
   current_skills: string[];
   learning_skills: Record<string, number>;
   required_skills: string[];
   matched_skills: string[];
   missing_skills: string[];
   coverage: number;
+  coverage_by_tier?: {
+    core: number;
+    intermediate: number;
+    advanced: number;
+  };
   gaps: SkillGap[];
   graph: Record<string, number>;
+  roadmap?: SkillRoadmap;
 }
 
 export interface SkillGap {
   skill: string;
   priority: number;
+  tier?: string;
+  reason?: string;
   estimated_ats_gain: number;
   recommended_project: string;
+  learning_time_weeks?: number;
+  resources?: string[];
+  unlocks?: string[];
+}
+
+export interface SkillRoadmap {
+  phases: LearningPhase[];
+  total_months_estimated: number;
+}
+
+export interface LearningPhase {
+  phase: number;
+  title: string;
+  description: string;
+  months_estimated: number;
+  skills: SkillGap[];
 }
 
 
@@ -166,6 +192,88 @@ export interface RoadmapNodeData {
   status: string;
   skill_tags: string[];
   completed_at: string | null;
+}
+
+export interface CareerPathSummary {
+  title: string;
+  description: string;
+  estimated_months: number;
+  total_lessons: number;
+  phase_count: number;
+}
+
+export interface LessonData {
+  id: string;
+  title: string;
+  difficulty: string;
+  estimated_minutes: number;
+  prerequisites: string[];
+  skills_gained: string[];
+  resources: { title: string; url: string; type: string }[];
+  practice_labs: { title: string; url: string; platform: string }[];
+  projects: { title: string; description: string }[];
+  quiz: { question: string; options: string[]; correct_index: number; explanation: string }[];
+  status?: string;
+  progress_score?: number | null;
+  progress_notes?: string | null;
+  started_at?: string | null;
+  completed_at?: string | null;
+}
+
+export interface ModuleData {
+  id: string;
+  title: string;
+  order: number;
+  lessons: LessonData[];
+  progress: number;
+}
+
+export interface PhaseData {
+  id: string;
+  title: string;
+  order: number;
+  modules: ModuleData[];
+  progress: number;
+}
+
+export interface DashboardRoadmap {
+  id: number;
+  title: string;
+  target_role: string | null;
+  progress: number;
+  streak: number;
+  weekly_hours: number;
+  status: string;
+  current_phase_title: string | null;
+  current_module_title: string | null;
+  current_lesson: LessonData | null;
+  totals: { total: number; completed: number; in_progress: number; not_started: number };
+  days_active: number;
+  estimated_days_remaining: number;
+  days_remaining: number;
+  started_at: string | null;
+  last_activity_at: string | null;
+}
+
+export interface FullRoadmap {
+  id: number;
+  title: string;
+  description: string;
+  target_role: string;
+  category: string;
+  estimated_weeks: number;
+  progress: number;
+  status: string;
+  streak: number;
+  weekly_hours: number;
+  created_at: string | null;
+  started_at: string | null;
+  last_activity_at: string | null;
+  phases: PhaseData[];
+  current_phase_title: string | null;
+  current_module_title: string | null;
+  current_lesson: LessonData | null;
+  totals: { total: number; completed: number; in_progress: number; not_started: number };
 }
 
 export interface CareerGoalData {

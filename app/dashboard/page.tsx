@@ -11,6 +11,7 @@ import {
   ChevronRight, Star, Plus, AlertCircle, RefreshCw, Layers,
   Code,
 } from "lucide-react";
+import { RoadmapWidget } from "@/app/dashboard/components/RoadmapWidget";
 import { motion } from "framer-motion";
 import { useAuth } from "@/components/AuthProvider";
 import { apiFetch } from "@/lib/api";
@@ -511,63 +512,9 @@ export default function DashboardPage() {
         )}
       </motion.div>
 
-      {/* Dream Career + Resume Intel */}
+      {/* Career Roadmap + Resume Intel */}
       <motion.div variants={fadeUp} className="grid grid-cols-1 gap-4 lg:gap-6 lg:grid-cols-2">
-        <div className="rounded-xl border border-border bg-bg-surface p-5 card-hover">
-          <div className="mb-4 flex items-center gap-2">
-            <Target size={14} className="text-fg-muted" />
-            <h3 className="font-mono text-xs font-medium uppercase tracking-widest text-fg-muted">Dream Career Progress</h3>
-          </div>
-
-          {!dreamRole ? (
-            <EmptyCard compact icon={<Star size={18} />} title="No dream role set" desc="Set your dream career to track progress." action={
-              <Link href="/career-profile/wizard" className="btn-press inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-xs font-medium text-fg-default transition-all hover:border-accent/40 hover:bg-bg-hover">Set Dream Role <ArrowRight size={12} /></Link>
-            } />
-          ) : (
-            <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent/10">
-                  <Star size={18} className="text-accent" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-fg-default">{dreamRole}</p>
-                  <p className="text-xs text-fg-muted">{skillGapCoverage > 0 ? `${skillGapCoverage}% skill match` : "Skill match pending"}</p>
-                </div>
-              </div>
-
-              {skillGapCoverage > 0 && (
-                <div>
-                  <div className="mb-1.5 flex items-center justify-between">
-                    <span className="text-xs text-fg-muted">Skill readiness</span>
-                    <span className="font-mono text-xs text-fg-default">{skillGapCoverage}%</span>
-                  </div>
-                  <div className="h-2.5 overflow-hidden rounded-full bg-bg-hover">
-                    <motion.div initial={{ width: 0 }} animate={{ width: `${skillGapCoverage}%` }} transition={{ duration: 1, ease: "easeOut" }} className="h-full rounded-full bg-accent" />
-                  </div>
-                </div>
-              )}
-
-              {missingSkills.length > 0 && (
-                <div>
-                  <p className="mb-2 text-xs font-medium text-fg-muted">Missing skills to acquire</p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {missingSkills.slice(0, 6).map((s) => (<Badge key={s} tone="warning">{s}</Badge>))}
-                    {missingSkills.length > 6 && <Badge tone="neutral">+{missingSkills.length - 6} more</Badge>}
-                  </div>
-                  <Link href={`/roadmaps?role=${encodeURIComponent(dreamRole)}`} className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-accent transition-colors hover:text-accent/80 hover:underline">
-                    <BookOpen size={12} /> Build learning roadmap <ArrowRight size={11} />
-                  </Link>
-                </div>
-              )}
-
-              {missingSkills.length === 0 && skillGapCoverage > 0 && (
-                <div className="rounded-lg border border-success/20 bg-success/5 px-3 py-2.5 text-center">
-                  <p className="text-xs font-medium text-success">All skills covered for {dreamRole}</p>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
+        <RoadmapWidget dreamRole={dreamRole} />
         <div className="rounded-xl border border-border bg-bg-surface p-5 card-hover">
           <div className="mb-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
