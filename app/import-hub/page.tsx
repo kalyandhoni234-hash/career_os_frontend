@@ -38,18 +38,53 @@ interface NormalizedData {
     phone: string;
     location: string;
     title: string;
+    linkedin?: string;
+    github?: string;
+    website?: string;
   };
+  summary?: string;
   skills: string[];
-  experience: Entry[];
-  education: Entry[];
-  projects: Entry[];
+  experience: ExperienceEntry[];
+  education: EducationEntry[];
+  projects: ProjectEntry[];
+  certificates?: CertificateEntry[];
+  languages?: LanguageEntry[];
 }
 
-interface Entry {
-  title: string;
-  organization?: string;
+interface ExperienceEntry {
+  company: string;
+  role: string;
+  start: string;
+  end: string;
+  bullets: string[];
+  technologies?: string[];
+}
+
+interface EducationEntry {
+  school: string;
+  degree: string;
+  field?: string;
+  start: string;
+  end: string;
+  gpa?: string;
+}
+
+interface ProjectEntry {
+  name: string;
   description: string;
-  date_range?: string;
+  technologies?: string[];
+  url?: string;
+}
+
+interface CertificateEntry {
+  name: string;
+  issuer?: string;
+  date?: string;
+}
+
+interface LanguageEntry {
+  name: string;
+  level?: string;
 }
 
 interface ConfidenceScores {
@@ -86,7 +121,7 @@ function confidenceTone(level: string): "accent" | "success" | "warning" | "dang
   return "danger";
 }
 
-function ExpandableEntry({ entry }: { entry: Entry; index: number }) {
+function ExpandableEntry({ label, detail }: { label: string; detail: string }) {
   const [open, setOpen] = useState(false);
   return (
     <div className="rounded-lg border border-border bg-bg-raised">
@@ -94,7 +129,7 @@ function ExpandableEntry({ entry }: { entry: Entry; index: number }) {
         onClick={() => setOpen(!open)}
         className="flex w-full items-center justify-between px-3 py-2 text-left text-xs font-medium text-fg-default"
       >
-        <span>{entry.title}{entry.organization ? ` — ${entry.organization}` : ""}</span>
+        <span>{label}</span>
         {open ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
       </button>
       <AnimatePresence>
@@ -105,9 +140,8 @@ function ExpandableEntry({ entry }: { entry: Entry; index: number }) {
             exit={{ height: 0, opacity: 0 }}
             className="overflow-hidden"
           >
-            <div className="border-t border-border px-3 py-2 space-y-1">
-              {entry.date_range && <p className="text-[10px] text-fg-muted font-mono">{entry.date_range}</p>}
-              <p className="text-[10px] text-fg-muted leading-relaxed">{entry.description}</p>
+            <div className="border-t border-border px-3 py-2">
+              <p className="text-[10px] text-fg-muted leading-relaxed whitespace-pre-wrap">{detail}</p>
             </div>
           </motion.div>
         )}
@@ -671,9 +705,17 @@ export default function ImportHubPage() {
                   <p className="text-xs text-fg-muted">No experience found</p>
                 ) : (
                   <div className="space-y-1.5">
-                    {editableData.experience.map((entry, i) => (
-                      <ExpandableEntry key={i} entry={entry} index={i} />
-                    ))}
+                    {editableData.experience.map((entry, i) => {
+                      const dateRange = [entry.start, entry.end].filter(Boolean).join(" - ");
+                      const bullets = (entry.bullets || []).map((b) => `• ${b}`).join("\n");
+                      return (
+                        <ExpandableEntry
+                          key={i}
+                          label={[entry.role, entry.company].filter(Boolean).join(" — ")}
+                          detail={[dateRange, bullets].filter(Boolean).join("\n")}
+                        />
+                      );
+                    })}
                   </div>
                 )}
               </Card>
@@ -696,9 +738,13 @@ export default function ImportHubPage() {
                   <p className="text-xs text-fg-muted">No education found</p>
                 ) : (
                   <div className="space-y-1.5">
-                    {editableData.education.map((entry, i) => (
-                      <ExpandableEntry key={i} entry={entry} index={i} />
-                    ))}
+                    {editableData.education.map((entry, i) => {
+                      const dateRange = [entry.start, entry.end].filter(Boolean).join(" - ");
+                      const detail = [entry.degree, entry.field, dateRange].filter(Boolean).join("\n");
+                      return (
+                        <ExpandableEntry key={i} label={entry.school} detail={detail} />
+                      );
+                    })}
                   </div>
                 )}
               </Card>
@@ -722,7 +768,7 @@ export default function ImportHubPage() {
                 ) : (
                   <div className="space-y-1.5">
                     {editableData.projects.map((entry, i) => (
-                      <ExpandableEntry key={i} entry={entry} index={i} />
+                      <ExpandableEntry key={i} label={entry.name} detail={entry.description || ""} />
                     ))}
                   </div>
                 )}
