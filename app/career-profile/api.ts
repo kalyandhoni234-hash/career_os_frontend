@@ -151,16 +151,10 @@ export async function deleteSocialLink(id: number): Promise<{ message: string }>
 export async function uploadResume(file: File): Promise<{ id: number; filename: string; original_filename: string; file_size: number; file_type: string; uploaded_at: string | null }> {
   const formData = new FormData();
   formData.append("file", file);
-  const response = await fetch("/api/profile/resume/upload", {
+  return apiFetch("/api/profile/resume/upload", {
     method: "POST",
-    credentials: "include",
     body: formData,
   });
-  if (!response.ok) {
-    const err = await response.json().catch(() => ({ error: "Upload failed" }));
-    throw new Error(err.error || "Upload failed");
-  }
-  return response.json();
 }
 
 export async function deleteResume(id: number): Promise<{ message: string }> {

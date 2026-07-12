@@ -1,3 +1,5 @@
+import { getCsrfToken, clearCsrfToken } from "./csrf";
+
 export class HttpError extends Error {
   status: number;
   body: unknown;
@@ -141,22 +143,40 @@ async function parseResponseBody(response: Response): Promise<unknown> {
   }
 }
 
+const CSRF_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function apiFetch<T = any>(path: string, options: RequestInit = {}): Promise<T> {
   const method = (options.method || "GET").toUpperCase();
   const url = path.startsWith("http") ? path : `${window.location.origin}${path}`;
   const isDev = process.env.NODE_ENV === "development";
+  const isMutating = CSRF_METHODS.has(method);
+
+  const hasBody = options.body !== undefined && options.body !== null;
+  const isFormData = options.body instanceof FormData;
+
+  let csrfToken: string | null = null;
+  if (isMutating) {
+    csrfToken = await getCsrfToken();
+  }
+
+  const userHeaders = options.headers instanceof Headers
+    ? Object.fromEntries(options.headers.entries())
+    : Array.isArray(options.headers)
+      ? Object.fromEntries(options.headers)
+      : ({ ...options.headers } as Record<string, string>);
+
+  const headers: Record<string, string> = {};
+  if (hasBody && !isFormData) headers["Content-Type"] = "application/json";
+  Object.assign(headers, userHeaders);
+  if (isMutating && csrfToken) headers["X-CSRF-Token"] = csrfToken;
 
   let response: Response;
   try {
-    const hasBody = options.body !== undefined && options.body !== null;
     response = await fetch(path, {
       ...options,
       credentials: "include",
-      headers: {
-        ...(hasBody ? { "Content-Type": "application/json" } : {}),
-        ...options.headers,
-      },
+      headers,
     });
   } catch (err) {
     const norm = normalizeError(err, url, method);
@@ -172,17 +192,58 @@ export async function apiFetch<T = any>(path: string, options: RequestInit = {})
 
   if (!response.ok) {
     const body = await parseResponseBody(response);
+    const code =
+      body && typeof body === "object" && !Array.isArray(body)
+        ? ((body as Record<string, unknown>).code as string) || ""
+        : "";
+
+    if (response.status === 403 && code === "INVALID_CSRF_TOKEN") {
+      clearCsrfToken();
+      const newToken = await getCsrfToken();
+      if (newToken) {
+        headers["X-CSRF-Token"] = newToken;
+        try {
+          response = await fetch(path, {
+            ...options,
+            credentials: "include",
+            headers,
+          });
+          if (response.ok) {
+            const retryBody = await parseResponseBody(response);
+            if (isDev) {
+              console.log(`[API] ${method} ${url} → ${response.status} (CSRF retry)`, retryBody);
+            }
+            return retryBody as T;
+          }
+          const retryBody = await parseResponseBody(response);
+          const message =
+            retryBody && typeof retryBody === "object" && !Array.isArray(retryBody)
+              ? (retryBody as Record<string, unknown>).error || (retryBody as Record<string, unknown>).message || `HTTP ${response.status} ${response.statusText}`
+              : typeof retryBody === "string"
+                ? retryBody
+                : `HTTP ${response.status} ${response.statusText}`;
+          throw new HttpError(String(message), response.status, url, retryBody, method);
+        } catch (retryErr) {
+          if (retryErr instanceof HttpError) throw retryErr;
+          const norm = normalizeError(retryErr, url, method);
+          logError(norm, isDev);
+          throw new HttpError(
+            norm.message || "Network error. Check your internet connection.",
+            norm.status,
+            url,
+            norm.body,
+            method,
+          );
+        }
+      }
+    }
+
     const message =
       body && typeof body === "object" && !Array.isArray(body)
         ? (body as Record<string, unknown>).error || (body as Record<string, unknown>).message || `HTTP ${response.status} ${response.statusText}`
         : typeof body === "string"
           ? body
           : `HTTP ${response.status} ${response.statusText}`;
-
-    const code =
-      body && typeof body === "object" && !Array.isArray(body)
-        ? ((body as Record<string, unknown>).code as string) || ""
-        : "";
 
     if (isDev) {
       console.group(`[API Error] ${method} ${url}`);

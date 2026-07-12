@@ -825,7 +825,7 @@ export function GeneralTab() {
     const formData = new FormData();
     formData.append("avatar", file);
     try {
-      await fetch("/api/users/profile/avatar", { method: "POST", credentials: "include", body: formData });
+      await apiFetch("/api/users/profile/avatar", { method: "POST", body: formData });
       addToast("success", "Profile picture updated");
     } catch {
       addToast("error", "Failed to upload profile picture");
@@ -834,7 +834,7 @@ export function GeneralTab() {
 
   const handleRemoveAvatar = async () => {
     try {
-      await fetch("/api/users/profile/avatar", { method: "DELETE", credentials: "include" });
+      await apiFetch("/api/users/profile/avatar", { method: "DELETE" });
       addToast("success", "Profile picture removed");
     } catch {
       addToast("error", "Failed to remove profile picture");

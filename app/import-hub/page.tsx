@@ -230,13 +230,10 @@ export default function ImportHubPage() {
       if (source === "resume") {
         const fd = new FormData();
         fd.append("file", fileInput!);
-        const res = await fetch("/api/import/resume/upload", {
+        result = await apiFetch("/api/import/resume/upload", {
           method: "POST",
-          credentials: "include",
           body: fd,
         });
-        if (!res.ok) throw new Error((await res.json().catch(() => null))?.error || "Upload failed");
-        result = await res.json();
       } else if (source === "backup") {
         const text = await fileInput!.text();
         const data = JSON.parse(text);
