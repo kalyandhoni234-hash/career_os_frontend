@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Image from "next/image";
 
 export function SplashScreen() {
   return (
@@ -11,14 +12,20 @@ export function SplashScreen() {
         transition={{ duration: 0.5, ease: [0.25, 0.1, 0.1, 1] }}
         className="flex flex-col items-center gap-5"
       >
-        <motion.span
+        <motion.div
           initial={{ scale: 0.5, rotate: -10 }}
           animate={{ scale: 1, rotate: 0 }}
           transition={{ duration: 0.5, ease: [0.34, 1.56, 0.64, 1] }}
-          className="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-accent to-accent/80 text-xl font-bold text-white shadow-xl shadow-accent/25"
         >
-          C
-        </motion.span>
+          <Image
+            src="/logo.svg"
+            alt="Career OS"
+            width={80}
+            height={80}
+            className="h-[60px] w-[60px] md:h-20 md:w-20 drop-shadow-[0_0_12px_rgba(108,92,231,0.4)]"
+            priority
+          />
+        </motion.div>
         <span className="font-serif text-2xl font-medium tracking-tight text-fg-default">
           Career OS
         </span>
