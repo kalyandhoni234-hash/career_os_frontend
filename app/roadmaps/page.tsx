@@ -8,7 +8,7 @@ import {
   Zap, BarChart3, ChevronDown, ChevronRight, Sparkles,
   Play, SkipForward, AlertTriangle,
 } from "lucide-react";
-import { apiFetch } from "@/lib/api";
+import { apiFetch, HttpError } from "@/lib/api";
 import { Button } from "@/components/ui/Button";
 import { useToast } from "@/components/ui/Toast";
 import type { DashboardRoadmap, FullRoadmap, PhaseData } from "../career/types";
@@ -100,8 +100,13 @@ function RoadmapsContent() {
       } else {
         addToast("error", data.error || "Could not auto-generate. Set a target role first.");
       }
-    } catch {
-      addToast("error", "Failed to generate roadmap");
+    } catch (err) {
+      if (err instanceof HttpError && err.errorCode === "ONBOARDING_REQUIRED") {
+        addToast("error", "Complete onboarding before generating a roadmap.");
+        setTimeout(() => router.push("/onboarding"), 1500);
+      } else {
+        addToast("error", "Failed to generate roadmap");
+      }
     } finally {
       setGenerating(false);
     }

@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback, startTransition } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { BookOpen, Target, Clock, Zap, ArrowRight, CheckCircle2, BarChart3 } from "lucide-react";
-import { apiFetch } from "@/lib/api";
+import { apiFetch, HttpError } from "@/lib/api";
 import type { DashboardRoadmap } from "@/app/career/types";
 
 interface RoadmapWidgetProps {
@@ -24,16 +24,17 @@ export function RoadmapWidget({ dreamRole }: RoadmapWidgetProps) {
       } else if (dreamRole) {
         const gen = await apiFetch("/api/career/roadmaps/auto-generate", {
           method: "POST",
-          body: JSON.stringify({ target_role: dreamRole }),
         });
         if (gen.roadmap) startTransition(() => setRoadmap(gen.roadmap));
       }
-    } catch {
-      // silent
+    } catch (err) {
+      if (err instanceof HttpError && err.errorCode === "ONBOARDING_REQUIRED") {
+        router.push("/onboarding");
+      }
     } finally {
       startTransition(() => setLoading(false));
     }
-  }, [dreamRole]);
+  }, [dreamRole, router]);
 
   useEffect(() => {
     loadRoadmap();
@@ -65,13 +66,15 @@ export function RoadmapWidget({ dreamRole }: RoadmapWidgetProps) {
           <p className="mt-2 text-xs text-fg-muted">Set a target role to get a personalized roadmap</p>
           {dreamRole && (
             <button
-              onClick={() => {
-                apiFetch("/api/career/roadmaps/auto-generate", {
-                  method: "POST",
-                  body: JSON.stringify({ target_role: dreamRole }),
-                }).then((res) => {
+              onClick={async () => {
+                try {
+                  const res = await apiFetch("/api/career/roadmaps/auto-generate", { method: "POST" });
                   if (res.roadmap) setRoadmap(res.roadmap as DashboardRoadmap);
-                });
+                } catch (err) {
+                  if (err instanceof HttpError && err.errorCode === "ONBOARDING_REQUIRED") {
+                    router.push("/onboarding");
+                  }
+                }
               }}
               className="mt-3 min-h-[44px] inline-flex items-center gap-1.5 rounded-lg bg-accent px-4 py-2 text-xs font-medium text-white"
             >
