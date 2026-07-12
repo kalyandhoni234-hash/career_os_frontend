@@ -149,11 +149,12 @@ export async function apiFetch<T = any>(path: string, options: RequestInit = {})
 
   let response: Response;
   try {
+    const hasBody = options.body !== undefined && options.body !== null;
     response = await fetch(path, {
       ...options,
       credentials: "include",
       headers: {
-        "Content-Type": "application/json",
+        ...(hasBody ? { "Content-Type": "application/json" } : {}),
         ...options.headers,
       },
     });

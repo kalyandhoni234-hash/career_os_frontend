@@ -28,7 +28,7 @@ export function RoadmapWidget({ dreamRole }: RoadmapWidgetProps) {
         if (gen.roadmap) startTransition(() => setRoadmap(gen.roadmap));
       }
     } catch (err) {
-      if (err instanceof HttpError && err.errorCode === "ONBOARDING_REQUIRED") {
+      if (err instanceof HttpError && (err.errorCode === "ONBOARDING_REQUIRED" || err.errorCode === "PROFILE_NOT_FOUND")) {
         router.push("/onboarding");
       }
     } finally {
@@ -71,7 +71,7 @@ export function RoadmapWidget({ dreamRole }: RoadmapWidgetProps) {
                   const res = await apiFetch("/api/career/roadmaps/auto-generate", { method: "POST" });
                   if (res.roadmap) setRoadmap(res.roadmap as DashboardRoadmap);
                 } catch (err) {
-                  if (err instanceof HttpError && err.errorCode === "ONBOARDING_REQUIRED") {
+                  if (err instanceof HttpError && (err.errorCode === "ONBOARDING_REQUIRED" || err.errorCode === "PROFILE_NOT_FOUND")) {
                     router.push("/onboarding");
                   }
                 }

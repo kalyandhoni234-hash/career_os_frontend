@@ -101,9 +101,15 @@ function RoadmapsContent() {
         addToast("error", data.error || "Could not auto-generate. Set a target role first.");
       }
     } catch (err) {
-      if (err instanceof HttpError && err.errorCode === "ONBOARDING_REQUIRED") {
-        addToast("error", "Complete onboarding before generating a roadmap.");
-        setTimeout(() => router.push("/onboarding"), 1500);
+      if (err instanceof HttpError) {
+        if (err.errorCode === "ONBOARDING_REQUIRED" || err.errorCode === "PROFILE_NOT_FOUND") {
+          addToast("error", err.message || "Complete onboarding first.");
+          setTimeout(() => router.push("/onboarding"), 1500);
+        } else if (err.errorCode?.startsWith("MISSING_")) {
+          addToast("error", err.message || "Update your profile and try again.");
+        } else {
+          addToast("error", err.message || "Failed to generate roadmap");
+        }
       } else {
         addToast("error", "Failed to generate roadmap");
       }

@@ -186,6 +186,7 @@ export default function OnboardingPage() {
       if (advance) {
         if (step >= TOTAL_STEPS) {
           await apiFetch("/api/onboarding/complete", { method: "POST" });
+          apiFetch("/api/career/roadmaps/auto-generate", { method: "POST" }).catch(() => {});
           setCompleted(true);
           setStep(TOTAL_STEPS + 1);
         } else {
