@@ -2,13 +2,20 @@ export class HttpError extends Error {
   status: number;
   body: unknown;
   url: string;
+  method: string;
+  errorCode: string;
 
-  constructor(message: string, status: number, url: string, body: unknown) {
+  constructor(message: string, status: number, url: string, body: unknown, method: string = "GET") {
     super(message);
     this.name = "HttpError";
     this.status = status;
     this.body = body;
     this.url = url;
+    this.method = method;
+    this.errorCode =
+      body && typeof body === "object" && !Array.isArray(body)
+        ? ((body as Record<string, unknown>).code as string) || ""
+        : "";
   }
 }
 
@@ -16,18 +23,27 @@ interface NormalizedError {
   message: string;
   status: number;
   url: string;
+  method: string;
   body: unknown;
+  code: string;
   raw: unknown;
   stack: string | undefined;
 }
 
-function normalizeError(err: unknown, url: string): NormalizedError {
+function normalizeError(err: unknown, url: string, method: string = "GET"): NormalizedError {
+  const extractCode = (b: unknown): string =>
+    b && typeof b === "object" && !Array.isArray(b)
+      ? ((b as Record<string, unknown>).code as string) || ""
+      : "";
+
   if (err instanceof HttpError) {
     return {
       message: err.message,
       status: err.status,
       url: err.url,
+      method: err.method,
       body: err.body,
+      code: err.errorCode,
       raw: err,
       stack: err.stack,
     };
@@ -38,7 +54,9 @@ function normalizeError(err: unknown, url: string): NormalizedError {
       message: err.message || String(err),
       status: 0,
       url,
+      method,
       body: null,
+      code: "",
       raw: err,
       stack: err.stack,
     };
@@ -49,7 +67,9 @@ function normalizeError(err: unknown, url: string): NormalizedError {
       message: `HTTP ${err.status} ${err.statusText}`,
       status: err.status,
       url: err.url || url,
+      method,
       body: null,
+      code: "",
       raw: err,
       stack: undefined,
     };
@@ -60,7 +80,9 @@ function normalizeError(err: unknown, url: string): NormalizedError {
       message: err,
       status: 0,
       url,
+      method,
       body: null,
+      code: "",
       raw: err,
       stack: undefined,
     };
@@ -72,7 +94,9 @@ function normalizeError(err: unknown, url: string): NormalizedError {
       message: typeof obj.message === "string" ? obj.message : String(err),
       status: typeof obj.status === "number" ? obj.status : 0,
       url: typeof obj.url === "string" ? obj.url : url,
+      method,
       body: obj,
+      code: extractCode(obj),
       raw: err,
       stack: typeof obj.stack === "string" ? obj.stack : undefined,
     };
@@ -82,7 +106,9 @@ function normalizeError(err: unknown, url: string): NormalizedError {
     message: String(err),
     status: 0,
     url,
+    method,
     body: null,
+    code: "",
     raw: err,
     stack: undefined,
   };
@@ -90,12 +116,12 @@ function normalizeError(err: unknown, url: string): NormalizedError {
 
 function logError(norm: NormalizedError, isDev: boolean): void {
   if (!isDev) return;
-  console.group(`[API Error] ${norm.url}`);
-  console.error("Message:", norm.message);
+  console.group(`[API Error] ${norm.method} ${norm.url}`);
   console.error("Status:", norm.status);
+  console.error("Message:", norm.message);
+  console.error("Error Code:", norm.code || "(none)");
   console.error("Body:", norm.body);
   if (norm.stack) console.error("Stack:", norm.stack);
-  console.error("Raw:", norm.raw);
   console.groupEnd();
 }
 
@@ -117,6 +143,7 @@ async function parseResponseBody(response: Response): Promise<unknown> {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function apiFetch<T = any>(path: string, options: RequestInit = {}): Promise<T> {
+  const method = (options.method || "GET").toUpperCase();
   const url = path.startsWith("http") ? path : `${window.location.origin}${path}`;
   const isDev = process.env.NODE_ENV === "development";
 
@@ -131,13 +158,14 @@ export async function apiFetch<T = any>(path: string, options: RequestInit = {})
       },
     });
   } catch (err) {
-    const norm = normalizeError(err, url);
+    const norm = normalizeError(err, url, method);
     logError(norm, isDev);
     throw new HttpError(
       norm.message || "Network error. Check your internet connection.",
       norm.status,
       url,
       norm.body,
+      method,
     );
   }
 
@@ -150,17 +178,27 @@ export async function apiFetch<T = any>(path: string, options: RequestInit = {})
           ? body
           : `HTTP ${response.status} ${response.statusText}`;
 
+    const code =
+      body && typeof body === "object" && !Array.isArray(body)
+        ? ((body as Record<string, unknown>).code as string) || ""
+        : "";
+
     if (isDev) {
-      console.group(`[API Error] ${response.status} ${url}`);
+      console.group(`[API Error] ${method} ${url}`);
+      console.error("Status:", response.status);
       console.error("Message:", message);
+      console.error("Error Code:", code || "(none)");
       console.error("Body:", body);
       console.groupEnd();
     }
 
-    throw new HttpError(String(message), response.status, url, body);
+    throw new HttpError(String(message), response.status, url, body, method);
   }
 
   const body = await parseResponseBody(response);
+  if (isDev) {
+    console.log(`[API] ${method} ${url} → ${response.status}`, body);
+  }
   return body as T;
 }
 
