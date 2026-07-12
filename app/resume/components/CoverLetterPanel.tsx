@@ -3,9 +3,9 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FileText, Copy, ChevronDown, ChevronUp } from "lucide-react";
-import { apiFetch } from "@/lib/api";
 import { Button } from "@/components/ui/Button";
 import { useToast } from "@/components/ui/Toast";
+import { generateCoverLetter, AiError } from "../api";
 
 export function CoverLetterPanel() {
   const [expanded, setExpanded] = useState(false);
@@ -24,14 +24,12 @@ export function CoverLetterPanel() {
     }
     setLoading(true);
     try {
-      const data = await apiFetch("/api/resume/cover-letter", {
-        method: "POST",
-        body: JSON.stringify({ company, role, job_description: jobDescription, tone }),
-      });
+      const data = await generateCoverLetter(company, role, jobDescription, tone);
       setCoverLetter(data.cover_letter);
       addToast("success", "Cover letter generated");
-    } catch {
-      addToast("error", "Failed to generate cover letter");
+    } catch (err) {
+      const message = err instanceof AiError ? err.message : "Failed to generate cover letter";
+      addToast("error", message);
     } finally {
       setLoading(false);
     }

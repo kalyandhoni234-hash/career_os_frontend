@@ -488,22 +488,22 @@ export default function OnboardingPage() {
                   updateStepData(4, { goals: updated });
                 }} className="absolute right-2 top-2 text-fg-subtle hover:text-danger"><X size={14} /></button>
                 <div className="grid grid-cols-2 gap-3">
-                  <input type="text" placeholder="Goal title" value={g.title} onChange={(e) => {
+                  <input type="text" placeholder="Goal title" value={g.title ?? ""} onChange={(e) => {
                     const updated = [...goals];
                     updated[i] = { ...updated[i], title: e.target.value };
                     updateStepData(4, { goals: updated });
                   }} className="rounded-lg border border-border bg-bg-default px-3 py-2 text-sm text-fg-default focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent-ring/50" />
-                  <input type="text" placeholder="Target role" value={g.target_role} onChange={(e) => {
+                  <input type="text" placeholder="Target role" value={g.target_role ?? ""} onChange={(e) => {
                     const updated = [...goals];
                     updated[i] = { ...updated[i], target_role: e.target.value };
                     updateStepData(4, { goals: updated });
                   }} className="rounded-lg border border-border bg-bg-default px-3 py-2 text-sm text-fg-default focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent-ring/50" />
-                  <input type="text" placeholder="Target company" value={g.target_company} onChange={(e) => {
+                  <input type="text" placeholder="Target company" value={g.target_company ?? ""} onChange={(e) => {
                     const updated = [...goals];
                     updated[i] = { ...updated[i], target_company: e.target.value };
                     updateStepData(4, { goals: updated });
                   }} className="rounded-lg border border-border bg-bg-default px-3 py-2 text-sm text-fg-default focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent-ring/50" />
-                  <select value={g.category} onChange={(e) => {
+                  <select value={g.category ?? "career"} onChange={(e) => {
                     const updated = [...goals];
                     updated[i] = { ...updated[i], category: e.target.value };
                     updateStepData(4, { goals: updated });

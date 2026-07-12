@@ -150,7 +150,10 @@ export default function DashboardPage() {
   const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
-    if (lastMutationTime) setRefreshKey((k) => k + 1);
+    if (lastMutationTime) {
+      const timer = setTimeout(() => setRefreshKey((k) => k + 1), 0);
+      return () => clearTimeout(timer);
+    }
   }, [lastMutationTime]);
 
   useEffect(() => {

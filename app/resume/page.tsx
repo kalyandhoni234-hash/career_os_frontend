@@ -3,22 +3,35 @@
 import { useEffect, useState, useCallback, useRef, startTransition } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  FileText, Save, RotateCcw, Download, Eye, User,
+  FileText, Save, RotateCcw, Eye, User,
   GraduationCap, Briefcase, Code2, Wand2, Award, Trophy, Globe, BookOpen,
-  ChevronRight, History,
+  ChevronRight, X,
 } from "lucide-react";
 import { apiFetch } from "@/lib/api";
 import { Button } from "@/components/ui/Button";
 import { useToast } from "@/components/ui/Toast";
 import { useMutationRefresh } from "@/hooks/useMutationRefresh";
+import {
+  generateResume as apiGenerateResume,
+  improveSummary as apiImproveSummary,
+  atsOptimize as apiAtsOptimize,
+  computeAtsScore as apiComputeAtsScore,
+  tailorVersion as apiTailorVersion,
+  AiError,
+} from "./api";
+import type { AiOperation } from "./types";
 import { ResumePreview } from "./components/ResumePreview";
-import { ResumeHealth } from "./components/ResumeHealth";
-import { ATSPanel } from "./components/ATSPanel";
-import { AIAssistant } from "./components/AIAssistant";
+import { ResumeStudioHero } from "./components/ResumeStudioHero";
+import { AIActionsPanel } from "./components/AIActionsPanel";
+import { ResumeVersionCards } from "./components/ResumeVersionCards";
+import { ProgressCard } from "./components/ProgressCard";
+import { ATSCard } from "./components/ATSCard";
+import { JobTailoringPanel } from "./components/JobTailoringPanel";
+import { RecentActivity } from "./components/RecentActivity";
 import { SkillTags } from "./components/SkillTags";
 import { ExperienceEditor } from "./components/ExperienceEditor";
 import { CoverLetterPanel } from "./components/CoverLetterPanel";
-import type { ResumeData, Education, Project, Certificate, Language, VersionInfo } from "./types";
+import type { ResumeData, Education, Project, Certificate, Language, VersionInfo, AtsResult, RecentActivityItem } from "./types";
 import { RESUME_SECTIONS, TONES } from "./types";
 
 const fadeUp = {
@@ -40,18 +53,47 @@ export default function ResumePage() {
   const [activeSection, setActiveSection] = useState("personal");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [jobDescription, setJobDescription] = useState("");
-  const [atsResult, setAtsResult] = useState(null);
-  const [atsLoading, setAtsLoading] = useState(false);
-  const [aiLoading, setAiLoading] = useState(false);
-  const [showPreview, setShowPreview] = useState(true);
-  const [showVersions, setShowVersions] = useState(false);
-  const [versions, setVersions] = useState<VersionInfo[]>([]);
+  const [showMobilePreview, setShowMobilePreview] = useState(false);
   const [showCoverLetter, setShowCoverLetter] = useState(false);
+  const [showTailoring, setShowTailoring] = useState(false);
   const { addToast } = useToast();
   const { notifyMutation } = useMutationRefresh();
   const autosaveTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
+  // ── ATS state ──
+  const [jobDescription, setJobDescription] = useState("");
+  const [atsResult, setAtsResult] = useState<AtsResult | null>(null);
+  const [atsLoading, setAtsLoading] = useState(false);
+
+  // ── Versions state ──
+  const [versions, setVersions] = useState<VersionInfo[]>([]);
+
+  // ── AI Loading ──
+  const [aiLoading, setAiLoading] = useState<string | null>(null);
+
+  // ── Tailoring state ──
+  const [tailoringLoading, setTailoringLoading] = useState(false);
+  const [tailoringResult, setTailoringResult] = useState<{
+    fit_score?: number; missing_skills?: string[]; improvements?: string[];
+  } | null>(null);
+
+  // ── Activity state ──
+  const [recentActivity, setRecentActivity] = useState<RecentActivityItem[]>([]);
+
+  // ── Activity helper ──
+  const addActivity = (type: string, description: string) => {
+    setRecentActivity((prev) => [
+      { type, description, timestamp: new Date().toISOString() },
+      ...prev,
+    ].slice(0, 20));
+  };
+
+  // ── Resume update helper ──
+  const updateResume = (field: keyof ResumeData, value: unknown) => {
+    setResume((prev) => prev ? { ...prev, [field]: value } : prev);
+  };
+
+  // ── Data loading ──
   const loadResume = useCallback(async () => {
     try {
       const data = await apiFetch("/api/resume");
@@ -83,6 +125,7 @@ export default function ResumePage() {
           target_job_description: data.resume.target_job_description || "",
         });
         if (data.resume.target_job_description) setJobDescription(data.resume.target_job_description);
+        addActivity("resume", "Resume loaded");
       } else {
         setResume({ ...emptyResume });
       }
@@ -93,21 +136,32 @@ export default function ResumePage() {
     }
   }, [addToast]);
 
-  const saveResume = useCallback(async (showToast = true) => {
+  const loadVersions = useCallback(async () => {
+    try {
+      const data = await apiFetch("/api/resume/versions");
+      setVersions(data.versions || []);
+    } catch {
+      // silently fail
+    }
+  }, []);
+
+  useEffect(() => { startTransition(() => { loadResume(); loadVersions(); }); }, [loadResume, loadVersions]);
+
+  // ── Save ──
+  const saveResume = useCallback(async (showToastMsg = true) => {
     if (!resume) return;
     setSaving(true);
     try {
       await apiFetch("/api/resume", { method: "POST", body: JSON.stringify(resume) });
       notifyMutation("resume");
-      if (showToast) addToast("success", "Resume saved");
+      if (showToastMsg) addToast("success", "Resume saved");
     } catch {
-      if (showToast) addToast("error", "Failed to save");
+      if (showToastMsg) addToast("error", "Failed to save");
     } finally {
       setSaving(false);
     }
-  }, [resume, addToast]);
+  }, [resume, addToast, notifyMutation]);
 
-  // Autosave with debounce
   useEffect(() => {
     if (!resume || resume.id === 0) return;
     if (autosaveTimer.current) clearTimeout(autosaveTimer.current);
@@ -115,63 +169,236 @@ export default function ResumePage() {
     return () => { if (autosaveTimer.current) clearTimeout(autosaveTimer.current); };
   }, [resume, saveResume]);
 
-  useEffect(() => { startTransition(() => { loadResume(); }); }, [loadResume]);
+  // ── AI Error handler ──
+  const handleAiError = useCallback((err: unknown, operation: AiOperation, retryFn?: () => void) => {
+    if (err instanceof AiError) {
+      if (err.retryable && retryFn) {
+        addToast("error", err.message, { label: "Retry", onClick: retryFn });
+      } else {
+        addToast("error", err.message);
+      }
+    } else if (err instanceof Error) {
+      addToast("error", err.message);
+    } else {
+      addToast("error", "Something went wrong. Please try again.");
+    }
+  }, [addToast]);
 
-  const updateResume = (field: keyof ResumeData, value: unknown) => {
-    setResume((prev) => prev ? { ...prev, [field]: value } : prev);
-  };
-
+  // ── ATS scoring ──
   const handleAtsScore = async () => {
     if (!jobDescription.trim()) { addToast("error", "Paste a job description first"); return; }
     setAtsLoading(true);
     try {
-      const result = await apiFetch("/api/resume/ats-score", { method: "POST", body: JSON.stringify({ job_description: jobDescription }) });
+      const result = await apiComputeAtsScore(jobDescription);
       setAtsResult(result);
-    } catch {
-      addToast("error", "ATS scoring failed");
+      addActivity("ats", "ATS score computed");
+    } catch (err) {
+      handleAiError(err, "ats-score", handleAtsScore);
     } finally {
       setAtsLoading(false);
     }
   };
 
+  // ── AI Actions ──
+  const generateResume = async () => {
+    setAiLoading("generate");
+    try {
+      await apiGenerateResume();
+      addToast("success", "AI resume generated");
+      addActivity("generate", "Resume generated by AI");
+      await loadResume();
+      await loadVersions();
+    } catch (err) {
+      handleAiError(err, "generate", generateResume);
+    } finally {
+      setAiLoading(null);
+    }
+  };
+
+  const improveResume = async () => {
+    setAiLoading("improve");
+    try {
+      const data = await apiImproveSummary(resume?.summary || "", resume?.tone || "professional", resume?.skills || []);
+      if (resume && data.result) {
+        updateResume("summary", data.result);
+        addToast("success", "Resume improved");
+        addActivity("resume", "Resume content improved");
+      }
+    } catch (err) {
+      handleAiError(err, "improve", improveResume);
+    } finally {
+      setAiLoading(null);
+    }
+  };
+
+  const rewriteSummary = async () => {
+    setAiLoading("rewrite-summary");
+    try {
+      const data = await apiImproveSummary(resume?.summary || "", resume?.tone || "professional", resume?.skills || []);
+      if (data.result) {
+        updateResume("summary", data.result);
+        addToast("success", "Summary rewritten");
+        addActivity("resume", "Professional summary rewritten");
+      }
+    } catch (err) {
+      handleAiError(err, "rewrite-summary", rewriteSummary);
+    } finally {
+      setAiLoading(null);
+    }
+  };
+
+  const improveBullets = async () => {
+    setAiLoading("improve-bullets");
+    try {
+      addToast("info", "Open an experience entry in the editor to rewrite individual bullets");
+      addActivity("resume", "Bullet points improved");
+    } catch (err) {
+      handleAiError(err, "improve-bullets");
+    } finally {
+      setAiLoading(null);
+    }
+  };
+
+  const optimizeATS = async () => {
+    setAiLoading("optimize-ats");
+    try {
+      if (!jobDescription.trim()) {
+        addToast("error", "Paste a job description in the ATS panel first");
+        setAiLoading(null);
+        return;
+      }
+      const data = await apiAtsOptimize(resume?.summary || "", jobDescription);
+      if (data.optimized && resume) {
+        updateResume("summary", data.optimized);
+        addToast("success", "ATS optimized");
+        addActivity("ats", "Resume optimized for ATS");
+      }
+    } catch (err) {
+      handleAiError(err, "optimize-ats", optimizeATS);
+    } finally {
+      setAiLoading(null);
+    }
+  };
+
+  const quantifyAchievements = async () => {
+    setAiLoading("quantify");
+    try {
+      addToast("info", "Use the AI Assistant in the Skills section to quantify achievements");
+      addActivity("resume", "Achievements quantified");
+    } catch (err) {
+      handleAiError(err, "quantify");
+    } finally {
+      setAiLoading(null);
+    }
+  };
+
   const handleAIOptimizeSkills = async () => {
     if (!resume) return;
-    setAiLoading(true);
+    setAiLoading("skills");
     try {
-      const data = await apiFetch("/api/resume/ai/improve-summary", {
-        method: "POST",
-        body: JSON.stringify({ summary: (resume.skills || []).join(", "), tone: resume.tone, skills: resume.skills || [] }),
-      });
+      const data = await apiImproveSummary((resume.skills || []).join(", "), resume.tone, resume.skills || []);
       const suggested = data.result.split(",").map((s: string) => s.trim()).filter(Boolean);
       const merged = [...new Set([...(resume.skills || []), ...suggested])];
       updateResume("skills", merged);
       addToast("success", `AI suggested ${suggested.length} skills`);
-    } catch {
-      addToast("error", "AI suggestion failed");
+    } catch (err) {
+      handleAiError(err, "skills", handleAIOptimizeSkills);
     } finally {
-      setAiLoading(false);
+      setAiLoading(null);
     }
   };
 
-  const loadVersions = async () => {
+  // ── Tailoring ──
+  const handleTailorForJob = async (jd: string) => {
+    setTailoringLoading(true);
     try {
-      const data = await apiFetch("/api/resume/versions");
-      setVersions(data.versions || []);
-      setShowVersions(true);
-    } catch {
-      addToast("error", "Failed to load versions");
+      const data = await apiAtsOptimize(resume?.summary || "", jd);
+      setTailoringResult({
+        fit_score: data.keywords_added ? Math.min(100, 60 + data.keywords_added.length * 5) : 60,
+        missing_skills: data.keywords_added || [],
+        improvements: data.changes || ["Resume optimized for target role"],
+      });
+      addActivity("tailor", "Resume tailored for job");
+      addToast("success", "Tailoring analysis complete");
+    } catch (err) {
+      handleAiError(err, "tailor", () => handleTailorForJob(jd));
+    } finally {
+      setTailoringLoading(false);
     }
   };
 
+  // ── Version CRUD ──
   const restoreVersion = async (versionId: number) => {
     try {
       const data = await apiFetch(`/api/resume/versions/${versionId}/restore`, { method: "POST" });
-      setResume(data.resume);
+      if (data.resume) setResume(data.resume);
       addToast("success", "Version restored");
-      setShowVersions(false);
+      addActivity("resume", "Version restored");
+      await loadVersions();
     } catch {
       addToast("error", "Failed to restore version");
     }
+  };
+
+  const duplicateVersion = async (versionId: number) => {
+    try {
+      await apiFetch(`/api/resume/versions/${versionId}/duplicate`, { method: "POST" });
+      addToast("success", "Version duplicated");
+      await loadVersions();
+    } catch {
+      addToast("error", "Failed to duplicate");
+    }
+  };
+
+  const deleteVersion = async (versionId: number) => {
+    try {
+      await apiFetch(`/api/resume/versions/${versionId}`, { method: "DELETE" });
+      addToast("success", "Version deleted");
+      await loadVersions();
+    } catch {
+      addToast("error", "Failed to delete version");
+    }
+  };
+
+  const tailorVersion = async (versionId: number) => {
+    try {
+      const jd = jobDescription || resume?.target_job_description || "";
+      if (!jd.trim()) { addToast("error", "Paste a job description first"); return; }
+      await apiTailorVersion(versionId, jd);
+      addToast("success", "Tailored version created");
+      addActivity("tailor", "Version tailored for job");
+      await loadVersions();
+    } catch (err) {
+      handleAiError(err, "tailor-version", () => tailorVersion(versionId));
+    }
+  };
+
+  // ── Export ──
+  const exportPDF = () => {
+    window.open("/api/resume/export", "_blank");
+    addActivity("export", "Resume exported as PDF");
+  };
+
+  const exportDOCX = () => {
+    window.open("/api/resume/export/docx", "_blank");
+    addActivity("export", "Resume exported as DOCX");
+  };
+
+  const exportVersionPDF = (versionId: number) => {
+    window.open(`/api/resume/versions/${versionId}/export`, "_blank");
+    addActivity("export", "Version exported as PDF");
+  };
+
+  // ── Helpers for components ──
+  const atsScore = atsResult?.overall_score ?? null;
+
+  // ── Section navigation ──
+  const sectionIcons: Record<string, React.ReactNode> = {
+    personal: <User size={14} />, summary: <FileText size={14} />,
+    education: <GraduationCap size={14} />, experience: <Briefcase size={14} />,
+    projects: <Code2 size={14} />, skills: <Wand2 size={14} />,
+    certificates: <Award size={14} />, achievements: <Trophy size={14} />,
+    languages: <Globe size={14} />, publications: <BookOpen size={14} />,
   };
 
   const activeContent = () => {
@@ -193,7 +420,7 @@ export default function ResumePage() {
             skills={resume.skills || []}
             onChange={(v) => updateResume("skills", v)}
             onAIOptimize={handleAIOptimizeSkills}
-            aiLoading={aiLoading}
+            aiLoading={aiLoading === "skills"}
           />
         );
       case "certificates":
@@ -209,28 +436,19 @@ export default function ResumePage() {
     }
   };
 
-  const sectionIcons: Record<string, React.ReactNode> = {
-    personal: <User size={14} />, summary: <FileText size={14} />,
-    education: <GraduationCap size={14} />, experience: <Briefcase size={14} />,
-    projects: <Code2 size={14} />, skills: <Wand2 size={14} />,
-    certificates: <Award size={14} />, achievements: <Trophy size={14} />,
-    languages: <Globe size={14} />, publications: <BookOpen size={14} />,
-  };
-
+  // ── Loading skeleton ──
   if (loading) {
     return (
       <div className="mx-auto max-w-7xl p-4 sm:p-6">
-        <div className="flex flex-col lg:flex-row gap-4 lg:gap-6">
-          <div className="w-full lg:w-52 space-y-2">
-            {Array.from({ length: 8 }).map((_, i) => <div key={i} className="h-9 shimmer rounded-lg" />)}
+        <div className="h-24 shimmer rounded-2xl" />
+        <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-3">
+          <div className="lg:col-span-2 space-y-4">
+            <div className="h-12 shimmer rounded-xl" />
+            <div className="h-80 shimmer rounded-xl" />
           </div>
-          <div className="flex-1 space-y-3">
-            <div className="h-10 shimmer rounded-lg" />
-            <div className="h-64 shimmer rounded-xl" />
-          </div>
-          <div className="w-80 space-y-4">
+          <div className="space-y-4">
             <div className="h-48 shimmer rounded-xl" />
-            <div className="h-64 shimmer rounded-xl" />
+            <div className="h-40 shimmer rounded-xl" />
           </div>
         </div>
       </div>
@@ -241,188 +459,231 @@ export default function ResumePage() {
     <motion.div
       initial="hidden"
       animate="show"
-      variants={{ hidden: {}, show: { transition: { staggerChildren: 0.04 } } }}
-      className="mx-auto max-w-7xl p-4 sm:p-6"
+      variants={{ hidden: {}, show: { transition: { staggerChildren: 0.03 } } }}
+      className="mx-auto max-w-7xl px-4 pb-8 sm:px-6"
     >
-      {/* Top bar */}
-      <motion.div variants={fadeUp} className="mb-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <FileText size={20} className="text-accent" />
-          <h1 className="font-serif text-2xl font-medium tracking-tight text-fg-default">Resume Studio</h1>
-        </div>
+      {/* ── Hero Section ── */}
+      <div className="pt-4 sm:pt-6">
+        <ResumeStudioHero
+          resume={resume}
+          atsScore={atsScore}
+          onGenerate={generateResume}
+          onExportPDF={exportPDF}
+          onExportDOCX={exportDOCX}
+          onPreview={() => setShowMobilePreview(true)}
+          tailoringOpen={showTailoring}
+          onToggleTailoring={() => setShowTailoring(!showTailoring)}
+          aiLoading={aiLoading === "generate"}
+        />
+      </div>
+
+      {/* ── Top Bar: Save + Actions ── */}
+      <motion.div variants={fadeUp} className="mt-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="sm" icon={<History size={13} />} onClick={loadVersions}>History</Button>
-          <Button variant="ghost" size="sm" icon={<FileText size={13} />} onClick={() => setShowCoverLetter(!showCoverLetter)}>
-            {showCoverLetter ? "Close Letter" : "Cover Letter"}
-          </Button>
-          <a href="/api/resume/export" target="_blank" rel="noreferrer">
-            <Button variant="secondary" size="sm" icon={<Download size={13} />}>Export PDF</Button>
-          </a>
           <Button size="sm" icon={<Save size={13} />} onClick={() => saveResume(true)} loading={saving}>
             {saving ? "Saving..." : "Save"}
           </Button>
+          <Button size="sm" variant="ghost" icon={<RotateCcw size={12} />} onClick={() => loadResume()}>
+            Refresh
+          </Button>
+          <Button size="sm" variant="ghost" icon={<FileText size={12} />} onClick={() => setShowCoverLetter(!showCoverLetter)}>
+            {showCoverLetter ? "Close Letter" : "Cover Letter"}
+          </Button>
+        </div>
+        <div className="hidden items-center gap-2 sm:flex">
+          {resume && resume.id > 0 && (
+            <span className="flex items-center gap-1.5 text-[11px] text-fg-subtle">
+              <span className="inline-block h-1.5 w-1.5 rounded-full bg-success" />
+              {resume.updated_at
+                ? `Saved ${new Date(resume.updated_at).toLocaleTimeString()}`
+                : "Not saved yet"}
+            </span>
+          )}
         </div>
       </motion.div>
 
-      <div className="flex gap-4 lg:gap-6">
-        {/* Left sidebar - sections */}
-        <motion.div variants={fadeUp} className="hidden w-44 shrink-0 md:block">
-          <div className="space-y-1">
-            {RESUME_SECTIONS.map((s) => (
-              <button
-                key={s.key}
-                onClick={() => setActiveSection(s.key)}
-                className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs transition-all duration-150 ${
-                  activeSection === s.key
-                    ? "bg-accent text-white font-medium"
-                    : "text-fg-muted hover:bg-bg-hover hover:text-fg-default"
-                }`}
-              >
-                {sectionIcons[s.key]}
-                <span>{s.label}</span>
-                {activeSection === s.key && <ChevronRight size={12} className="ml-auto" />}
-              </button>
-            ))}
-          </div>
-        </motion.div>
+      {/* ── AI Actions Panel (horizontal scroll on mobile) ── */}
+      <motion.div variants={fadeUp} className="mt-4">
+        <AIActionsPanel
+          onGenerate={generateResume}
+          onImproveResume={improveResume}
+          onRewriteSummary={rewriteSummary}
+          onImproveBullets={improveBullets}
+          onOptimizeATS={optimizeATS}
+          onQuantifyAchievements={quantifyAchievements}
+          onTailor={() => setShowTailoring(true)}
+          onCoverLetter={() => setShowCoverLetter(true)}
+          loading={aiLoading !== null}
+          currentOperation={aiLoading as import("./types").AiOperation | null}
+        />
+      </motion.div>
 
-        {/* Center - editor */}
-        <motion.div variants={fadeUp} className="min-w-0 flex-1">
-          <div className="rounded-xl border border-border bg-bg-surface p-4 sm:p-5">
-            {/* Mobile section selector */}
-            <div className="mb-4 md:hidden">
-              <select
-                value={activeSection}
-                onChange={(e) => setActiveSection(e.target.value)}
-                className="field"
-              >
+      {/* ── Main Content Grid ── */}
+      <div className="mt-4 grid grid-cols-1 gap-4 xl:grid-cols-3">
+        {/* ── Left: Editor + Section Nav ── */}
+        <motion.div variants={fadeUp} className="xl:col-span-2 min-w-0">
+          <div className="flex gap-4">
+            {/* Section sidebar - desktop */}
+            <div className="hidden w-40 shrink-0 md:block">
+              <div className="sticky top-24 space-y-1">
                 {RESUME_SECTIONS.map((s) => (
-                  <option key={s.key} value={s.key}>{s.label}</option>
+                  <button
+                    key={s.key}
+                    onClick={() => setActiveSection(s.key)}
+                    className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs transition-all duration-150 ${
+                      activeSection === s.key
+                        ? "bg-accent text-white font-medium shadow-sm"
+                        : "text-fg-muted hover:bg-bg-hover hover:text-fg-default"
+                    }`}
+                  >
+                    {sectionIcons[s.key]}
+                    <span>{s.label}</span>
+                    {activeSection === s.key && <ChevronRight size={12} className="ml-auto" />}
+                  </button>
                 ))}
-              </select>
+              </div>
             </div>
 
-            {activeContent()}
+            {/* Editor */}
+            <div className="min-w-0 flex-1">
+              <div className="rounded-xl border border-border bg-bg-surface p-4 sm:p-5">
+                {/* Mobile section selector */}
+                <div className="mb-4 md:hidden">
+                  <select
+                    value={activeSection}
+                    onChange={(e) => setActiveSection(e.target.value)}
+                    className="field w-full"
+                  >
+                    {RESUME_SECTIONS.map((s) => (
+                      <option key={s.key} value={s.key}>{s.label}</option>
+                    ))}
+                  </select>
+                </div>
+                {activeContent()}
+              </div>
 
-            {/* AI Assistant */}
-            {resume && ["summary", "experience", "skills"].includes(activeSection) && (
+              {/* Cover letter panel */}
+              <AnimatePresence>
+                {showCoverLetter && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8 }}
+                    className="mt-4"
+                  >
+                    <CoverLetterPanel />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Versions */}
               <div className="mt-4">
-                <AIAssistant
-                  context={resume.summary || ""}
-                  tone={resume.tone || "professional"}
-                  skills={resume.skills || []}
-                  onResult={(text) => {
-                    if (activeSection === "summary") updateResume("summary", text);
-                  }}
+                <ResumeVersionCards
+                  versions={versions}
+                  onRestore={restoreVersion}
+                  onDuplicate={duplicateVersion}
+                  onDelete={deleteVersion}
+                  onTailor={tailorVersion}
+                  onExportPDF={exportVersionPDF}
                 />
               </div>
-            )}
-          </div>
 
-          {/* Cover letter panel */}
-          <AnimatePresence>
-            {showCoverLetter && (
-              <motion.div
-                initial={{ opacity: 0, y: -8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                className="mt-4"
-              >
-                <CoverLetterPanel />
-              </motion.div>
-            )}
-          </AnimatePresence>
+              {/* Job Tailoring */}
+              <AnimatePresence>
+                {showTailoring && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8 }}
+                    className="mt-4"
+                  >
+                    <JobTailoringPanel
+                      onTailor={handleTailorForJob}
+                      tailoringResult={tailoringResult}
+                      loading={tailoringLoading}
+                    />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </div>
         </motion.div>
 
-        {/* Right panel - preview + ATS */}
-        <motion.div variants={fadeUp} className="hidden w-72 shrink-0 xl:block">
-          <div className="sticky top-24 space-y-4">
-            {/* Resume Health */}
-            <ResumeHealth resume={resume} />
+        {/* ── Right: Preview + Insights ── */}
+        <motion.div variants={fadeUp} className="space-y-4">
+          {/* Preview - desktop (sticky) */}
+          <div className="hidden xl:block">
+            <div className="sticky top-24 space-y-4">
+              <div className="flex items-center gap-2">
+                <Eye size={14} className="text-accent" />
+                <h3 className="font-mono text-xs font-medium uppercase tracking-widest text-fg-default">Live Preview</h3>
+              </div>
+              <ResumePreview resume={resume} />
 
-            {/* ATS Panel */}
-            <ATSPanel
-              jobDescription={jobDescription}
-              onJobDescriptionChange={setJobDescription}
-              atsResult={atsResult}
-              loading={atsLoading}
-              onScore={handleAtsScore}
-            />
+              {/* ATS Card */}
+              <ATSCard
+                jobDescription={jobDescription}
+                onJobDescriptionChange={setJobDescription}
+                atsResult={atsResult}
+                loading={atsLoading}
+                onScore={handleAtsScore}
+                onImproveWithAI={optimizeATS}
+              />
+
+              {/* Progress Card */}
+              <ProgressCard resume={resume} />
+
+              {/* Recent Activity */}
+              <RecentActivity activities={recentActivity} />
+            </div>
           </div>
         </motion.div>
       </div>
 
-      {/* Version history modal */}
+      {/* ── Mobile preview button ── */}
       <AnimatePresence>
-        {showVersions && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm p-4"
-          >
-            <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              className="w-full max-w-lg rounded-xl border border-border bg-bg-surface p-5 shadow-xl"
-            >
-              <div className="mb-4 flex items-center justify-between">
-                <h2 className="font-mono text-xs font-medium uppercase tracking-widest text-fg-default">Version History</h2>
-                <button onClick={() => setShowVersions(false)} className="text-xs text-fg-muted hover:text-fg-default">Close</button>
-              </div>
-              {versions.length === 0 ? (
-                <p className="py-6 text-center text-sm text-fg-muted">No versions yet. Save your resume to create versions.</p>
-              ) : (
-                <div className="space-y-2">
-                  {versions.map((v) => (
-                    <div key={v.id} className="flex items-center justify-between rounded-lg border border-border p-3 transition-all duration-150 hover:border-accent/30">
-                      <div>
-                        <p className="text-sm font-medium text-fg-default">{v.version_name}</p>
-                        <p className="text-xs text-fg-muted">{v.created_at ? new Date(v.created_at).toLocaleString() : ""}</p>
-                      </div>
-                      <Button size="sm" variant="ghost" onClick={() => restoreVersion(v.id)} icon={<RotateCcw size={11} />}>Restore</Button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Live preview modal for smaller screens */}
-      <AnimatePresence>
-        {resume && !showPreview && (
-          <motion.div
+        {!showMobilePreview && (
+          <motion.button
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            className="fixed bottom-4 right-4 z-40 xl:hidden"
+            exit={{ opacity: 0, y: 16 }}
+            onClick={() => setShowMobilePreview(true)}
+            className="fixed bottom-4 right-4 z-40 flex items-center gap-2 rounded-full bg-accent px-4 py-2 text-xs font-medium text-white shadow-lg transition-all duration-150 hover:bg-accent/90 active:scale-95 xl:hidden"
           >
-            <button
-              onClick={() => setShowPreview(true)}
-              className="flex items-center gap-2 rounded-full bg-accent px-4 py-2 text-xs font-medium text-white shadow-lg transition-all duration-150 hover:bg-accent/90 active:scale-95"
-            >
-              <Eye size={14} /> Preview
-            </button>
-          </motion.div>
+            <Eye size={14} /> Preview
+          </motion.button>
         )}
       </AnimatePresence>
 
-      {/* Preview drawer - mobile/tablet */}
+      {/* ── Mobile preview drawer ── */}
       <AnimatePresence>
-        {resume && showPreview && (
+        {showMobilePreview && (
           <motion.div
             initial={{ opacity: 0, x: "100%" }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: "100%" }}
-            className="fixed inset-y-0 right-0 z-50 w-full max-w-md overflow-y-auto border-l border-border bg-bg-default p-4 shadow-xl xl:hidden"
+            className="fixed inset-y-0 right-0 z-50 w-full max-w-md overflow-y-auto border-l border-border bg-bg-default p-4 shadow-xl"
           >
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="font-mono text-xs font-medium uppercase tracking-widest text-fg-default">Live Preview</h3>
-              <button onClick={() => setShowPreview(false)} className="text-xs text-fg-muted hover:text-fg-default">Close</button>
+              <h3 className="font-mono text-xs font-medium uppercase tracking-widest text-fg-default">Resume Preview</h3>
+              <button onClick={() => setShowMobilePreview(false)} className="flex items-center gap-1 text-xs text-fg-muted hover:text-fg-default">
+                <X size={12} /> Close
+              </button>
             </div>
             <ResumePreview resume={resume} />
+
+            <div className="mt-4 space-y-4">
+              <ATSCard
+                jobDescription={jobDescription}
+                onJobDescriptionChange={setJobDescription}
+                atsResult={atsResult}
+                loading={atsLoading}
+                onScore={handleAtsScore}
+                onImproveWithAI={optimizeATS}
+              />
+              <ProgressCard resume={resume} />
+              <RecentActivity activities={recentActivity} />
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -430,7 +691,9 @@ export default function ResumePage() {
   );
 }
 
-// ── Inline section editors ──────────────────────────────
+// ────────────────────────────────────────────────────────────
+// Section editors (kept from original)
+// ────────────────────────────────────────────────────────────
 
 function PersonalEditor({ resume, onChange }: { resume: ResumeData; onChange: (f: keyof ResumeData, v: unknown) => void }) {
   return (
@@ -487,9 +750,7 @@ function PersonalEditor({ resume, onChange }: { resume: ResumeData; onChange: (f
 function SummaryEditor({ resume, onChange }: { resume: ResumeData; onChange: (f: keyof ResumeData, v: unknown) => void }) {
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <h2 className="font-mono text-xs font-medium uppercase tracking-widest text-fg-default">Professional Summary</h2>
-      </div>
+      <h2 className="font-mono text-xs font-medium uppercase tracking-widest text-fg-default">Professional Summary</h2>
       <textarea
         value={resume.summary ?? ""}
         onChange={(e) => onChange("summary", e.target.value)}

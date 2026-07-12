@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles, Loader2, ChevronDown, ChevronUp } from "lucide-react";
-import { apiFetch } from "@/lib/api";
 import { useToast } from "@/components/ui/Toast";
+import { improveSummary, changeTone, atsOptimize, AiError } from "../api";
 
 interface AIAssistantProps {
   context: string;
@@ -32,42 +32,41 @@ export function AIAssistant({ context, tone, skills, onResult }: AIAssistantProp
   const handleTool = async (toolId: string) => {
     setLoading(toolId);
     try {
-      let data: Record<string, unknown> = { text: context, tone, skills };
-
       switch (toolId) {
-        case "improve-summary":
-          data = { summary: context, tone, skills };
-          const summaryRes = await apiFetch("/api/resume/ai/improve-summary", { method: "POST", body: JSON.stringify(data) });
-          onResult(summaryRes.result);
+        case "improve-summary": {
+          const res = await improveSummary(context, tone, skills);
+          onResult(res.result);
           break;
-
-        case "ats-optimize":
-          data = { text: context };
-          const optRes = await apiFetch("/api/resume/ai/ats-optimize", { method: "POST", body: JSON.stringify(data) });
-          onResult(optRes.optimized || optRes.result);
+        }
+        case "ats-optimize": {
+          const res = await atsOptimize(context);
+          if (res.optimized) onResult(res.optimized);
           break;
-
+        }
         case "grammar-fix":
-        case "shorten":
-          data = { text: context, tone };
-          const toneRes = await apiFetch("/api/resume/ai/change-tone", { method: "POST", body: JSON.stringify({ ...data, tone: toolId === "grammar-fix" ? "professional" : "concise" }) });
-          onResult(toneRes.result);
+        case "shorten": {
+          const targetTone = toolId === "grammar-fix" ? "professional" : "concise";
+          const res = await changeTone(context, targetTone);
+          onResult(res.result);
           break;
-
+        }
         case "professional":
         case "student":
         case "startup":
-        case "faang":
-          const ctRes = await apiFetch("/api/resume/ai/change-tone", { method: "POST", body: JSON.stringify({ text: context, tone: toolId }) });
-          onResult(ctRes.result);
+        case "faang": {
+          const res = await changeTone(context, toolId);
+          onResult(res.result);
           break;
-
+        }
         default:
           addToast("error", "Unknown tool");
+          setLoading(null);
+          return;
       }
       addToast("success", `${toolId.replace("-", " ")} applied`);
-    } catch {
-      addToast("error", "AI tool failed");
+    } catch (err) {
+      const message = err instanceof AiError ? err.message : "AI tool failed";
+      addToast("error", message);
     } finally {
       setLoading(null);
     }

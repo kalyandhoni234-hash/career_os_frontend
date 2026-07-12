@@ -258,27 +258,37 @@ export default function CareerProfileWizardPage() {
   useEffect(() => {
     getWizardData()
       .then((data) => {
-        setBasicInfo(data.basic_info ?? defaultBasicInfo);
+        const normalized = <T,>(obj: T, defaults: T): T => {
+          const result: Record<string, unknown> = { ...defaults as unknown as Record<string, unknown> };
+          if (obj) {
+            const src = obj as unknown as Record<string, unknown>;
+            for (const key of Object.keys(result)) {
+              if (src[key] != null) result[key] = src[key];
+            }
+          }
+          return result as unknown as T;
+        };
+        setBasicInfo(normalized(data.basic_info, defaultBasicInfo));
         setEducationList(data.education ?? []);
-        setCareerInfo(data.career_info ?? defaultCareerInfo);
-        setDreamCareer(data.dream_career ?? defaultDreamCareer);
+        setCareerInfo(normalized(data.career_info, defaultCareerInfo));
+        setDreamCareer(normalized(data.dream_career, defaultDreamCareer));
         setSkills(data.skills ?? []);
         setInterests((data.interests ?? []).map((i) => i.name));
         setLanguages(data.languages ?? []);
         setSocialLinks(data.social_links ?? []);
         setResumeFiles(data.resume_files ?? []);
-        setPreferences(data.preferences ?? defaultPreferences);
+        setPreferences(normalized(data.preferences, defaultPreferences));
         setCompletionPct(data.completion_pct ?? 0);
         lastSavedSnapshot.current = JSON.stringify({
-          basicInfo: data.basic_info ?? defaultBasicInfo,
+          basicInfo: normalized(data.basic_info, defaultBasicInfo),
           educationList: data.education ?? [],
-          careerInfo: data.career_info ?? defaultCareerInfo,
-          dreamCareer: data.dream_career ?? defaultDreamCareer,
+          careerInfo: normalized(data.career_info, defaultCareerInfo),
+          dreamCareer: normalized(data.dream_career, defaultDreamCareer),
           skills: data.skills ?? [],
           interests: (data.interests ?? []).map((i: { name: string }) => i.name),
           languages: data.languages ?? [],
           socialLinks: data.social_links ?? [],
-          preferences: data.preferences ?? defaultPreferences,
+          preferences: normalized(data.preferences, defaultPreferences),
         });
       })
       .catch(() => addToast("error", "Failed to load wizard data"))
@@ -560,7 +570,7 @@ export default function CareerProfileWizardPage() {
               <div className="space-y-1.5">
                 <label className="flex items-center gap-1.5 font-mono text-xs font-medium uppercase tracking-widest text-fg-muted">Gender</label>
                 <select
-                  value={basicInfo.gender}
+                  value={basicInfo.gender ?? ""}
                   onChange={(e) => { setBasicInfo({ ...basicInfo, gender: e.target.value }); markDirty(); }}
                   className="w-full rounded-lg border border-border bg-bg-surface px-3 py-2 text-sm text-fg-default transition-all duration-150 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent-ring/50"
                 >
@@ -697,7 +707,7 @@ export default function CareerProfileWizardPage() {
             <div className="space-y-1.5">
               <label className="font-mono text-xs font-medium uppercase tracking-widest text-fg-muted">Current Status</label>
               <select
-                value={careerInfo.current_status}
+                value={careerInfo.current_status ?? ""}
                 onChange={(e) => { setCareerInfo({ ...careerInfo, current_status: e.target.value }); markDirty(); }}
                 className="w-full rounded-lg border border-border bg-bg-surface px-3 py-2 text-sm text-fg-default transition-all duration-150 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent-ring/50"
               >
@@ -714,12 +724,12 @@ export default function CareerProfileWizardPage() {
                 onChange={(e) => { setCareerInfo({ ...careerInfo, position: e.target.value }); markDirty(); }} />
             </div>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <Input label="Years of Experience" type="number" value={careerInfo.experience_years || ""}
+              <Input label="Years of Experience" type="number" value={careerInfo.experience_years ?? ""}
                 onChange={(e) => { setCareerInfo({ ...careerInfo, experience_years: Number(e.target.value) || 0 }); markDirty(); }} />
               <div className="space-y-1.5">
                 <label className="font-mono text-xs font-medium uppercase tracking-widest text-fg-muted">Employment Type</label>
                 <select
-                  value={careerInfo.employment_type}
+                  value={careerInfo.employment_type ?? ""}
                   onChange={(e) => { setCareerInfo({ ...careerInfo, employment_type: e.target.value }); markDirty(); }}
                   className="w-full rounded-lg border border-border bg-bg-surface px-3 py-2 text-sm text-fg-default transition-all duration-150 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent-ring/50"
                 >
@@ -801,7 +811,7 @@ export default function CareerProfileWizardPage() {
                     <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
                       <div className="space-y-1.5">
                         <label className="font-mono text-[10px] font-medium uppercase tracking-widest text-fg-muted">Level</label>
-                        <select value={skill.experience_level}
+                        <select value={skill.experience_level ?? ""}
                           onChange={(e) => { const updated = { ...skill, experience_level: e.target.value }; setSkills((prev) => prev.map((s) => s.id === skill.id ? updated : s)); if (skill.id) handleUpdateSkill(updated); }}
                           className="w-full rounded-lg border border-border bg-bg-surface px-2 py-1.5 text-xs text-fg-default focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent-ring/50">
                           {SKILL_LEVELS.map((l) => <option key={l.value} value={l.value}>{l.label}</option>)}
@@ -809,13 +819,13 @@ export default function CareerProfileWizardPage() {
                       </div>
                       <div className="space-y-1.5">
                         <label className="font-mono text-[10px] font-medium uppercase tracking-widest text-fg-muted">Years</label>
-                        <input type="number" value={skill.years_of_experience}
+                        <input type="number" value={skill.years_of_experience ?? ""}
                           onChange={(e) => { const updated = { ...skill, years_of_experience: Number(e.target.value) || 0 }; setSkills((prev) => prev.map((s) => s.id === skill.id ? updated : s)); if (skill.id) handleUpdateSkill(updated); }}
                           className="w-full rounded-lg border border-border bg-bg-surface px-2 py-1.5 text-xs text-fg-default focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent-ring/50" />
                       </div>
                       <div className="space-y-1.5">
                         <label className="font-mono text-[10px] font-medium uppercase tracking-widest text-fg-muted">Confidence ({skill.confidence_rating}/10)</label>
-                        <input type="range" min={1} max={10} value={skill.confidence_rating}
+                        <input type="range" min={1} max={10} value={skill.confidence_rating ?? 5}
                           onChange={(e) => { const updated = { ...skill, confidence_rating: Number(e.target.value) }; setSkills((prev) => prev.map((s) => s.id === skill.id ? updated : s)); if (skill.id) handleUpdateSkill(updated); }}
                           className="w-full accent-accent" />
                       </div>
@@ -1067,7 +1077,7 @@ export default function CareerProfileWizardPage() {
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-1.5">
                 <label className="font-mono text-xs font-medium uppercase tracking-widest text-fg-muted">Resume Visibility</label>
-                <select value={preferences.resume_visibility}
+                <select value={preferences.resume_visibility ?? "private"}
                   onChange={(e) => { setPreferences({ ...preferences, resume_visibility: e.target.value }); markDirty(); }}
                   className="w-full rounded-lg border border-border bg-bg-surface px-3 py-2 text-sm text-fg-default focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent-ring/50">
                   <option value="private">Private</option>
@@ -1077,7 +1087,7 @@ export default function CareerProfileWizardPage() {
               </div>
               <div className="space-y-1.5">
                 <label className="font-mono text-xs font-medium uppercase tracking-widest text-fg-muted">Theme Preference</label>
-                <select value={preferences.theme_preference}
+                <select value={preferences.theme_preference ?? "system"}
                   onChange={(e) => { setPreferences({ ...preferences, theme_preference: e.target.value }); markDirty(); }}
                   className="w-full rounded-lg border border-border bg-bg-surface px-3 py-2 text-sm text-fg-default focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent-ring/50">
                   <option value="system">System</option>

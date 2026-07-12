@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo, startTransition } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import {
   BookmarkCheck, Bookmark, Archive, Trash2,
@@ -200,7 +201,7 @@ export default function SavedJobsPage() {
                         <div className="flex items-start gap-4">
                           <div className="w-10 h-10 rounded-lg bg-accent-subtle flex items-center justify-center shrink-0 overflow-hidden ring-1 ring-border group-hover:ring-accent/30 transition-all">
                             {o.company_logo ? (
-                              <img src={o.company_logo} alt={o.company_name} className="w-full h-full object-contain" />
+                              <Image src={o.company_logo} alt={o.company_name} width={48} height={48} className="w-full h-full object-contain" unoptimized />
                             ) : (
                               <Briefcase size={18} className="text-accent" />
                             )}

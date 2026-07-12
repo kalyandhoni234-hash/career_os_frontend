@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Image from "next/image";
 import {
   Building2, Globe, MapPin, Users, Calendar, Star, Trophy,
   ExternalLink,
@@ -22,7 +23,7 @@ export function CompanyInsights({ company: c }: CompanyInsightsProps) {
       <div className="flex items-center gap-4 mb-4">
         <div className="w-14 h-14 rounded-xl bg-accent-subtle flex items-center justify-center overflow-hidden">
           {c.logo_url ? (
-            <img src={c.logo_url} alt={c.name} className="w-full h-full object-contain" />
+            <Image src={c.logo_url} alt={c.name} width={48} height={48} className="w-full h-full object-contain" unoptimized />
           ) : (
             <Building2 size={24} className="text-accent" />
           )}

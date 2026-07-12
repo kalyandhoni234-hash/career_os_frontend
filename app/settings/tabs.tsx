@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, startTransition } from "react";
 import { Save, User, MapPin, Globe, Camera, Upload, Palette, Monitor, Moon, Sun, Shield, Key, Trash2, Download, GitBranch, Link, CalendarDays, Mail, Hash, Smartphone, ExternalLink, Package, FileText, HelpCircle, Check, RefreshCw, XCircle, Users, Star, Code2, Activity, AlertTriangle, Building2, GraduationCap, Award, Folder, Puzzle, type LucideIcon } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
+import Image from "next/image";
 import { apiFetch } from "@/lib/api";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -199,7 +200,7 @@ function GitHubExpandedContent({ int, onSync, onDisconnect, syncing }: { int: In
       {/* Profile header */}
       <div className="flex items-start gap-4">
         {avatarUrl ? (
-          <img src={avatarUrl} alt={username || ""} className="h-14 w-14 rounded-full border border-border object-cover shrink-0" />
+          <Image src={avatarUrl} alt={username || ""} width={56} height={56} className="h-14 w-14 rounded-full border border-border object-cover shrink-0" unoptimized />
         ) : (
           <div className="h-14 w-14 rounded-full bg-bg-hover flex items-center justify-center shrink-0">
             <User size={18} className="text-fg-muted" />
@@ -312,7 +313,7 @@ function LinkedInExpandedContent({ int, onSync, onDisconnect, syncing }: { int: 
       {/* Profile header */}
       <div className="flex items-start gap-4">
         {picture ? (
-          <img src={picture} alt={name || ""} className="h-14 w-14 rounded-full border border-border object-cover shrink-0" />
+          <Image src={picture} alt={name || ""} width={56} height={56} className="h-14 w-14 rounded-full border border-border object-cover shrink-0" unoptimized />
         ) : (
           <div className="h-14 w-14 rounded-full bg-bg-hover flex items-center justify-center shrink-0">
             <User size={18} className="text-fg-muted" />
@@ -1043,7 +1044,7 @@ export function NotificationsTab() {
   useEffect(() => {
     apiFetch("/api/users/notifications")
       .then((d) => {
-        if (d.preferences) setPrefs(d.preferences);
+        if (d.preferences) setPrefs((p) => ({ ...p, ...d.preferences }));
       })
       .catch(() => {})
       .finally(() => setLoading(false));

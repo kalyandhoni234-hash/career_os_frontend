@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo, startTransition } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Briefcase, BookmarkCheck, Sparkles, Cpu,
@@ -189,7 +190,7 @@ export default function OpportunitiesPage() {
                 <div className="flex items-start gap-3">
                   <div className="w-9 h-9 rounded-lg bg-accent-subtle flex items-center justify-center shrink-0 overflow-hidden ring-1 ring-border">
                     {rec.opp.company_logo ? (
-                      <img src={rec.opp.company_logo} alt={rec.opp.company_name} className="w-full h-full object-contain" />
+                      <Image src={rec.opp.company_logo} alt={rec.opp.company_name} width={36} height={36} className="w-full h-full object-contain" unoptimized />
                     ) : (
                       <Briefcase size={16} className="text-accent" />
                     )}

@@ -1,6 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  images: {
+    remotePatterns: [{ protocol: "https", hostname: "**" }],
+  },
   async rewrites() {
     const backend = process.env.VERCEL
       ? "https://career-os-hlxt.onrender.com"

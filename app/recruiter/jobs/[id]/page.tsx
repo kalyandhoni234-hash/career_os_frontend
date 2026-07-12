@@ -78,11 +78,11 @@ export default function JobDetailPage() {
           <div className="space-y-4">
             <div>
               <label className="mb-1 block font-mono text-[10px] font-medium uppercase tracking-wider text-fg-muted">Title</label>
-              <input value={job.title} onChange={(e) => update("title", e.target.value)} className="field" />
+              <input value={job.title ?? ""} onChange={(e) => update("title", e.target.value)} className="field" />
             </div>
             <div>
               <label className="mb-1 block font-mono text-[10px] font-medium uppercase tracking-wider text-fg-muted">Description</label>
-              <textarea value={job.description} onChange={(e) => update("description", e.target.value)} rows={6} className="field resize-none" />
+              <textarea value={job.description ?? ""} onChange={(e) => update("description", e.target.value)} rows={6} className="field resize-none" />
             </div>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
@@ -108,7 +108,7 @@ export default function JobDetailPage() {
               </div>
               <div>
                 <label className="mb-1 block font-mono text-[10px] font-medium uppercase tracking-wider text-fg-muted">Status</label>
-                <select value={job.status} onChange={(e) => update("status", e.target.value)} className="field">
+                <select value={job.status ?? "active"} onChange={(e) => update("status", e.target.value)} className="field">
                   <option value="active">Active</option>
                   <option value="draft">Draft</option>
                   <option value="closed">Closed</option>

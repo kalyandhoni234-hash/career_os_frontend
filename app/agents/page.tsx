@@ -2,6 +2,7 @@
 
 import { useState, useEffect, startTransition } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Search, Target, BarChart3, MessageSquare, Cpu, BrainCircuit,
@@ -652,7 +653,7 @@ export default function CommandCenterPage() {
                   >
                     <div className="w-8 h-8 rounded-lg bg-accent-subtle flex items-center justify-center shrink-0 overflow-hidden ring-1 ring-border">
                       {opp.logo ? (
-                        <img src={opp.logo} alt={opp.company} className="w-full h-full object-contain" />
+                        <Image src={opp.logo} alt={opp.company} width={48} height={48} className="w-full h-full object-contain" unoptimized />
                       ) : (
                         <Briefcase size={14} className="text-accent" />
                       )}

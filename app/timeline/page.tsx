@@ -911,11 +911,11 @@ function EventFormModal({
   const [form, setForm] = useState<EventFormData>(() => {
     if (event) {
       return {
-        title: event.title,
+        title: event.title ?? "",
         description: event.description ?? "",
-        event_type: event.event_type,
+        event_type: event.event_type ?? "custom",
         event_date: event.event_date ? event.event_date.slice(0, 10) : "",
-        status: event.status,
+        status: event.status ?? "planned",
         tags: (event.tags ?? []).join(", "),
         visibility: event.visibility ?? "public",
       };

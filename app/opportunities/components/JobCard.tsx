@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   MapPin, Building2, Briefcase, Clock, IndianRupee, Star,
@@ -105,7 +106,7 @@ export function JobCard({ opportunity: o, matchData, isSaved, onSave, onUnsave, 
           onClick={(e) => { e.stopPropagation(); onCompanyClick?.(o.company_name); }}
         >
           {o.company_logo ? (
-            <img src={o.company_logo} alt={o.company_name} className="w-full h-full object-contain" />
+            <Image src={o.company_logo} alt={o.company_name} width={48} height={48} className="w-full h-full object-contain" unoptimized />
           ) : (
             <Building2 size={22} className="text-accent" />
           )}

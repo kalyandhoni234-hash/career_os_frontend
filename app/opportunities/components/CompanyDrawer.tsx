@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, startTransition } from "react";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   X, Building2, Globe, MapPin, Calendar, Star,
@@ -85,7 +86,7 @@ export function CompanyDrawer({ companyName, onClose }: CompanyDrawerProps) {
                 <div className="flex items-start gap-4">
                   <div className="w-14 h-14 rounded-xl bg-accent-subtle flex items-center justify-center shrink-0 overflow-hidden ring-1 ring-border">
                     {company.logo_url ? (
-                      <img src={company.logo_url} alt={company.name} className="w-full h-full object-contain" />
+                      <Image src={company.logo_url} alt={company.name} width={48} height={48} className="w-full h-full object-contain" unoptimized />
                     ) : (
                       <Building2 size={26} className="text-accent" />
                     )}

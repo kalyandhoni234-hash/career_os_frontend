@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import {
   User, Briefcase, GraduationCap, Code, Target,
   Award, Globe, GitBranch, Link, Sparkles, Check,
@@ -227,7 +228,7 @@ export default function IntelligencePage() {
             {githubData?.connected ? (
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
-                  {githubData.avatar_url && <img src={githubData.avatar_url} alt="" className="h-10 w-10 rounded-full" />}
+                  {githubData.avatar_url && <Image src={githubData.avatar_url} alt="" width={40} height={40} className="h-10 w-10 rounded-full" unoptimized />}
                   <div>
                     <p className="text-sm font-medium text-fg-default">{githubData.username}</p>
                     <p className="text-xs text-fg-muted">{githubData.followers} followers</p>

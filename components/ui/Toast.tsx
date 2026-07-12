@@ -1,19 +1,25 @@
 "use client";
 
 import { createContext, useContext, useState, useCallback, type ReactNode } from "react";
-import { X, CheckCircle, AlertCircle, AlertTriangle, Info } from "lucide-react";
+import { X, CheckCircle, AlertCircle, AlertTriangle, Info, RotateCw } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 type ToastVariant = "success" | "error" | "warning" | "info";
+
+interface ToastAction {
+  label: string;
+  onClick: () => void;
+}
 
 interface Toast {
   id: string;
   variant: ToastVariant;
   message: string;
+  action?: ToastAction;
 }
 
 interface ToastContextValue {
-  addToast: (variant: ToastVariant, message: string) => void;
+  addToast: (variant: ToastVariant, message: string, action?: ToastAction) => void;
 }
 
 const ToastContext = createContext<ToastContextValue | null>(null);
@@ -46,10 +52,11 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const addToast = useCallback(
-    (variant: ToastVariant, message: string) => {
+    (variant: ToastVariant, message: string, action?: ToastAction) => {
       const id = crypto.randomUUID();
-      setToasts((prev) => [...prev, { id, variant, message }]);
-      setTimeout(() => removeToast(id), 4000);
+      setToasts((prev) => [...prev, { id, variant, message, action }]);
+      const timeout = action ? 8000 : 4000;
+      setTimeout(() => removeToast(id), timeout);
     },
     [removeToast]
   );
@@ -70,7 +77,18 @@ export function ToastProvider({ children }: { children: ReactNode }) {
               style={{ borderLeftWidth: "3px" }}
             >
               <span className="mt-0.5 shrink-0">{ICON_MAP[toast.variant]}</span>
-              <p className="flex-1 text-sm text-fg-default">{toast.message}</p>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm text-fg-default">{toast.message}</p>
+                {toast.action && (
+                  <button
+                    onClick={() => { toast.action!.onClick(); removeToast(toast.id); }}
+                    className="mt-1.5 flex items-center gap-1 text-xs font-medium text-accent transition-colors hover:text-accent/80"
+                  >
+                    <RotateCw size={11} />
+                    {toast.action.label}
+                  </button>
+                )}
+              </div>
               <button onClick={() => removeToast(toast.id)} className="shrink-0 text-fg-subtle transition-colors hover:text-fg-default">
                 <X size={14} />
               </button>

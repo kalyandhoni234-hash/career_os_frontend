@@ -2,6 +2,7 @@
 
 import { useState, useEffect, startTransition } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import {
   ArrowLeft, Building2, MapPin, Briefcase, Clock, IndianRupee,
@@ -136,7 +137,7 @@ export default function OpportunityDetailPage() {
         <div className="flex items-start gap-5">
           <div className="w-16 h-16 rounded-xl bg-accent-subtle flex items-center justify-center shrink-0 overflow-hidden">
             {opp.company_logo ? (
-              <img src={opp.company_logo} alt={opp.company_name} className="w-full h-full object-contain" />
+              <Image src={opp.company_logo} alt={opp.company_name} width={48} height={48} className="w-full h-full object-contain" unoptimized />
             ) : (
               <Building2 size={28} className="text-accent" />
             )}
