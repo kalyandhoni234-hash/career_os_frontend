@@ -34,6 +34,9 @@ export interface CareerInfo {
   employment_type: string;
   career_stage: string;
   stage_meta: Record<string, unknown>;
+  experience_level: string;
+  weekly_hours: number;
+  career_goal: string;
 }
 
 export interface DreamCareer {
@@ -225,6 +228,13 @@ export const LANGUAGE_PROFICIENCIES = [
   { value: "professional", label: "Professional" },
   { value: "intermediate", label: "Intermediate" },
   { value: "basic", label: "Basic" },
+];
+
+export const EXPERIENCE_LEVELS = [
+  { value: "beginner", label: "Beginner (0-2 years)" },
+  { value: "intermediate", label: "Intermediate (2-5 years)" },
+  { value: "advanced", label: "Advanced (5-8 years)" },
+  { value: "expert", label: "Expert (8+ years)" },
 ];
 
 export const SKILL_LEVELS = [

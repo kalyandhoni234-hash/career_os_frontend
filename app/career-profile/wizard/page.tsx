@@ -33,6 +33,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { useToast } from "@/components/ui/Toast";
 import { useMutationRefresh } from "@/hooks/useMutationRefresh";
+import { apiFetch } from "@/lib/api";
 import {
   getWizardData,
   saveWizardStep,
@@ -56,6 +57,7 @@ import {
 import {
   CAREER_STATUSES,
   EMPLOYMENT_TYPES,
+  EXPERIENCE_LEVELS,
   WORK_PREFERENCES,
   PRESET_INTERESTS,
   LANGUAGE_PROFICIENCIES,
@@ -104,6 +106,7 @@ const defaultBasicInfo: BasicInfo = {
 const defaultCareerInfo: CareerInfo = {
   current_status: "", company: "", position: "", experience_years: 0, employment_type: "",
   career_stage: "student", stage_meta: {},
+  experience_level: "beginner", weekly_hours: 10, career_goal: "",
 };
 
 const defaultDreamCareer: DreamCareer = {
@@ -326,6 +329,7 @@ export default function CareerProfileWizardPage() {
   const handleNext = async () => {
     if (currentStep === STEPS.length - 1) {
       addToast("success", "Profile wizard completed!");
+      apiFetch("/api/career/roadmaps/auto-generate", { method: "POST" }).catch(() => {});
       router.push("/career-profile");
       return;
     }
@@ -739,6 +743,32 @@ export default function CareerProfileWizardPage() {
                   ))}
                 </select>
               </div>
+            </div>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="space-y-1.5">
+                <label className="font-mono text-xs font-medium uppercase tracking-widest text-fg-muted">Experience Level</label>
+                <select
+                  value={careerInfo.experience_level ?? "beginner"}
+                  onChange={(e) => { setCareerInfo({ ...careerInfo, experience_level: e.target.value }); markDirty(); }}
+                  className="w-full rounded-lg border border-border bg-bg-surface px-3 py-2 text-sm text-fg-default transition-all duration-150 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent-ring/50"
+                >
+                  {EXPERIENCE_LEVELS.map((l) => (
+                    <option key={l.value} value={l.value}>{l.label}</option>
+                  ))}
+                </select>
+              </div>
+              <Input label="Weekly Learning Hours" type="number" value={careerInfo.weekly_hours ?? 10}
+                onChange={(e) => { setCareerInfo({ ...careerInfo, weekly_hours: Number(e.target.value) || 0 }); markDirty(); }} />
+            </div>
+            <div className="space-y-1.5">
+              <label className="font-mono text-xs font-medium uppercase tracking-widest text-fg-muted">Career Goal</label>
+              <textarea
+                value={careerInfo.career_goal ?? ""}
+                onChange={(e) => { setCareerInfo({ ...careerInfo, career_goal: e.target.value }); markDirty(); }}
+                placeholder="e.g. Become a Staff Engineer at a top tech company within 3 years"
+                rows={3}
+                className="w-full rounded-lg border border-border bg-bg-surface px-3 py-2 text-sm text-fg-default placeholder:text-fg-subtle transition-all duration-150 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent-ring/50 resize-none"
+              />
             </div>
           </div>
         );
