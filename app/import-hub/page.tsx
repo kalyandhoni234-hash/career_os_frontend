@@ -688,6 +688,40 @@ export default function ImportHubPage() {
               </Card>
             </motion.div>
 
+            {/* Languages (from import) */}
+            {editableData.languages && editableData.languages.length > 0 && (
+              <motion.div variants={fadeUp}>
+                <Card className="mb-4 p-5">
+                  <div className="mb-3 flex items-center justify-between">
+                    <h3 className="text-xs font-semibold text-fg-default">
+                      Languages ({editableData.languages.length})
+                    </h3>
+                  </div>
+                  <p className="mb-3 text-[10px] text-warning">
+                    Review imported languages. Technical skills classified as languages should be removed.
+                  </p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {editableData.languages.map((lang, idx) => (
+                      <Badge key={idx} tone="accent" className="gap-1 pr-1">
+                        {lang.name}{lang.level ? ` (${lang.level})` : ""}
+                        <button
+                          onClick={() => {
+                            setEditableData((prev) => prev ? {
+                              ...prev,
+                              languages: (prev.languages || []).filter((_, i) => i !== idx),
+                            } : prev);
+                          }}
+                          className="ml-0.5 text-accent/60 hover:text-danger"
+                        >
+                          <X size={10} />
+                        </button>
+                      </Badge>
+                    ))}
+                  </div>
+                </Card>
+              </motion.div>
+            )}
+
             {/* Experience */}
             <motion.div variants={fadeUp}>
               <Card className="mb-4 p-5">

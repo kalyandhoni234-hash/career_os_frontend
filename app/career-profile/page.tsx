@@ -60,6 +60,7 @@ import {
   SKILL_LEVELS,
   LANGUAGE_PROFICIENCIES,
   CAREER_STATUSES,
+  isValidSpokenLanguage,
 } from "./types";
 
 type ReadinessScore = {
@@ -425,10 +426,15 @@ export default function CareerProfilePage() {
   }, [addToast, notifyMutation]);
 
   const handleAddLanguage = useCallback(async () => {
-    if (!langForm.language.trim()) return;
+    const value = langForm.language.trim();
+    if (!value) return;
+    if (!isValidSpokenLanguage(value)) {
+      addToast("error", "This does not appear to be a spoken language. Add technical skills in the Skills section.");
+      return;
+    }
     setSavingLang(true);
     try {
-      const lang = await createLanguage({ language: langForm.language.trim(), proficiency: langForm.proficiency });
+      const lang = await createLanguage({ language: value, proficiency: langForm.proficiency });
       setDashboard((prev) => prev ? { ...prev, languages: [...prev.languages, lang] } : prev);
       setLangForm({ language: "", proficiency: "intermediate" });
       setAddLangOpen(false);

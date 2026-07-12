@@ -251,6 +251,48 @@ export const EVENT_STATUSES = [
   { value: "archived", label: "Archived" },
 ];
 
+/** Known spoken languages for validation — prevents technical skills from being saved as languages. */
+export const KNOWN_SPOKEN_LANGUAGES = new Set([
+  "english", "spanish", "french", "german", "chinese", "mandarin", "japanese",
+  "korean", "russian", "arabic", "portuguese", "italian", "dutch", "hindi",
+  "bengali", "punjabi", "tamil", "telugu", "marathi", "urdu", "gujarati",
+  "kannada", "malayalam", "odia", "nepali", "sanskrit", "persian", "farsi",
+  "turkish", "vietnamese", "thai", "indonesian", "malay", "swahili",
+  "hebrew", "greek", "polish", "romanian", "czech", "hungarian", "swedish",
+  "norwegian", "danish", "finnish", "dutch", "belgian", "swiss", "australian",
+  "broadcast", "sign language", "american sign language", "asl",
+  "cantonese", "hokkien", "armenian", "georgian", "ukrainian", "serbian",
+  "croatian", "bosnian", "bulgarian", "slovak", "slovenian", "lithuanian",
+  "latvian", "estonian", "icelandic", "maltese", "albanian", "macedonian",
+]);
+
+/** Common technical keywords that should NOT be classified as languages. */
+const TECH_KEYWORDS = [
+  "api", "sdk", "framework", "library", "pipeline", "workflow", "automation",
+  "agent", "llm", "gpt", "model", "inference", "deployment", "container",
+  "kubernetes", "docker", "microservice", "database", "query", "sql",
+  "nosql", "redis", "mongodb", "postgres", "graphql", "rest", "grpc",
+  "javascript", "typescript", "python", "java", "golang", "rust", "c++",
+  "react", "angular", "vue", "node", "express", "django", "flask",
+  "tensorflow", "pytorch", "aws", "azure", "gcp", "terraform", "ansible",
+  "jenkins", "ci/cd", "github", "gitlab", "jira", "confluence",
+];
+
+/** Returns true if the name looks like a genuine spoken language (not a technical skill). */
+export function isValidSpokenLanguage(name: string): boolean {
+  const trimmed = name.trim();
+  if (!trimmed || trimmed.length > 50) return false;
+  const lower = trimmed.toLowerCase();
+  if (KNOWN_SPOKEN_LANGUAGES.has(lower)) return true;
+  // Reject if it contains technical keywords
+  for (const kw of TECH_KEYWORDS) {
+    if (lower.includes(kw)) return false;
+  }
+  // Reject if it looks like a compound technical term (contains colons, parens, commas, etc.)
+  if (/[:;,()&+/]/.test(trimmed)) return false;
+  return true;
+}
+
 export const SOCIAL_PLATFORMS = [
   { value: "github", label: "GitHub", placeholder: "https://github.com/username" },
   { value: "linkedin", label: "LinkedIn", placeholder: "https://linkedin.com/in/username" },

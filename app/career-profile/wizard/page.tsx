@@ -63,6 +63,7 @@ import {
   LANGUAGE_PROFICIENCIES,
   SKILL_LEVELS,
   SOCIAL_PLATFORMS,
+  isValidSpokenLanguage,
 } from "@/app/career-profile/types";
 import type {
   WizardData,
@@ -460,13 +461,18 @@ export default function CareerProfileWizardPage() {
   };
 
   const addLanguage = async () => {
-    if (!editingLang.language?.trim()) return;
+    const value = editingLang.language?.trim();
+    if (!value) return;
+    if (!isValidSpokenLanguage(value)) {
+      addToast("error", "This does not appear to be a spoken language. Add technical skills in the Skills section.");
+      return;
+    }
     try {
       if (editingLang.id) {
-        await updateLanguage(editingLang.id, editingLang as Language);
-        setLanguages((prev) => prev.map((l) => (l.id === editingLang.id ? (editingLang as Language) : l)));
+        await updateLanguage(editingLang.id, { ...editingLang, language: value } as Language);
+        setLanguages((prev) => prev.map((l) => (l.id === editingLang.id ? { ...l, language: value } : l)));
       } else {
-        const created = await createLanguage(editingLang);
+        const created = await createLanguage({ language: value, proficiency: editingLang.proficiency || "basic" });
         setLanguages((prev) => [...prev, created]);
       }
       setShowLangForm(false);
