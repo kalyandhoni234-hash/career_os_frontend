@@ -3,7 +3,7 @@ import type {
   Opportunity, OpportunitySearchResult, MatchScore, SkillGap,
   SalaryEstimate, SavedOpportunity, InterviewPack, ApplicationReadiness,
   ResumeOptimization, CoverLetter, MarketTrends,
-  CompanySearchResult, CompanyProfile,
+  CompanySearchResult, CompanyProfile, ApplicationHealth, AgentAction,
 } from "./types";
 
 export async function searchOpportunities(params: Record<string, string>): Promise<OpportunitySearchResult> {
@@ -35,7 +35,7 @@ export async function saveOpportunity(id: number, data?: { list_type?: string; t
   }) as Promise<{ message: string; saved_id?: number }>;
 }
 
-export async function updateSavedOpportunity(id: number, data: { list_type?: string; tags?: string[]; notes?: string; applied?: boolean }): Promise<{ message: string }> {
+export async function updateSavedOpportunity(id: number, data: { list_type?: string; tags?: string[]; notes?: string; applied?: boolean; application_status?: string }): Promise<{ message: string }> {
   return apiFetch(`/api/opportunities/${id}/save`, {
     method: "PUT", body: JSON.stringify(data),
   }) as Promise<{ message: string }>;
@@ -88,4 +88,34 @@ export async function searchCompanies(query: string): Promise<CompanySearchResul
 
 export async function getCompany(name: string): Promise<{ company: CompanyProfile }> {
   return apiFetch(`/api/opportunities/companies/${encodeURIComponent(name)}`) as Promise<{ company: CompanyProfile }>;
+}
+
+export async function getAllHealthScores(): Promise<{ health_scores: ApplicationHealth[] }> {
+  return apiFetch("/api/opportunities/health/all") as Promise<{ health_scores: ApplicationHealth[] }>;
+}
+
+export async function getHealthScore(oppId: number): Promise<{ health: ApplicationHealth }> {
+  return apiFetch(`/api/opportunities/${oppId}/health`) as Promise<{ health: ApplicationHealth }>;
+}
+
+export async function getAgentActions(opportunityId?: number): Promise<{ top_recommendation: AgentAction | null; tasks: AgentAction[]; reasoning: string[]; message: string | null }> {
+  const qs = opportunityId ? `?opportunity_id=${opportunityId}` : "";
+  return apiFetch(`/api/opportunities/agent/actions${qs}`) as Promise<{ top_recommendation: AgentAction | null; tasks: AgentAction[]; reasoning: string[]; message: string | null }>;
+}
+
+export async function getIntelligence(): Promise<{
+  total_jobs: number;
+  skill_frequency: Record<string, number>;
+  recommendations: { skill: string; priority: string; appears_in_pct: number; reason: string }[];
+  aggregated_missing_skills: Record<string, number>;
+  top_companies: { name: string; count: number }[];
+  top_locations: { name: string; count: number }[];
+  top_titles: { title: string; count: number }[];
+  employment_type_distribution: Record<string, number>;
+  remote_type_distribution: Record<string, number>;
+  salary_distribution: { role: string; min: number; avg: number; max: number }[];
+  summary: string;
+  user_skills: string[];
+}> {
+  return apiFetch("/api/opportunities/intelligence") as Promise<any>;
 }

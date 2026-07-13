@@ -97,6 +97,12 @@ export interface SavedOpportunity {
   applied_at: string | null;
   application_status: string | null;
   created_at: string | null;
+  match_score?: {
+    overall_score: number;
+    ats_match: number;
+    skill_match: number;
+    experience_match: number;
+  };
   opportunity: {
     id: number;
     title: string;
@@ -110,6 +116,25 @@ export interface SavedOpportunity {
     employment_type: string;
     tech_stack: string[];
   };
+}
+
+export interface ApplicationHealth {
+  opportunity_id: number;
+  health_score: number;
+  summary: string;
+  factors?: Record<string, { score: number; weight: number; reasons: string[] }>;
+  top_improvements?: string[];
+}
+
+export interface AgentAction {
+  priority: "critical" | "high" | "medium" | "low";
+  action: string;
+  category: string;
+  estimated_time_minutes: number;
+  impact: string;
+  deadline: string;
+  reason: string;
+  opportunity_id?: number;
 }
 
 export interface InterviewPack {

@@ -1,342 +1,249 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { BarChart3, Briefcase, TrendingUp, Award, Target, ArrowRight, FileText } from "lucide-react";
-import { motion } from "framer-motion";
-import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell,
-} from "recharts";
 import { apiFetch } from "@/lib/api";
-import { Card } from "@/components/ui/Card";
-import { CardSkeleton } from "@/components/ui/Skeleton";
+import {
+  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell,
+  LineChart, Line, CartesianGrid, Legend,
+} from "recharts";
 
-interface Job {
-  id: number;
-  company: string;
-  role: string;
-  status: string;
-  salary: string | null;
-  deadline: string | null;
-  job_link: string | null;
+interface Intelligence {
+  total_jobs: number;
+  skill_frequency: Record<string, { count: number; percentage: number }>;
+  recommendations: { skill: string; appears_in_pct: number; message: string; priority: string }[];
+  aggregated_missing_skills: [string, number][];
+  top_companies: [string, number][];
+  top_locations: [string, number][];
+  top_titles: [string, number][];
+  employment_type_distribution: Record<string, number>;
+  remote_type_distribution: Record<string, number>;
+  salary_distribution: { min: number; max: number; currency: string; title: string; company: string }[];
+  summary: { total_jobs: number; unique_companies: number; unique_locations: number; skill_count: number; salary_avg: number | null; currency: string };
+  user_skills: string[];
 }
 
-interface DashboardSummary {
-  has_resume: boolean;
-  resume_summary_set: boolean;
-  active_applications: number;
-  offers: number;
-  total_applications: number;
-  upcoming_deadlines: { company: string; role: string; deadline: string }[];
-  last_coach_message: string | null;
-  last_coach_message_at: string | null;
-}
+const COLORS = ["#6c63ff", "#22c55e", "#f59e0b", "#ef4444", "#3b82f6", "#ec4899", "#14b8a6", "#f97316"];
 
-const STATUS_LABELS: Record<string, string> = {
-  applied: "Applied",
-  oa: "Online Assessment",
-  interview: "Interview",
-  offer: "Offer",
-  rejected: "Rejected",
-};
+export default function AnalyticsPage() {
+  const [data, setData] = useState<Intelligence | null>(null);
+  const [loading, setLoading] = useState(true);
 
-const STATUS_COLORS: Record<string, string> = {
-  applied: "var(--accent)",
-  oa: "var(--warning)",
-  interview: "var(--accent)",
-  offer: "var(--success)",
-  rejected: "var(--danger)",
-};
+  useEffect(() => {
+    apiFetch("/api/opportunities/intelligence")
+      .then((res: any) => setData(res.intelligence))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
 
-const PIE_COLORS = ["var(--accent)", "var(--warning)", "var(--accent)", "var(--success)", "var(--danger)"];
+  if (loading) return <div className="p-8 space-y-4"><SkeletonBlock /><SkeletonBlock /><SkeletonBlock /></div>;
+  if (!data || data.total_jobs === 0) return <EmptyState />;
 
-const fadeUp = {
-  hidden: { opacity: 0, y: 16 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.35, ease: [0.25, 0.1, 0.1, 1] as const } },
-};
+  const skillChart = Object.entries(data.skill_frequency)
+    .sort((a, b) => b[1].count - a[1].count)
+    .slice(0, 20)
+    .map(([skill, freq]) => ({ skill, count: freq.count, pct: freq.percentage }));
 
-const stagger = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.06 } },
-};
+  const missingChart = data.aggregated_missing_skills.slice(0, 15).map(([skill, count]) => ({ skill, count }));
 
-function StatCard({ label, value, sub, icon }: { label: string; value: string | number; sub?: string; icon: React.ReactNode }) {
+  const salaryChart = data.salary_distribution.map((s) => ({
+    title: `${s.company.slice(0, 12)}`,
+    avg: Math.round((s.min + s.max) / 2),
+    min: s.min,
+    max: s.max,
+  }));
+
+  const locationChart = Object.entries(data.remote_type_distribution).map(([name, value]) => ({ name, value }));
+  const empTypeChart = Object.entries(data.employment_type_distribution).map(([name, value]) => ({ name, value }));
+
   return (
-    <div className="rounded-xl border border-border bg-bg-surface p-5 card-hover">
-      <div className="flex items-start justify-between">
-        <div className="min-w-0">
-          <p className="font-mono text-xs font-medium uppercase tracking-widest text-fg-muted truncate">{label}</p>
-          <p className="mt-1.5 font-serif text-3xl font-medium tracking-tight text-fg-default">{value}</p>
-          {sub && <p className="mt-0.5 font-mono text-xs text-fg-subtle">{sub}</p>}
+    <div className="max-w-7xl mx-auto px-4 py-8 space-y-10">
+      {/* Header */}
+      <header className="space-y-2">
+        <h1 className="text-3xl font-bold tracking-tight text-fg-default">Career Analytics</h1>
+        <p className="text-fg-muted text-sm">
+          Intelligence gathered across <strong className="text-accent">{data.total_jobs}</strong> saved jobs,
+          <strong className="text-accent"> {data.summary.unique_companies}</strong> companies,
+          <strong className="text-accent"> {data.summary.skill_count}</strong> unique skills
+          {data.summary.salary_avg ? `, avg salary ₹${(data.summary.salary_avg / 100000).toFixed(1)}L` : ""}
+        </p>
+      </header>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Summary Cards */}
+        <SummaryCard label="Jobs Saved" value={data.total_jobs} icon="briefcase" />
+        <SummaryCard label="Companies" value={data.summary.unique_companies} icon="building" />
+        <SummaryCard label="Skills Tracked" value={data.summary.skill_count} icon="code" />
+      </div>
+
+      {/* Recommendations */}
+      {data.recommendations.length > 0 && (
+        <section className="space-y-4">
+          <h2 className="text-xl font-semibold">Skill Recommendations</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {data.recommendations.slice(0, 8).map((rec) => (
+              <div key={rec.skill} className="card p-4 border border-border rounded-xl bg-surface space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="font-semibold text-fg-default">{rec.skill}</span>
+                  <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                    rec.priority === "high" ? "bg-danger/10 text-danger" :
+                    rec.priority === "medium" ? "bg-warning/10 text-warning" :
+                    "bg-accent/10 text-accent"
+                  }`}>{rec.appears_in_pct}%</span>
+                </div>
+                <p className="text-xs text-fg-muted">{rec.message}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Skill Frequency */}
+      <section className="space-y-4">
+        <h2 className="text-xl font-semibold">Most In-Demand Skills</h2>
+        <div className="card p-6 border border-border rounded-xl bg-surface">
+          <ResponsiveContainer width="100%" height={400}>
+            <BarChart data={skillChart} layout="vertical" margin={{ left: 100, right: 20 }}>
+              <XAxis type="number" tick={{ fontSize: 12 }} />
+              <YAxis dataKey="skill" type="category" tick={{ fontSize: 12 }} width={120} />
+              <Tooltip />
+              <Bar dataKey="count" fill="#6c63ff" radius={[0, 6, 6, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
         </div>
-        <div className="rounded-lg border border-border bg-bg-default p-2 text-accent shrink-0">{icon}</div>
+      </section>
+
+      {/* Missing Skills */}
+      {missingChart.length > 0 && (
+        <section className="space-y-4">
+          <h2 className="text-xl font-semibold">Most Common Missing Skills</h2>
+          <div className="card p-6 border border-border rounded-xl bg-surface">
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={missingChart} layout="vertical" margin={{ left: 100, right: 20 }}>
+                <XAxis type="number" tick={{ fontSize: 12 }} />
+                <YAxis dataKey="skill" type="category" tick={{ fontSize: 12 }} width={120} />
+                <Tooltip />
+                <Bar dataKey="count" fill="#ef4444" radius={[0, 6, 6, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </section>
+      )}
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Location Distribution */}
+        <section className="space-y-4">
+          <h2 className="text-xl font-semibold">Work Mode</h2>
+          <div className="card p-6 border border-border rounded-xl bg-surface">
+            <ResponsiveContainer width="100%" height={260}>
+              <PieChart>
+                <Pie data={locationChart} cx="50%" cy="50%" innerRadius={50} outerRadius={90} dataKey="value" label={({ name, percent }) => `${name} ${Math.round((percent || 0) * 100)}%`}>
+                  {locationChart.map((_, i) => (
+                    <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </section>
+
+        {/* Employment Type */}
+        <section className="space-y-4">
+          <h2 className="text-xl font-semibold">Employment Type</h2>
+          <div className="card p-6 border border-border rounded-xl bg-surface">
+            <ResponsiveContainer width="100%" height={260}>
+              <PieChart>
+                <Pie data={empTypeChart} cx="50%" cy="50%" innerRadius={50} outerRadius={90} dataKey="value" label={({ name, percent }) => `${name} ${Math.round((percent || 0) * 100)}%`}>
+                  {empTypeChart.map((_, i) => (
+                    <Cell key={i} fill={COLORS[(i + 3) % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </section>
+      </div>
+
+      {/* Top Companies */}
+      <section className="space-y-4">
+        <h2 className="text-xl font-semibold">Top Companies</h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {data.top_companies.map(([name, count]) => (
+            <div key={name} className="card p-4 border border-border rounded-xl bg-surface text-center space-y-1">
+              <div className="w-10 h-10 mx-auto rounded-full bg-accent/10 flex items-center justify-center text-accent font-bold text-sm">
+                {name.charAt(0)}
+              </div>
+              <p className="font-semibold text-sm text-fg-default truncate">{name}</p>
+              <p className="text-xs text-fg-muted">{count} job{count > 1 ? "s" : ""}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Top Locations */}
+      {data.top_locations.length > 0 && (
+        <section className="space-y-4">
+          <h2 className="text-xl font-semibold">Top Locations</h2>
+          <div className="flex flex-wrap gap-2">
+            {data.top_locations.map(([loc, count]) => (
+              <span key={loc} className="px-3 py-1.5 rounded-full bg-accent/10 text-accent text-sm font-medium border border-accent/20">
+                {loc} ({count})
+              </span>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Salary Distribution */}
+      {salaryChart.length > 0 && (
+        <section className="space-y-4">
+          <h2 className="text-xl font-semibold">Salary Distribution</h2>
+          <div className="card p-6 border border-border rounded-xl bg-surface">
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={salaryChart} margin={{ left: 20, right: 20 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.3} />
+                <XAxis dataKey="title" tick={{ fontSize: 11 }} />
+                <YAxis tick={{ fontSize: 12 }} />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="min" fill="#6c63ff" radius={[4, 4, 0, 0]} name="Min" />
+                <Bar dataKey="avg" fill="#22c55e" radius={[4, 4, 0, 0]} name="Avg" />
+                <Bar dataKey="max" fill="#f59e0b" radius={[4, 4, 0, 0]} name="Max" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </section>
+      )}
+    </div>
+  );
+}
+
+function SummaryCard({ label, value, icon }: { label: string; value: number; icon: string }) {
+  const icons: Record<string, string> = { briefcase: "💼", building: "🏢", code: "💻" };
+  return (
+    <div className="card p-5 border border-border rounded-xl bg-surface flex items-center gap-4">
+      <span className="text-2xl">{icons[icon] || "📊"}</span>
+      <div>
+        <p className="text-2xl font-bold text-fg-default">{value}</p>
+        <p className="text-xs text-fg-muted">{label}</p>
       </div>
     </div>
   );
 }
 
-export default function AnalyticsPage() {
-  const [jobs, setJobs] = useState<Job[]>([]);
-  const [summary, setSummary] = useState<DashboardSummary | null>(null);
-  const [loading, setLoading] = useState(true);
+function SkeletonBlock() {
+  return <div className="h-24 rounded-xl bg-surface border border-border shimmer" />;
+}
 
-  useEffect(() => {
-    Promise.allSettled([
-      apiFetch("/api/jobs"),
-      apiFetch("/api/users/dashboard-summary"),
-    ])
-      .then(([jobsResult, summaryResult]) => {
-        if (jobsResult.status === "fulfilled") setJobs(jobsResult.value.jobs || []);
-        if (summaryResult.status === "fulfilled") setSummary(summaryResult.value);
-      })
-      .finally(() => setLoading(false));
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="mx-auto max-w-6xl space-y-6 p-6">
-        <div className="h-8 w-48 shimmer rounded-md" />
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {Array.from({ length: 4 }).map((_, i) => (<CardSkeleton key={i} />))}
-        </div>
-      </div>
-    );
-  }
-
-  const statusCounts: Record<string, number> = {};
-  jobs.forEach((j) => { statusCounts[j.status] = (statusCounts[j.status] || 0) + 1; });
-
-  const statusData = Object.entries(STATUS_LABELS).map(([key, label]) => ({
-    name: label,
-    value: statusCounts[key] || 0,
-    fill: STATUS_COLORS[key],
-  }));
-
-  const pipelineData = [
-    { name: "Applied", value: statusCounts.applied || 0 },
-    { name: "OA", value: statusCounts.oa || 0 },
-    { name: "Interview", value: statusCounts.interview || 0 },
-    { name: "Offer", value: statusCounts.offer || 0 },
-  ];
-
-  const totalStarted = jobs.length;
-  const totalApplied = statusCounts.applied || 0;
-  const totalInterview = statusCounts.interview || 0;
-  const totalOffer = statusCounts.offer || 0;
-  const totalRejected = statusCounts.rejected || 0;
-
-  const interviewRate = totalApplied > 0 ? ((totalInterview / totalApplied) * 100).toFixed(1) : "0.0";
-  const offerRate = totalInterview > 0 ? ((totalOffer / totalInterview) * 100).toFixed(1) : "0.0";
-  const rejectionRate = totalStarted > 0 ? ((totalRejected / totalStarted) * 100).toFixed(1) : "0.0";
-
+function EmptyState() {
   return (
-    <motion.div
-      initial="hidden"
-      animate="show"
-      variants={stagger}
-      className="mx-auto max-w-6xl space-y-6 p-6"
-    >
-      <motion.div variants={fadeUp} className="flex items-center justify-between">
-        <div>
-          <div className="flex items-center gap-3">
-            <BarChart3 size={20} className="text-accent" />
-            <h1 className="font-serif text-2xl font-medium tracking-tight text-fg-default">Analytics</h1>
-          </div>
-          <p className="mt-0.5 font-sans text-sm text-fg-muted">Track your performance and pipeline metrics</p>
-        </div>
-      </motion.div>
-
-      <motion.div variants={fadeUp} className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Total applications" value={summary?.total_applications ?? 0} icon={<Briefcase size={18} />} />
-        <StatCard label="Active" value={summary?.active_applications ?? 0} sub="In progress" icon={<TrendingUp size={18} />} />
-        <StatCard label="Offers" value={summary?.offers ?? 0} icon={<Award size={18} />} />
-        <StatCard label="Resume" value={summary?.has_resume ? "Complete" : "Not started"} icon={<FileText size={18} />} />
-      </motion.div>
-
-      <motion.div variants={fadeUp} className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <Card>
-          <div className="mb-4 flex items-center gap-2">
-            <TrendingUp size={14} className="text-fg-muted" />
-            <h3 className="font-mono text-xs font-medium uppercase tracking-widest text-fg-muted">Pipeline Funnel</h3>
-          </div>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={pipelineData} layout="vertical" margin={{ left: 20, right: 20, top: 10, bottom: 10 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                <XAxis type="number" tick={{ fontSize: 12, fill: "var(--fg-subtle)" }} />
-                <YAxis dataKey="name" type="category" tick={{ fontSize: 12, fill: "var(--fg-muted)" }} width={80} />
-                <Tooltip
-                  contentStyle={{ background: "var(--bg-default)", border: "1px solid var(--border)", borderRadius: "8px", fontSize: "13px", boxShadow: "0 4px 12px rgba(0,0,0,0.05)" }}
-                  formatter={(value) => [value, "Applications"]}
-                />
-                <Bar dataKey="value" radius={[0, 6, 6, 0]} barSize={28}>
-                  {pipelineData.map((_, i) => (
-                    <Cell key={i} fill={PIE_COLORS[i]} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </Card>
-
-        <Card>
-          <div className="mb-4 flex items-center gap-2">
-            <Target size={14} className="text-fg-muted" />
-            <h3 className="font-mono text-xs font-medium uppercase tracking-widest text-fg-muted">Status Distribution</h3>
-          </div>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={statusData}
-                  dataKey="value"
-                  nameKey="name"
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={80}
-                  innerRadius={50}
-                  paddingAngle={3}
-                >
-                  {statusData.map((_, i) => (
-                    <Cell key={i} fill={PIE_COLORS[i]} />
-                  ))}
-                </Pie>
-                <Tooltip
-                  contentStyle={{ background: "var(--bg-default)", border: "1px solid var(--border)", borderRadius: "8px", fontSize: "13px", boxShadow: "0 4px 12px rgba(0,0,0,0.05)" }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-          <div className="mt-2 flex flex-wrap justify-center gap-3">
-            {Object.entries(STATUS_LABELS).map(([key, label]) => (
-              <div key={key} className="flex items-center gap-1.5">
-                <div className="h-2.5 w-2.5 rounded-full transition-transform duration-150 hover:scale-125" style={{ backgroundColor: STATUS_COLORS[key] }} />
-                <span className="font-mono text-xs text-fg-muted">{label}</span>
-              </div>
-            ))}
-          </div>
-        </Card>
-      </motion.div>
-
-      <motion.div variants={fadeUp} className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <Card>
-          <div className="flex items-center gap-2">
-            <Award size={14} className="text-fg-muted" />
-            <h3 className="font-mono text-xs font-medium uppercase tracking-widest text-fg-muted">Conversion Rates</h3>
-          </div>
-          <div className="mt-4 space-y-4">
-            <div>
-              <div className="mb-1.5 flex items-center justify-between">
-                <span className="text-sm text-fg-muted">Applied → Interview</span>
-                <span className="font-mono text-sm font-medium text-fg-default">{interviewRate}%</span>
-              </div>
-              <div className="h-2 overflow-hidden rounded-full bg-bg-hover">
-                <div className="h-full rounded-full bg-accent transition-all duration-500" style={{ width: `${Math.min(Number(interviewRate), 100)}%` }} />
-              </div>
-            </div>
-            <div>
-              <div className="mb-1.5 flex items-center justify-between">
-                <span className="text-sm text-fg-muted">Interview → Offer</span>
-                <span className="font-mono text-sm font-medium text-fg-default">{offerRate}%</span>
-              </div>
-              <div className="h-2 overflow-hidden rounded-full bg-bg-hover">
-                <div className="h-full rounded-full bg-success transition-all duration-500" style={{ width: `${Math.min(Number(offerRate), 100)}%` }} />
-              </div>
-            </div>
-            <div>
-              <div className="mb-1.5 flex items-center justify-between">
-                <span className="text-sm text-fg-muted">Rejection rate</span>
-                <span className="font-mono text-sm font-medium text-fg-default">{rejectionRate}%</span>
-              </div>
-              <div className="h-2 overflow-hidden rounded-full bg-bg-hover">
-                <div className="h-full rounded-full bg-danger transition-all duration-500" style={{ width: `${Math.min(Number(rejectionRate), 100)}%` }} />
-              </div>
-            </div>
-          </div>
-        </Card>
-
-        <Card>
-          <div className="flex items-center gap-2">
-            <Briefcase size={14} className="text-fg-muted" />
-            <h3 className="font-mono text-xs font-medium uppercase tracking-widest text-fg-muted">Company Breakdown</h3>
-          </div>
-          <div className="mt-4 max-h-64 space-y-2 overflow-y-auto">
-            {jobs.length === 0 ? (
-              <div className="py-6 text-center">
-                <p className="text-sm text-fg-muted">No applications yet</p>
-              </div>
-            ) : (
-              [...new Set(jobs.map((j) => j.company))].slice(0, 10).map((company) => {
-                const count = jobs.filter((j) => j.company === company).length;
-                const maxCount = Math.max(...jobs.map((j) => j.company).map((c) => jobs.filter((j) => j.company === c).length));
-                const width = maxCount > 0 ? (count / maxCount) * 100 : 0;
-                return (
-                  <div key={company} className="group flex items-center gap-3 transition-all duration-150">
-                    <span className="w-24 truncate font-mono text-xs text-fg-muted group-hover:text-fg-default">{company}</span>
-                    <div className="flex-1">
-                      <div className="h-5 overflow-hidden rounded-md bg-bg-hover transition-all duration-150 group-hover:bg-bg-hover/80">
-                        <div className="h-full rounded-md bg-accent/70 transition-all duration-300 group-hover:bg-accent/90" style={{ width: `${width}%` }} />
-                      </div>
-                    </div>
-                    <span className="w-6 text-right font-mono text-xs text-fg-default transition-all duration-150 group-hover:font-medium">{count}</span>
-                  </div>
-                );
-              })
-            )}
-          </div>
-        </Card>
-
-        <Card>
-          <div className="flex items-center gap-2">
-            <Target size={14} className="text-fg-muted" />
-            <h3 className="font-mono text-xs font-medium uppercase tracking-widest text-fg-muted">Insights</h3>
-          </div>
-          <div className="mt-4 space-y-3">
-            {totalStarted === 0 && (
-              <div className="py-6 text-center">
-                <p className="text-sm text-fg-muted">No data yet</p>
-                <p className="mt-0.5 text-xs text-fg-subtle">Start tracking applications to see insights</p>
-              </div>
-            )}
-            {totalOffer > 0 && (
-              <div className="card-hover flex items-start gap-3 rounded-lg border border-success/20 bg-success-subtle p-3">
-                <Award size={16} className="mt-0.5 shrink-0 text-success" />
-                <div>
-                  <p className="text-sm font-medium text-fg-default">Offers received!</p>
-                  <p className="text-xs text-fg-muted">You have {totalOffer} offer{totalOffer > 1 ? "s" : ""}. Make sure to review deadlines.</p>
-                </div>
-              </div>
-            )}
-            {totalApplied > 0 && (totalRejected / totalApplied) > 0.5 && (
-              <div className="card-hover flex items-start gap-3 rounded-lg border border-danger/20 bg-danger-subtle p-3">
-                <ArrowRight size={16} className="mt-0.5 shrink-0 text-danger" />
-                <div>
-                  <p className="text-sm font-medium text-fg-default">High rejection rate</p>
-                  <p className="text-xs text-fg-muted">Consider refining your resume or targeting different roles.</p>
-                </div>
-              </div>
-            )}
-            {!summary?.has_resume && (
-              <div className="card-hover flex items-start gap-3 rounded-lg border border-warning/20 bg-warning-subtle p-3">
-                <FileText size={16} className="mt-0.5 shrink-0 text-warning" />
-                <div>
-                  <p className="text-sm font-medium text-fg-default">Resume missing</p>
-                  <p className="text-xs text-fg-muted">Create your resume to improve your application success rate.</p>
-                </div>
-              </div>
-            )}
-            {totalApplied > 0 && Number(interviewRate) < 20 && (
-              <div className="card-hover flex items-start gap-3 rounded-lg border border-warning/20 bg-warning-subtle p-3">
-                <TrendingUp size={16} className="mt-0.5 shrink-0 text-warning" />
-                <div>
-                  <p className="text-sm font-medium text-fg-default">Low interview rate</p>
-                  <p className="text-xs text-fg-muted">Try optimizing your resume for ATS and tailoring applications.</p>
-                </div>
-              </div>
-            )}
-          </div>
-        </Card>
-      </motion.div>
-    </motion.div>
+    <div className="flex flex-col items-center justify-center min-h-[60vh] px-4 text-center space-y-4">
+      <div className="text-6xl">📊</div>
+      <h2 className="text-2xl font-bold text-fg-default">No Data Yet</h2>
+      <p className="text-fg-muted max-w-md">
+        Save some jobs to see analytics. Install the Career OS browser extension or paste job URLs to get started.
+      </p>
+    </div>
   );
 }

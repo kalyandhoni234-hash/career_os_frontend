@@ -18,6 +18,9 @@ import {
   TrendingUp,
   PanelLeftClose,
   PanelLeft,
+  HeartHandshake,
+  GraduationCap,
+  Rocket,
 } from "lucide-react";
 import { apiFetch } from "@/lib/api";
 import { SidebarItem } from "./SidebarItem";
@@ -130,8 +133,13 @@ export function Sidebar({ mobileOpen = false, onMobileClose }: SidebarProps) {
             <SidebarSection title="Career" collapsed={collapsed}>
               <SidebarItem href="/resume" label="Resume Studio" icon={FileText} active={isActive("/resume")} collapsed={collapsed} onClick={closeNav} />
               <SidebarItem href="/opportunities" label="Opportunities" icon={Search} active={isActive("/opportunities")} collapsed={collapsed} onClick={closeNav} />
+              <SidebarItem href="/saved-jobs" label="Missions" icon={Rocket} active={isActive("/saved-jobs")} collapsed={collapsed} onClick={closeNav} />
               <SidebarItem href="/jobs" label="Applications" icon={Briefcase} active={isActive("/jobs")} collapsed={collapsed} onClick={closeNav} />
-              <SidebarItem href="/saved-jobs" label="Saved Jobs" icon={BookmarkCheck} active={isActive("/saved-jobs")} collapsed={collapsed} onClick={closeNav} />
+            </SidebarSection>
+
+            <SidebarSection title="Network" collapsed={collapsed}>
+              <SidebarItem href="/contacts" label="CRM" icon={HeartHandshake} active={isActive("/contacts")} collapsed={collapsed} onClick={closeNav} />
+              <SidebarItem href="/interviews" label="Interviews" icon={GraduationCap} active={isActive("/interviews")} collapsed={collapsed} onClick={closeNav} />
             </SidebarSection>
 
             <SidebarSection title="Tools" collapsed={collapsed}>

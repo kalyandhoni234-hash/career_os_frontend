@@ -347,6 +347,8 @@ export default function DashboardPage() {
 
             <p className="max-w-2xl text-sm leading-relaxed text-fg-muted">{aiSummary}</p>
 
+            <CoachNotification />
+
             <div className="flex flex-col sm:flex-row gap-2.5 sm:gap-3 pt-1">
               <Link href={primaryCta.href} className="btn-press inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-lg bg-accent px-5 py-3 sm:py-2.5 text-sm font-medium text-white shadow-sm shadow-accent/20 transition-all hover:bg-accent/90 hover:shadow-accent/30 min-h-[44px]">
                 {primaryCta.label} <ArrowRight size={15} />
@@ -951,6 +953,51 @@ export default function DashboardPage() {
 
 
 
+    </motion.div>
+  );
+}
+
+function CoachNotification() {
+  const [coachMsg, setCoachMsg] = useState<{ message: string; action: string; href: string } | null>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    apiFetch("/api/opportunities/agent/actions")
+      .then((r: any) => {
+        const agent = r.agent || r;
+        const top = agent?.top_recommendation || agent?.tasks?.[0];
+        if (top) {
+          setCoachMsg({
+            message: top.reason || top.action,
+            action: top.action,
+            href: top.opportunity_id ? `/opportunity/${top.opportunity_id}` : "/saved-jobs",
+          });
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  if (!coachMsg) return null;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -8, height: 0 }}
+      animate={{ opacity: 1, y: 0, height: "auto" }}
+      className="bg-gradient-to-r from-accent/5 to-success/5 border border-accent/15 rounded-xl p-3 mt-2 flex items-start gap-3"
+    >
+      <div className="w-8 h-8 rounded-lg bg-accent/10 flex items-center justify-center shrink-0">
+        <BrainCircuit size={16} className="text-accent" />
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-xs font-semibold">AI Coach Recommendation</p>
+        <p className="text-[11px] text-fg-muted mt-0.5">{coachMsg.message}</p>
+        <button
+          onClick={() => router.push(coachMsg.href)}
+          className="text-[10px] font-medium text-accent hover:text-accent/80 mt-1 flex items-center gap-1"
+        >
+          {coachMsg.action} <ArrowRight size={10} />
+        </button>
+      </div>
     </motion.div>
   );
 }
