@@ -13,7 +13,7 @@ export function TopBar({ onMenuToggle }: TopBarProps) {
   };
 
   return (
-    <header className="flex h-14 min-w-0 items-center gap-2 sm:gap-4 border-b border-border bg-bg-surface px-3 sm:px-4 lg:px-6">
+    <header className="glass-chrome sticky top-0 z-30 flex h-14 min-w-0 items-center gap-2 sm:gap-4 border-b border-border px-3 sm:px-4 lg:px-6">
       <button
         onClick={onMenuToggle}
         className="btn-press flex shrink-0 items-center justify-center rounded-lg p-1.5 text-fg-muted transition-all duration-150 hover:bg-bg-hover hover:text-fg-default lg:hidden cursor-pointer"

@@ -24,6 +24,16 @@ function getInitials(name: string) {
   return name.slice(0, 2).toUpperCase();
 }
 
+function getFaviconUrl(jobLink: string | null): string | null {
+  if (!jobLink) return null;
+  try {
+    const { hostname } = new URL(jobLink);
+    return `https://www.google.com/s2/favicons?domain=${hostname}&sz=64`;
+  } catch {
+    return null;
+  }
+}
+
 function getNextActionLabel(action: string | null) {
   if (!action) return null;
   return action.length > 30 ? action.slice(0, 27) + "..." : action;
@@ -43,6 +53,8 @@ function getDaysRemaining(dateStr: string | null) {
 
 export function ApplicationCard({ job, onDelete, onStatusChange, onEdit }: ApplicationCardProps) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [faviconFailed, setFaviconFailed] = useState(false);
+  const faviconUrl = getFaviconUrl(job.job_link);
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: job.id.toString(),
     data: { type: "job", job },
@@ -82,8 +94,18 @@ export function ApplicationCard({ job, onDelete, onStatusChange, onEdit }: Appli
         {/* Top row: initials + company + menu */}
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-bg-default font-mono text-xs font-bold text-accent">
-              {getInitials(job.company)}
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border bg-bg-default font-mono text-xs font-bold text-accent">
+              {faviconUrl && !faviconFailed ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={faviconUrl}
+                  alt=""
+                  className="h-5 w-5 object-contain"
+                  onError={() => setFaviconFailed(true)}
+                />
+              ) : (
+                getInitials(job.company)
+              )}
             </div>
             <div className="min-w-0">
               <p className="truncate text-sm font-semibold text-fg-default">{job.company}</p>

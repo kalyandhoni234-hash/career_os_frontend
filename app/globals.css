@@ -305,6 +305,19 @@ html.theme-transition *::after {
   border: 1px solid var(--border);
 }
 
+/* Glass variant for app chrome (sidebar, topbar) — no border shorthand,
+   so it doesn't clobber their existing border-r/border-b utilities */
+
+.glass-chrome {
+  background: color-mix(in srgb, var(--bg-surface) 72%, transparent);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.dark .glass-chrome {
+  background: color-mix(in srgb, var(--bg-surface) 82%, transparent);
+}
+
 /* Focus ring for form elements */
 
 .focus-ring {

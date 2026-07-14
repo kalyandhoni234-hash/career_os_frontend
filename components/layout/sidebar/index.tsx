@@ -94,7 +94,8 @@ export function Sidebar({ mobileOpen = false, onMobileClose }: SidebarProps) {
         role="navigation"
         aria-label="Main navigation"
         className={`
-          flex h-screen flex-col border-r border-border bg-bg-surface transition-all duration-300
+          glass-chrome
+          flex h-screen flex-col border-r border-border transition-all duration-300
           self-start shrink-0
           ${collapsed ? "w-[72px]" : "w-64"}
           fixed left-0 top-0 z-50

@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Career OS</title>
+  <style>
+    :root {
+      --bg: #1a1a2e;
+      --surface: #25254a;
+      --accent: #6c63ff;
+      --fg: #f9fafb;
+      --muted: #9ca3af;
+      --success: #065f46;
+      --danger: #dc2626;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      width: 340px;
+      min-height: 400px;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: system-ui, -apple-system, sans-serif;
+      padding: 20px;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .logo {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 18px;
+      color: #fff;
+    }
+    .header h1 {
+      font-size: 18px;
+      font-weight: 700;
+    }
+    .header .status {
+      margin-left: auto;
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .status-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 4px;
+    }
+    .status-dot.online { background: #22c55e; }
+    .status-dot.offline { background: var(--danger); }
+    .section { margin-bottom: 16px; }
+    .section-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+    }
+    .input-group {
+      display: flex;
+      gap: 6px;
+    }
+    .input-group input {
+      flex: 1;
+      padding: 8px 12px;
+      border: 1px solid #374151;
+      border-radius: 8px;
+      background: var(--surface);
+      color: var(--fg);
+      font-size: 13px;
+      outline: none;
+    }
+    .input-group input:focus {
+      border-color: var(--accent);
+    }
+    .input-group input::placeholder {
+      color: #6b7280;
+    }
+    .btn {
+      padding: 8px 14px;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+    .btn-primary:hover { opacity: 0.9; }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-ghost {
+      background: transparent;
+      color: var(--muted);
+      padding: 8px 10px;
+      font-size: 12px;
+    }
+    .btn-ghost:hover { color: var(--fg); background: var(--surface); }
+    .job-card {
+      background: var(--surface);
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .job-card:hover {
+      background: #2f2f5a;
+    }
+    .job-card h3 {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+    .job-card p {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .job-card .match-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 100px;
+      font-size: 11px;
+      font-weight: 700;
+      margin-top: 6px;
+    }
+    .match-badge.high { background: #065f46; color: #fff; }
+    .match-badge.medium { background: #92400e; color: #fff; }
+    .match-badge.low { background: #7f1d1d; color: #fff; }
+    .empty-state {
+      text-align: center;
+      padding: 32px 16px;
+      color: var(--muted);
+    }
+    .empty-state p {
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .empty-state .icon {
+      font-size: 36px;
+      margin-bottom: 12px;
+    }
+    .footer {
+      margin-top: 16px;
+      padding-top: 12px;
+      border-top: 1px solid #374151;
+      display: flex;
+      justify-content: space-between;
+    }
+    .loader {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid var(--accent);
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">C</div>
+    <h1>Career OS</h1>
+    <span class="status" id="status-indicator">
+      <span class="status-dot offline"></span>Checking...
+    </span>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Quick Save</div>
+    <div class="input-group">
+      <input type="text" id="job-url-input" placeholder="Paste job URL..." />
+      <button class="btn btn-primary" id="parse-btn">Save</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Your Saved Jobs</div>
+    <div id="saved-jobs-list">
+      <div class="empty-state" id="empty-state">
+        <div class="icon">&#128269;</div>
+        <p>No jobs saved yet.<br/>Visit a supported job site or paste a URL above.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <button class="btn btn-ghost" id="open-app-btn">Open App</button>
+    <button class="btn btn-ghost" id="refresh-btn">Refresh</button>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

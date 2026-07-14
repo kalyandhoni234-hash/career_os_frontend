@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import { useEffect, useState, useCallback, startTransition } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   DndContext, DragOverlay, closestCorners, KeyboardSensor, PointerSensor, useSensor, useSensors,
   type DragStartEvent, type DragEndEvent,
@@ -10,6 +10,7 @@ import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import { Briefcase, SendHorizontal, AlertCircle } from "lucide-react";
 import { apiFetch } from "@/lib/api";
 import { Button } from "@/components/ui/Button";
+import { Sheet } from "@/components/ui/Sheet";
 import { useToast } from "@/components/ui/Toast";
 import { useMutationRefresh } from "@/hooks/useMutationRefresh";
 import { ApplicationStats } from "./components/ApplicationStats";
@@ -274,51 +275,34 @@ export default function JobsPage() {
         <QuickActions onAddApplication={() => { setFormData(defaultForm); setEditingId(null); setShowForm(true); }} />
       </motion.div>
 
-      {/* Add/Edit form */}
-      <AnimatePresence>
-        {showForm && (
-          <motion.div
-            initial={{ opacity: 0, y: -12, height: 0 }}
-            animate={{ opacity: 1, y: 0, height: "auto" }}
-            exit={{ opacity: 0, y: -12, height: 0 }}
-            transition={{ duration: 0.3, ease: [0.25, 0.1, 0.1, 1] }}
-            className="overflow-hidden"
-          >
-            <div className="rounded-xl border border-border bg-bg-surface p-5">
-              <div className="mb-4 flex items-center justify-between">
-                <h2 className="font-mono text-xs font-medium uppercase tracking-widest text-fg-default">
-                  {editingId ? "Edit Application" : "New Application"}
-                </h2>
-                {editingId && (
-                  <button onClick={() => { setShowForm(false); setEditingId(null); setFormData(defaultForm); }} className="text-xs text-fg-muted hover:text-fg-default">Cancel</button>
-                )}
-              </div>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                <InputField label="Company" value={formData.company} onChange={(v) => setFormData({ ...formData, company: v })} required placeholder="e.g. Google" />
-                <InputField label="Role" value={formData.role} onChange={(v) => setFormData({ ...formData, role: v })} required placeholder="e.g. SWE Intern" />
-                <InputField label="Location" value={formData.location} onChange={(v) => setFormData({ ...formData, location: v })} placeholder="e.g. Remote" />
-                <InputField label="Salary" value={formData.salary} onChange={(v) => setFormData({ ...formData, salary: v })} placeholder="e.g. ₹12 LPA" />
-                <InputField label="Deadline" value={formData.deadline} onChange={(v) => setFormData({ ...formData, deadline: v })} type="date" />
-                <InputField label="Job Link" value={formData.job_link} onChange={(v) => setFormData({ ...formData, job_link: v })} placeholder="https://..." />
-                <SelectField label="Status" value={formData.status} onChange={(v) => setFormData({ ...formData, status: v })} options={STATUSES.map((s) => ({ value: s, label: STATUS_LABELS[s] }))} />
-                <SelectField label="Priority" value={formData.priority} onChange={(v) => setFormData({ ...formData, priority: v })} options={[{ value: "low", label: "Low" }, { value: "medium", label: "Medium" }, { value: "high", label: "High" }]} />
-                <InputField label="Next Action" value={formData.next_action} onChange={(v) => setFormData({ ...formData, next_action: v })} placeholder="e.g. Online Assessment" />
-                <InputField label="Resume Version" value={formData.resume_version} onChange={(v) => setFormData({ ...formData, resume_version: v })} placeholder="e.g. v3" />
-              </div>
-              <div className="mt-4 flex justify-end gap-3">
-                {editingId && (
-                  <Button variant="ghost" onClick={() => { setShowForm(false); setEditingId(null); setFormData(defaultForm); }}>
-                    Cancel
-                  </Button>
-                )}
-                <Button onClick={handleSubmit} loading={submitting} icon={<SendHorizontal size={14} />}>
-                  {submitting ? "Saving..." : editingId ? "Update" : "Add Application"}
-                </Button>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Add/Edit — slide-out Sheet, keeps the board visible behind it */}
+      <Sheet
+        open={showForm}
+        onClose={() => { setShowForm(false); setEditingId(null); setFormData(defaultForm); }}
+        title={editingId ? "Edit Application" : "New Application"}
+        description={editingId ? "Update this application's details." : "Track a new internship or job application."}
+      >
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <InputField label="Company" value={formData.company} onChange={(v) => setFormData({ ...formData, company: v })} required placeholder="e.g. Google" />
+          <InputField label="Role" value={formData.role} onChange={(v) => setFormData({ ...formData, role: v })} required placeholder="e.g. SWE Intern" />
+          <InputField label="Location" value={formData.location} onChange={(v) => setFormData({ ...formData, location: v })} placeholder="e.g. Remote" />
+          <InputField label="Salary" value={formData.salary} onChange={(v) => setFormData({ ...formData, salary: v })} placeholder="e.g. ₹12 LPA" />
+          <InputField label="Deadline" value={formData.deadline} onChange={(v) => setFormData({ ...formData, deadline: v })} type="date" />
+          <InputField label="Job Link" value={formData.job_link} onChange={(v) => setFormData({ ...formData, job_link: v })} placeholder="https://..." />
+          <SelectField label="Status" value={formData.status} onChange={(v) => setFormData({ ...formData, status: v })} options={STATUSES.map((s) => ({ value: s, label: STATUS_LABELS[s] }))} />
+          <SelectField label="Priority" value={formData.priority} onChange={(v) => setFormData({ ...formData, priority: v })} options={[{ value: "low", label: "Low" }, { value: "medium", label: "Medium" }, { value: "high", label: "High" }]} />
+          <InputField label="Next Action" value={formData.next_action} onChange={(v) => setFormData({ ...formData, next_action: v })} placeholder="e.g. Online Assessment" />
+          <InputField label="Resume Version" value={formData.resume_version} onChange={(v) => setFormData({ ...formData, resume_version: v })} placeholder="e.g. v3" />
+        </div>
+        <div className="mt-6 flex justify-end gap-3 border-t border-border pt-4">
+          <Button variant="ghost" onClick={() => { setShowForm(false); setEditingId(null); setFormData(defaultForm); }}>
+            Cancel
+          </Button>
+          <Button onClick={handleSubmit} loading={submitting} icon={<SendHorizontal size={14} />}>
+            {submitting ? "Saving..." : editingId ? "Update" : "Add Application"}
+          </Button>
+        </div>
+      </Sheet>
 
       {/* Kanban Board + AI Suggestions */}
       <motion.div variants={fadeUp} className="flex gap-6">

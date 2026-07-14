@@ -78,19 +78,11 @@ export default function SavedJobsPage() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const [result, healthRes] = await Promise.all([
-        getSavedOpportunities(undefined, true),
-        getAllHealthScores(),
-      ]);
-      setSaved(result.saved || []);
-      const hm: Record<number, ApplicationHealth> = {};
-      for (const h of healthRes.health_scores || []) {
-        hm[h.opportunity_id] = h;
-      }
-      setHealthMap(hm);
-    } catch {}
-    setLoading(false);
-  }, []);
+      const savedRes = await getSavedOpportunities(undefined, true);
+      setSaved(savedRes.saved || []);
+          } catch {}
+          setLoading(false);
+        }, []);
 
   useEffect(() => { startTransition(() => { load(); }); }, [load]);
 

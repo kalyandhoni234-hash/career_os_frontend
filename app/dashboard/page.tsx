@@ -388,15 +388,16 @@ export default function DashboardPage() {
         </div>
       </motion.div>
 
-      {/* ═══ METRICS ROW (KPIs near top) ═══ */}
-      <motion.div variants={fadeUp} className="grid grid-cols-1 gap-3 lg:gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {/* ═══ BENTO: METRICS + PIPELINE (2x2 anchor) + AI SUMMARY + THIS WEEK ═══ */}
+      <motion.div variants={fadeUp} className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 auto-rows-min">
+        {/* Metric tiles — 1x1 */}
         {[
           { label: "Active Applications", value: activeApps, icon: Briefcase, sub: `${totalInPipeline} in pipeline`, color: "text-accent" },
           { label: "Total Applied", value: totalApps, icon: TrendingUp, sub: "All time", color: "text-accent" },
           { label: "Interviews", value: interviewCount, icon: Target, sub: interviewCount > 0 ? `${interviewCount} upcoming` : "None scheduled", color: interviewCount > 0 ? "text-success" : "text-fg-muted" },
           { label: "Offers", value: offerCount, icon: Award, sub: offerCount > 0 ? `${offerCount} received` : "No offers yet", color: offerCount > 0 ? "text-success" : "text-fg-muted" },
         ].map((m) => (
-          <div key={m.label} className="group rounded-xl border border-border bg-bg-surface p-5 card-hover">
+          <div key={m.label} className="group rounded-2xl border border-border bg-bg-surface p-5 card-hover">
             <div className="flex items-start justify-between">
               <div className="min-w-0 flex-1">
                 <p className="font-mono text-[11px] lg:text-[10px] font-medium uppercase tracking-widest text-fg-muted">{m.label}</p>
@@ -409,13 +410,62 @@ export default function DashboardPage() {
             </div>
           </div>
         ))}
-      </motion.div>
 
-      {/* ═══ PAIRED ROWS ═══ */}
+        {/* Application Pipeline — primary asset, 2x2 */}
+        <div className="col-span-2 row-span-2 rounded-3xl border border-border bg-bg-surface p-5 card-hover flex flex-col">
+          <div className="mb-4 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <BarChart3 size={14} className="text-fg-muted" />
+              <h3 className="font-mono text-xs font-medium uppercase tracking-widest text-fg-muted">Application Pipeline</h3>
+            </div>
+            <Link href="/jobs" className="inline-flex items-center min-h-[44px] text-[11px] font-medium text-accent transition-colors hover:text-accent/80 hover:underline">View all <ArrowRight size={11} className="ml-0.5 inline" /></Link>
+          </div>
 
-      {/* AI Summary + This Week */}
-      <motion.div variants={fadeUp} className="grid grid-cols-1 gap-4 lg:gap-6 lg:grid-cols-2">
-        <div className="rounded-xl border border-accent/20 bg-gradient-to-br from-accent/5 via-bg-surface to-bg-surface p-5 card-hover">
+          {totalApps === 0 ? (
+            <EmptyCard compact icon={<Briefcase size={18} />} title="No applications yet" desc="Start tracking to unlock pipeline insights." action={
+              <Link href="/jobs" className="btn-press inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-xs font-medium text-white">+ Add Application</Link>
+            } />
+          ) : (
+            <>
+              <div className="grid grid-cols-2 gap-3">
+                {pipelineSteps.map((step) => {
+                  const pct = totalApps > 0 ? Math.round((step.count / totalApps) * 100) : 0;
+                  return (
+                    <div key={step.key} className="relative rounded-xl border border-border bg-bg-default p-3.5 sm:p-3 transition-all hover:border-accent/30 hover:bg-bg-hover active:scale-[0.98]">
+                      <p className="font-mono text-xs uppercase tracking-wider text-fg-muted">{step.label}</p>
+                      <p className="mt-1 font-serif text-2xl font-medium tracking-tight text-fg-default">{step.count}</p>
+                      <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-bg-hover">
+                        <div className={`h-full rounded-full transition-all duration-500 ${step.color}`} style={{ width: `${Math.max(pct, step.count > 0 ? 4 : 0)}%` }} />
+                      </div>
+                      <p className="mt-1 font-mono text-[11px] sm:text-[10px] text-fg-subtle">{pct}% of total</p>
+                      {step.count > 0 && <Link href={`/jobs?status=${step.key}`} className="absolute inset-0 rounded-xl" />}
+                    </div>
+                  );
+                })}
+              </div>
+
+              {totalInPipeline > 0 && (
+                <div className="mt-auto pt-4 grid grid-cols-3 gap-3 border-t border-border">
+                  <div className="text-center">
+                    <p className="font-mono text-[10px] uppercase tracking-wider text-fg-muted">Pipeline</p>
+                    <p className="mt-0.5 font-medium text-fg-default">{totalInPipeline}</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="font-mono text-[10px] uppercase tracking-wider text-fg-muted">Conversion</p>
+                    <p className="mt-0.5 font-medium text-fg-default">{totalApps > 0 ? Math.round((offerCount / totalApps) * 100) : 0}%</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="font-mono text-[10px] uppercase tracking-wider text-fg-muted">Active</p>
+                    <p className="mt-0.5 font-medium text-fg-default">{activeApps}</p>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+
+        {/* AI Summary — 2x1, sits top-right of pipeline */}
+        <div className="col-span-2 rounded-2xl border border-accent/20 bg-gradient-to-br from-accent/5 via-bg-surface to-bg-surface p-5 card-hover">
           <div className="flex items-start gap-4">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent/20">
               <Sparkles size={18} className="text-accent" />
@@ -429,7 +479,7 @@ export default function DashboardPage() {
               {topActions.length > 0 && (
                 <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
                   {topActions.map((a, i) => (
-                    <Link key={i} href={a.action_link || "#"} className="flex items-center gap-2.5 rounded-lg border border-border/60 bg-bg-default/50 px-3 py-2 text-xs text-fg-muted transition-colors hover:border-accent/30 hover:bg-bg-hover">
+                    <Link key={i} href={a.action_link || "#"} className="flex items-center gap-2.5 rounded-lg border border-border/60 bg-bg-default/50 px-3 py-2 text-xs text-fg-muted transition-colors hover:border-accent/30 hover:bg-bg-hover active:scale-[0.98]">
                       <div className={`h-1.5 w-1.5 shrink-0 rounded-full ${a.priority <= 2 ? "bg-danger" : a.priority <= 4 ? "bg-warning" : "bg-fg-subtle"}`} />
                       {a.title}
                     </Link>
@@ -439,7 +489,9 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
-        <div className="rounded-xl border border-border bg-bg-surface p-5 card-hover">
+
+        {/* This Week — 2x1, sits bottom-right of pipeline */}
+        <div className="col-span-2 rounded-2xl border border-border bg-bg-surface p-5 card-hover">
           <div className="mb-4 flex items-center gap-2">
             <Zap size={14} className="text-fg-muted" />
             <h3 className="font-mono text-xs font-medium uppercase tracking-widest text-fg-muted">This Week</h3>
@@ -451,7 +503,7 @@ export default function DashboardPage() {
               { label: "Profile", value: `${data.profile_completeness ?? 0}%`, icon: User, color: "text-success" },
               { label: "Skills", value: skillsList.length, icon: Code, color: "text-accent" },
             ].map((stat) => (
-              <div key={stat.label} className="rounded-lg border border-border bg-bg-default p-3.5 sm:p-3 text-center">
+              <div key={stat.label} className="rounded-xl border border-border bg-bg-default p-3.5 sm:p-3 text-center">
                 <div className={`mx-auto mb-1.5 flex h-8 w-8 sm:h-7 sm:w-7 items-center justify-center rounded-lg bg-bg-hover ${stat.color}`}><stat.icon size={13} /></div>
                 <p className="font-serif text-xl sm:text-lg font-medium tracking-tight text-fg-default">{stat.value}</p>
                 <p className="font-mono text-[11px] sm:text-[10px] uppercase tracking-wider text-fg-muted">{stat.label}</p>
@@ -459,59 +511,6 @@ export default function DashboardPage() {
             ))}
           </div>
         </div>
-      </motion.div>
-
-      {/* Application Pipeline */}
-      <motion.div variants={fadeUp} className="rounded-xl border border-border bg-bg-surface p-5 card-hover">
-        <div className="mb-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <BarChart3 size={14} className="text-fg-muted" />
-            <h3 className="font-mono text-xs font-medium uppercase tracking-widest text-fg-muted">Application Pipeline</h3>
-          </div>
-          <Link href="/jobs" className="inline-flex items-center min-h-[44px] text-[11px] font-medium text-accent transition-colors hover:text-accent/80 hover:underline">View all <ArrowRight size={11} className="ml-0.5 inline" /></Link>
-        </div>
-
-        {totalApps === 0 ? (
-          <EmptyCard compact icon={<Briefcase size={18} />} title="No applications yet" desc="Start tracking to unlock pipeline insights." action={
-            <Link href="/jobs" className="btn-press inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-xs font-medium text-white">+ Add Application</Link>
-          } />
-        ) : (
-          <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-              {pipelineSteps.map((step) => {
-                const pct = totalApps > 0 ? Math.round((step.count / totalApps) * 100) : 0;
-                return (
-                  <div key={step.key} className="relative rounded-lg border border-border bg-bg-default p-3.5 sm:p-3 transition-all hover:border-accent/30 hover:bg-bg-hover">
-                    <p className="font-mono text-xs uppercase tracking-wider text-fg-muted">{step.label}</p>
-                    <p className="mt-1 font-serif text-2xl font-medium tracking-tight text-fg-default">{step.count}</p>
-                    <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-bg-hover">
-                      <div className={`h-full rounded-full transition-all duration-500 ${step.color}`} style={{ width: `${Math.max(pct, step.count > 0 ? 4 : 0)}%` }} />
-                    </div>
-                    <p className="mt-1 font-mono text-[11px] sm:text-[10px] text-fg-subtle">{pct}% of total</p>
-                    {step.count > 0 && <Link href={`/jobs?status=${step.key}`} className="absolute inset-0 rounded-lg" />}
-                  </div>
-                );
-              })}
-            </div>
-
-            {totalInPipeline > 0 && (
-              <div className="mt-4 grid grid-cols-3 gap-3 border-t border-border pt-4">
-                <div className="text-center">
-                  <p className="font-mono text-[10px] uppercase tracking-wider text-fg-muted">Pipeline</p>
-                  <p className="mt-0.5 font-medium text-fg-default">{totalInPipeline}</p>
-                </div>
-                <div className="text-center">
-                  <p className="font-mono text-[10px] uppercase tracking-wider text-fg-muted">Conversion</p>
-                  <p className="mt-0.5 font-medium text-fg-default">{totalApps > 0 ? Math.round((offerCount / totalApps) * 100) : 0}%</p>
-                </div>
-                <div className="text-center">
-                  <p className="font-mono text-[10px] uppercase tracking-wider text-fg-muted">Active</p>
-                  <p className="mt-0.5 font-medium text-fg-default">{activeApps}</p>
-                </div>
-              </div>
-            )}
-          </>
-        )}
       </motion.div>
 
       {/* Career Roadmap + Resume Intel */}

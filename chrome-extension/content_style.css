@@ -1,0 +1,221 @@
+/* Career OS Floating Button */
+#career-os-float-btn {
+  all: initial;
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 2147483647;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 12px;
+  background: #1a1a2e;
+  color: #fff;
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+  transition: all 0.2s ease;
+  user-select: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+#career-os-float-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 32px rgba(108,99,255,0.4);
+  background: #25254a;
+}
+
+#career-os-float-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+}
+
+#career-os-float-btn .cos-logo-mark {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: #6c63ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 13px;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+#career-os-float-btn .cos-label {
+  white-space: nowrap;
+}
+
+#career-os-float-btn .cos-badge {
+  background: #6c63ff;
+  color: #fff;
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* Inline Sidebar */
+#career-os-sidebar {
+  all: initial;
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 380px;
+  height: 100vh;
+  z-index: 2147483646;
+  background: #ffffff;
+  color: #111827;
+  font-family: system-ui, -apple-system, sans-serif;
+  box-shadow: -8px 0 40px rgba(0,0,0,0.15);
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  overflow: hidden;
+}
+
+#career-os-sidebar.cos-open {
+  transform: translateX(0);
+}
+
+#career-os-sidebar .cos-side-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e5e7eb;
+  flex-shrink: 0;
+}
+
+#career-os-sidebar .cos-side-header h2 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #111827;
+}
+
+#career-os-sidebar .cos-side-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 20px;
+  color: #6b7280;
+  padding: 4px;
+  border-radius: 6px;
+}
+
+#career-os-sidebar .cos-side-close:hover {
+  background: #f3f4f6;
+  color: #111827;
+}
+
+#career-os-sidebar .cos-side-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+#career-os-sidebar .cos-side-section {
+  margin-bottom: 20px;
+}
+
+#career-os-sidebar .cos-side-section h3 {
+  font-size: 13px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 0 8px;
+}
+
+#career-os-sidebar .cos-score-ring {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: #f9fafb;
+  border-radius: 12px;
+}
+
+#career-os-sidebar .cos-score-ring svg {
+  width: 64px;
+  height: 64px;
+}
+
+#career-os-sidebar .cos-score-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+#career-os-sidebar .cos-score-detail .cos-score-value {
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1;
+  color: #111827;
+}
+
+#career-os-sidebar .cos-score-detail .cos-score-label {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+#career-os-sidebar .cos-missing-skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+#career-os-sidebar .cos-missing-skill {
+  background: #fef2f2;
+  color: #dc2626;
+  padding: 3px 10px;
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+#career-os-sidebar .cos-btn {
+  display: block;
+  width: 100%;
+  padding: 10px 16px;
+  margin-bottom: 8px;
+  border: none;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.15s ease;
+}
+
+#career-os-sidebar .cos-btn-primary {
+  background: #1a1a2e;
+  color: #fff;
+}
+
+#career-os-sidebar .cos-btn-primary:hover {
+  background: #25254a;
+}
+
+#career-os-sidebar .cos-btn-secondary {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+#career-os-sidebar .cos-btn-secondary:hover {
+  background: #e5e7eb;
+}
+
+#career-os-sidebar .cos-btn-success {
+  background: #065f46;
+  color: #fff;
+}
