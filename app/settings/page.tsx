@@ -3,7 +3,7 @@
 import { Suspense, useState, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
-  Settings, Sun, User, Bell, Shield, Bot, Puzzle, CreditCard, Keyboard, Info, ChevronDown, Check,
+  Settings, Sun, User, Bell, Shield, Bot, Puzzle, CreditCard, Keyboard, Info, ChevronDown, Check, Briefcase,
 } from "lucide-react";
 import {
   GeneralTab,
@@ -13,6 +13,7 @@ import {
   PrivacySecurityTab,
   AIPreferencesTab,
   IntegrationsTab,
+  CareerProfileTab,
   BillingTab,
   KeyboardTab,
   AboutTab,
@@ -26,6 +27,7 @@ const tabs = [
   { id: "privacy", label: "Privacy & Security", icon: Shield },
   { id: "ai", label: "AI Preferences", icon: Bot },
   { id: "integrations", label: "Integrations", icon: Puzzle },
+  { id: "career", label: "Career Profile", icon: Briefcase },
   { id: "billing", label: "Billing", icon: CreditCard },
   { id: "keyboard", label: "Keyboard Shortcuts", icon: Keyboard },
   { id: "about", label: "About", icon: Info },
@@ -66,6 +68,8 @@ function SettingsContent() {
         return <AIPreferencesTab />;
       case "integrations":
         return <IntegrationsTab />;
+      case "career":
+        return <CareerProfileTab />;
       case "billing":
         return <BillingTab />;
       case "keyboard":

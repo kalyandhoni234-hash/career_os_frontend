@@ -31,46 +31,46 @@
 
 :root {
   --bg-default: #FFFFFF;
-  --bg-surface: #F8FAFC;
+  --bg-surface: #FAFAF8;
   --bg-raised: #FFFFFF;
-  --bg-hover: #F1F5F9;
-  --accent: #6D5EF8;
-  --accent-subtle: #EEF2FF;
-  --accent-ring: #C7D2FE;
-  --fg-default: #111827;
-  --fg-muted: #6B7280;
-  --fg-subtle: #9CA3AF;
-  --success: #22C55E;
-  --success-subtle: #F0FDF4;
-  --warning: #F59E0B;
-  --warning-subtle: #FFFBEB;
-  --danger: #EF4444;
-  --danger-subtle: #FEF2F2;
-  --border: #E5E7EB;
-  --border-subtle: #F3F4F6;
+  --bg-hover: #F2F1EC;
+  --accent: #C6471F;
+  --accent-subtle: #FBEBE4;
+  --accent-ring: #EFC5B2;
+  --fg-default: #111110;
+  --fg-muted: #6B6B64;
+  --fg-subtle: #9A9A90;
+  --success: #3B7A3B;
+  --success-subtle: #F0F6EE;
+  --warning: #A8681A;
+  --warning-subtle: #FBF3E7;
+  --danger: #B23A2E;
+  --danger-subtle: #FBEEEC;
+  --border: #E9E7E0;
+  --border-subtle: #F2F1EC;
 }
 
 /* ─────────── DARK THEME ─────────── */
 
 .dark {
-  --bg-default: #0B0F19;
-  --bg-surface: #111827;
-  --bg-raised: #1A2333;
-  --bg-hover: #1E293B;
-  --accent: #7C6CFF;
-  --accent-subtle: rgba(124, 108, 255, 0.15);
-  --accent-ring: rgba(124, 108, 255, 0.35);
-  --fg-default: #F8FAFC;
-  --fg-muted: #94A3B8;
-  --fg-subtle: #64748B;
-  --success: #22C55E;
-  --success-subtle: rgba(34, 197, 94, 0.15);
-  --warning: #F59E0B;
-  --warning-subtle: rgba(245, 158, 11, 0.15);
-  --danger: #EF4444;
-  --danger-subtle: rgba(239, 68, 68, 0.15);
-  --border: #263244;
-  --border-subtle: #1E293B;
+  --bg-default: #0A0A0A;
+  --bg-surface: #131313;
+  --bg-raised: #171717;
+  --bg-hover: #1F1F1E;
+  --accent: #FF6B35;
+  --accent-subtle: rgba(255, 107, 53, 0.14);
+  --accent-ring: rgba(255, 107, 53, 0.35);
+  --fg-default: #F2F2EF;
+  --fg-muted: #8A8A82;
+  --fg-subtle: #5E5E58;
+  --success: #5FAF5F;
+  --success-subtle: rgba(95, 175, 95, 0.14);
+  --warning: #D99A3D;
+  --warning-subtle: rgba(217, 154, 61, 0.14);
+  --danger: #E0574A;
+  --danger-subtle: rgba(224, 87, 74, 0.14);
+  --border: #262624;
+  --border-subtle: #1C1C1A;
 }
 
 /* ─────────── Base Styles ─────────── */

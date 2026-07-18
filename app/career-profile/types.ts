@@ -198,11 +198,9 @@ export const TIMELINE_CATEGORIES: Record<string, { label: string; icon: string; 
 
 export const CAREER_STATUSES = [
   { value: "student", label: "Student" },
-  { value: "intern", label: "Intern" },
-  { value: "fresher", label: "Fresher" },
-  { value: "working_professional", label: "Working Professional" },
-  { value: "freelancer", label: "Freelancer" },
-  { value: "entrepreneur", label: "Entrepreneur" },
+  { value: "fresher", label: "Fresher / Recent Graduate" },
+  { value: "professional", label: "Working Professional" },
+  { value: "switcher", label: "Career Switcher" },
 ];
 
 export const EMPLOYMENT_TYPES = [

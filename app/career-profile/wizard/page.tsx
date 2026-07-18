@@ -712,6 +712,7 @@ export default function CareerProfileWizardPage() {
         );
 
       case 2:
+        const showEmployment = ["professional", "switcher"].includes(careerInfo.current_status);
         return (
           <div className="space-y-5">
             <div className="space-y-1.5">
@@ -727,29 +728,38 @@ export default function CareerProfileWizardPage() {
                 ))}
               </select>
             </div>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <Input label="Company" value={careerInfo.company} placeholder="Google"
-                onChange={(e) => { setCareerInfo({ ...careerInfo, company: e.target.value }); markDirty(); }} />
-              <Input label="Position" value={careerInfo.position} placeholder="Software Engineer"
-                onChange={(e) => { setCareerInfo({ ...careerInfo, position: e.target.value }); markDirty(); }} />
-            </div>
+
+            {showEmployment && (
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <Input label={careerInfo.current_status === "switcher" ? "Current Company" : "Company"}
+                  value={careerInfo.company} placeholder="Google"
+                  onChange={(e) => { setCareerInfo({ ...careerInfo, company: e.target.value }); markDirty(); }} />
+                <Input label={careerInfo.current_status === "switcher" ? "Current Position" : "Position"}
+                  value={careerInfo.position} placeholder="Software Engineer"
+                  onChange={(e) => { setCareerInfo({ ...careerInfo, position: e.target.value }); markDirty(); }} />
+              </div>
+            )}
+
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <Input label="Years of Experience" type="number" value={careerInfo.experience_years ?? ""}
                 onChange={(e) => { setCareerInfo({ ...careerInfo, experience_years: Number(e.target.value) || 0 }); markDirty(); }} />
-              <div className="space-y-1.5">
-                <label className="font-mono text-xs font-medium uppercase tracking-widest text-fg-muted">Employment Type</label>
-                <select
-                  value={careerInfo.employment_type ?? ""}
-                  onChange={(e) => { setCareerInfo({ ...careerInfo, employment_type: e.target.value }); markDirty(); }}
-                  className="w-full rounded-lg border border-border bg-bg-surface px-3 py-2 text-sm text-fg-default transition-all duration-150 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent-ring/50"
-                >
-                  <option value="">Select type</option>
-                  {EMPLOYMENT_TYPES.map((t) => (
-                    <option key={t.value} value={t.value}>{t.label}</option>
-                  ))}
-                </select>
-              </div>
+              {showEmployment && (
+                <div className="space-y-1.5">
+                  <label className="font-mono text-xs font-medium uppercase tracking-widest text-fg-muted">Employment Type</label>
+                  <select
+                    value={careerInfo.employment_type ?? ""}
+                    onChange={(e) => { setCareerInfo({ ...careerInfo, employment_type: e.target.value }); markDirty(); }}
+                    className="w-full rounded-lg border border-border bg-bg-surface px-3 py-2 text-sm text-fg-default transition-all duration-150 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent-ring/50"
+                  >
+                    <option value="">Select type</option>
+                    {EMPLOYMENT_TYPES.map((t) => (
+                      <option key={t.value} value={t.value}>{t.label}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
             </div>
+
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-1.5">
                 <label className="font-mono text-xs font-medium uppercase tracking-widest text-fg-muted">Experience Level</label>
@@ -765,16 +775,6 @@ export default function CareerProfileWizardPage() {
               </div>
               <Input label="Weekly Learning Hours" type="number" value={careerInfo.weekly_hours ?? 10}
                 onChange={(e) => { setCareerInfo({ ...careerInfo, weekly_hours: Number(e.target.value) || 0 }); markDirty(); }} />
-            </div>
-            <div className="space-y-1.5">
-              <label className="font-mono text-xs font-medium uppercase tracking-widest text-fg-muted">Career Goal</label>
-              <textarea
-                value={careerInfo.career_goal ?? ""}
-                onChange={(e) => { setCareerInfo({ ...careerInfo, career_goal: e.target.value }); markDirty(); }}
-                placeholder="e.g. Become a Staff Engineer at a top tech company within 3 years"
-                rows={3}
-                className="w-full rounded-lg border border-border bg-bg-surface px-3 py-2 text-sm text-fg-default placeholder:text-fg-subtle transition-all duration-150 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent-ring/50 resize-none"
-              />
             </div>
           </div>
         );
@@ -818,6 +818,16 @@ export default function CareerProfileWizardPage() {
               <Input label="Target Joining Year" type="number" value={dreamCareer.target_joining_year ?? ""}
                 placeholder="2026"
                 onChange={(e) => { setDreamCareer({ ...dreamCareer, target_joining_year: e.target.value ? Number(e.target.value) : null }); markDirty(); }} />
+            </div>
+            <div className="space-y-1.5">
+              <label className="font-mono text-xs font-medium uppercase tracking-widest text-fg-muted">In your own words (optional)</label>
+              <textarea
+                value={careerInfo.career_goal ?? ""}
+                onChange={(e) => { setCareerInfo({ ...careerInfo, career_goal: e.target.value }); markDirty(); }}
+                placeholder="e.g. I want to become a Staff Engineer at a top tech company within 3 years, leading high-impact projects"
+                rows={3}
+                className="w-full rounded-lg border border-border bg-bg-surface px-3 py-2 text-sm text-fg-default placeholder:text-fg-subtle transition-all duration-150 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent-ring/50 resize-none"
+              />
             </div>
           </div>
         );
